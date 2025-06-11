@@ -1,0 +1,1149 @@
+/* Reset e Estilos Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 300px;
+  grid-template-rows: 60px 1fr;
+  background-color: #FFFFFF;
+  color: #060606;
+}
+
+/* --- Barra superior --- */
+.top-bar {
+  grid-column: 1 / -1;
+  background-color: #292929;
+  color: white;
+  padding: 0 20px;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.658);
+}
+
+.top-bar-left, .top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.user-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #bbb;
+  background: #fff;
+}
+
+.top-tab {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  position: relative;
+  transition: all 0.3s;
+  border-radius: 4px 4px 0 0;
+  margin-top: 10px;
+}
+
+.top-tab:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.top-tab.active {
+  background-color: #FFFFFF;
+  color: #292929;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #FF0000;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-tab.active .notification-badge {
+  top: -8px;
+  right: -8px;
+}
+
+/* --- Menu lateral --- */
+.menu {
+  grid-row: 2;
+  width: 200px;
+  background-color: #292929;
+  border-right: 2px solid #877B66;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.menu button {
+  background: none;
+  border: none;
+  padding: 15px 20px;
+  text-align: left;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  font-size: 16px;
+  transition: all 0.2s;
+  color: #FFFFFF;
+}
+
+.menu button:hover {
+  background-color: #877B66;
+}
+
+.menu button.active {
+  border-left-color: #FFCB1F;
+  background-color: #292929;
+  font-weight: bold;
+  color: #FFCB1F;
+}
+
+.menu-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 1px;
+  padding: 8px 0;
+  border-top: 1px solid #444;
+  margin-top: auto;
+  margin-bottom: 10px;
+}
+
+.menu-icon-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.menu-icon-btn img {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.menu-icon-btn:hover img {
+  transform: scale(1.1);
+}
+
+/* --- Conteúdo principal e abas --- */
+.content {
+  grid-row: 2;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+  min-height: calc(100vh - 60px);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.tab-content {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.tab-content:not(.active) {
+  display: none;
+}
+
+/* --- Formulários, tabelas, botões, etc --- */
+form {
+  width: 100%;
+  max-width: 100%;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(6, 6, 6, 0.1);
+  box-sizing: border-box;
+}
+
+form label {
+  display: block;
+  margin: 8px 0 3px;
+  font-weight: bold;
+  color: #292929;
+}
+
+form input, form select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  border: 1px solid #877B66;
+  border-radius: 4px;
+  background-color: #FFFFFF;
+  color: #060606;
+}
+
+form input:focus, form select:focus {
+  outline: none;
+  border-color: #FFCB1F;
+  box-shadow: 0 0 0 2px rgba(255, 203, 31, 0.2);
+}
+
+button[type="submit"] {
+  padding: 10px 20px;
+  background-color: #FFCB1F;
+  border: none;
+  color: #060606;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #e6b800;
+}
+
+.form-group {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.linha {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.form-coluna {
+  flex: 1 1 180px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-coluna > div {
+  margin-bottom: 12px;
+}
+
+.btn-primario {
+  padding: 10px 20px;
+  background-color: #FFCB1F;
+  border: none;
+  color: #060606;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn-primario:hover {
+  background-color: #e6b800;
+}
+
+.btn-secundario {
+  padding: 10px 20px;
+  background-color: #877B66;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn-secundario:hover {
+  background-color: #6b6252;
+}
+
+.tabela-itens {
+  margin-top: 30px;
+}
+
+.tabela-itens table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-itens th, 
+.tabela-itens td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabela-itens th {
+  background-color: #292929;
+  color: white;
+  font-weight: bold;
+}
+
+.tabela-itens tr:hover {
+  background-color: #f5f5f5;
+}
+
+.tabela-itens .acao-btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.aba-legenda, h2.aba-legenda {
+  color: #222;
+  margin-bottom: 18px;
+  font-size: 2em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    120deg,
+    #222 20%,
+    #444 38%,
+    #060606 46%,
+    #444 62%,
+    #222 80%
+  );
+  background-size: 800% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: metal-brush-light 130s linear infinite;
+  opacity: 0.98;
+}
+
+@keyframes metal-brush-light {
+  0% {
+    background-position: 800% 0;
+  }
+  100% {
+    background-position: -800% 0;
+  }
+}
+
+/* --- Sidebar direito --- */
+.sidebar-right {
+  grid-row: 2;
+  width: 300px;
+  background-color: #f9f9f9;
+  border-left: 2px solid #877B66;
+  padding: 0 !important;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Sidebar: centraliza conteúdo vertical e horizontal */
+.sidebar-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  border-left: 2px solid #877B66;
+  background: #f9f9f9;
+  height: calc(100vh - 60px);
+  position: sticky;
+  top: 60px;
+  width: 300px;
+}
+
+.sidebar-right h3, .sidebar-right h4 {
+  color: #292929;
+  margin-top: 0;
+}
+
+.sidebar-right ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.sidebar-right ul li {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #FFFFFF;
+  border-left: 4px solid #FFCB1F;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #060606;
+}
+
+/* Logo: centralizada, sem borda, 2x maior, sem corte */
+.logo {
+  display: block;
+  margin: 40px auto 24px auto;
+  width: 240px;
+  height: 240px;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;   /* Mostra a imagem inteira, sem cortar */
+  border: none !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Guia de proporção e parâmetros para imagens principais do sistema */
+
+/* Imagens de produto, retirada, devolução, etc */
+.image-preview img,
+#retirada-produto-img,
+#devolucao-produto-img,
+.logo {
+  width: 100%;
+  max-width: 150px;      /* Largura máxima */
+  height: 150px;         /* Altura fixa para padronizar */
+  object-fit: contain;   /* Mantém proporção, não distorce */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Componente de imagem das abas principais (Entrada, Retirada, Devolução, etc) */
+.image-preview-img,
+#retirada-produto-img,
+#devolucao-produto-img {
+  width: 180px;
+  height: 180px;
+  max-width: 100%;
+  object-fit: contain;
+  border: none;           /* Remove a linha/borda cinza */
+  border-radius: 12px;    /* Cantos mais arredondados */
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+/* Container do preview de imagem */
+.image-preview-container,
+#devolucao-image-preview-container {
+  width: 190px;
+  height: 200px;
+  min-width: 180px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: none;           /* Remove a linha/borda cinza */
+  border-radius: 12px;
+  margin: 0;
+}
+
+/* Ícone de usuário na barra superior */
+.user-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #bbb;
+  background: #fff;
+}
+
+/* Logo na sidebar direita */
+.logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 12px;
+  margin: 16px auto;
+  display: block;
+  background: #fff;
+}
+
+/* Imagens em tabelas (ex: produtos) */
+#tabela-produtos img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+/* Para garantir responsividade */
+@media (max-width: 600px) {
+  .image-preview-container,
+  #devolucao-image-preview-container,
+  .logo {
+    max-width: 90px;
+    max-height: 90px;
+    min-width: 90px;
+    min-height: 90px;
+  }
+  .image-preview img,
+  #retirada-produto-img,
+  #devolucao-produto-img,
+  .logo {
+    max-width: 90px;
+    height: 90px;
+  }
+}
+
+/* --- Modais --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(6, 6, 6, 0.7);
+}
+
+.modal-content {
+  background-color: #FFFFFF;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #877B66;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#confirm-upload {
+  background-color: #FFCB1F;
+  color: #060606;
+}
+
+#cancel-upload {
+  background-color: #877B66;
+  color: #FFFFFF;
+}
+
+/* --- Outros estilos --- */
+/* Adicione aqui os estilos restantes do seu arquivo */
+
+/* Chat */
+.botao-flutuante {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #FFCB1F;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+}
+
+.janela-chat {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 300px;
+  max-height: 400px;
+  background-color: #fff;
+  border: 1px solid #877B66;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  overflow: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.janela-chat.oculta {
+  opacity: 0;
+  transform: translateY(30px);
+  pointer-events: none;
+}
+
+.chat-cabecalho {
+  background-color: #292929;
+  color: #fff;
+  padding: 10px;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fechar-chat {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.chat-mensagens {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 13px;
+  background-color: #f9f9f9;
+}
+
+#chat-form {
+  display: flex;
+  padding: 10px;
+  gap: 5px;
+  background-color: #fff;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #877B66;
+  border-radius: 4px;
+}
+
+#chat-form button {
+  padding: 6px 12px;
+  background-color: #292929;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mensagem {
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  max-width: 90%;
+}
+
+.mensagem.usuario {
+  background-color: #FFCB1F;
+  align-self: flex-end;
+  font-weight: bold;
+  color: #060606;
+}
+
+.mensagem.sistema {
+  background-color: #877B66;
+  color: white;
+  font-style: italic;
+}
+
+/* Campos Específicos */
+.custo-input {
+  text-align: right;
+  padding-right: 30px !important;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>') !important;
+  background-repeat: no-repeat !important;
+  background-position: 8px center !important;
+  background-size: 16px !important;
+  padding-left: 30px !important;
+}
+
+/* Botões de Toggle */
+.toggle-menu, .toggle-sidebar {
+  z-index: 1000;
+  background: #FFCB1F;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #292929;
+  display: none;
+}
+
+.toggle-menu {
+  position: fixed;
+  left: 10px;
+  top: 70px;
+}
+
+.toggle-sidebar {
+  position: fixed;
+  right: 10px;
+  top: 70px;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .sidebar-right {
+    width: 250px;
+  }
+}
+
+@media (max-width: 992px) {
+  body {
+    grid-template-columns: auto 1fr;
+  }
+  
+  .sidebar-right {
+    position: fixed;
+    right: -300px;
+    transition: right 0.3s ease;
+  }
+  
+  .sidebar-right.active {
+    right: 0;
+  }
+  
+  .toggle-sidebar {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu {
+    width: 160px;
+  }
+  
+  .content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+  
+  .menu {
+    position: fixed;
+    left: -200px;
+    top: 60px;
+    height: calc(100vh - 60px);
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .menu.active {
+    left: 0;
+  }
+  
+  .content {
+    padding-top: 80px;
+  }
+  
+  .toggle-menu {
+    display: block;
+  }
+}
+
+@media (min-width: 1600px) {
+  .content {
+    max-width: 1400px;
+  }
+  
+  form {
+    max-width: 1000px;
+  }
+  
+  .form-group.linha > div {
+    min-width: 300px;
+  }
+}
+
+.login-page {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.login-container {
+  margin: 0 auto !important;
+}
+
+
+/* Estilos para a seção de retiradas */
+
+.form-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-primario {
+  padding: 10px 20px;
+  background-color: #FFCB1F;
+  border: none;
+  color: #060606;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn-primario:hover {
+  background-color: #e6b800;
+}
+
+.btn-secundario {
+  padding: 10px 20px;
+  background-color: #877B66;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn-secundario:hover {
+  background-color: #6b6252;
+}
+
+.tabela-itens {
+  margin-top: 30px;
+}
+
+.tabela-itens table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-itens th, 
+.tabela-itens td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabela-itens th {
+  background-color: #292929;
+  color: white;
+  font-weight: bold;
+}
+
+.tabela-itens tr:hover {
+  background-color: #f5f5f5;
+}
+
+.tabela-itens .acao-btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #ff6b6b;
+  color: white;
+}
+
+/* Estilo para o campo de produto com autocomplete */
+input[list] {
+  background: white;
+}
+
+/* Melhora o espaçamento, alinhamento e responsividade da aba devolução */
+#devolucao .form-group.linha {
+  gap: 32px;
+  margin-bottom: 18px;
+}
+
+#devolucao label {
+  font-weight: bold;
+  margin-bottom: 2px;
+  display: block;
+  font-size: 15px;
+}
+
+#devolucao input,
+#devolucao select,
+#devolucao textarea {
+  font-size: 15px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Remove a borda preta/amarela do preview da imagem do produto na devolução */
+/* Componente de imagem da aba devolução igual ao da aba retiradas */
+#devolucao .image-preview-container {
+  width: 160px;
+  height: 180px;
+  min-width: 150px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border-radius: 4px;
+  margin: 00 !important; /* Remove somente a margem externa */
+  border: 1px solid #877B66;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#devolucao .image-preview-container:hover {
+  border-color: #FFCB1F;
+}
+
+#devolucao .image-preview-container img {
+  max-width: 100%;
+  max-height: 150px;
+  min-height: 120px;
+  min-width: 100px;
+  border: 0;
+  border-radius: 4px;
+  object-fit: contain;
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Remove a borda cinza do componente de imagem das abas retiradas e devolução */
+#retiradas .image-preview-container,
+#devolucao .image-preview-container {
+  width: 150px;
+  height: 180px;
+  min-width: 150px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: none !important;
+  border-radius: 8px;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+#retiradas .image-preview-container:hover,
+#devolucao .image-preview-container:hover {
+  border-color: #FFCB1F;
+}
+
+#retiradas .image-preview-container img,
+#devolucao .image-preview-container img {
+  width: 100%;
+  max-width: 100%;
+  height: 150px;
+  object-fit: contain;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Diminui o espaçamento superior dos campos PRODUTO e QUANTIDADE na aba devolução */
+#devolucao label[for="devolucao-produto"],
+#devolucao label[for="devolucao-quantidade"] {
+  margin-top: 0;
+  margin-bottom: 0px;
+}
+
+#devolucao input#devolucao-produto,
+#devolucao input#devolucao-quantidade {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+/* Diminui a distância entre a base do OBSERVAÇÃO DA DEVOLUÇÃO e o topo do PRODUTO */
+#devolucao #devolucao-observacao {
+  margin-bottom: 4px;
+}
+
+/* Aumenta o espaço entre os campos ID DA RETIRADA, DATA, REQUISITANTE e RESPONSÁVEL na aba devolução */
+#devolucao input#devolucao-id,
+#devolucao input#devolucao-data,
+#devolucao select#devolucao-requisitante,
+#devolucao input#devolucao-responsavel {
+  margin-bottom: 18px;
+}
+
+#resultado-busca {
+  margin-top: 18px;
+  width: 100%;
+}
+
+#resultado-busca table {
+  width: 81%;
+  max-width: 900px;
+  margin: 18px 0 0 0; /* Remove auto, deixa alinhada à esquerda */
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+#resultado-busca th, #resultado-busca td {
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+#resultado-busca th {
+  background: #222;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+#resultado-busca tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+#resultado-busca tr:hover {
+  background: #fffbe6;
+}
+
+/* Legenda das abas com efeito metal escovado escuro, sutil e muito lento */
+.aba-legenda, h2.aba-legenda {
+  color: #222;
+  margin-bottom: 18px;
+  font-size: 2em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    120deg,
+    #222 20%,
+    #444 38%,
+    #060606 46%,
+    #444 62%,
+    #222 80%
+  );
+  background-size: 800% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: metal-brush-light 130s linear infinite;
+  opacity: 0.98;
+}
+
+@keyframes metal-brush-light {
+  0% {
+    background-position: 800% 0;
+  }
+  100% {
+    background-position: -800% 0;
+  }
+}
+
+/* Agora, troque as legendas das abas para usar a classe .aba-legenda */
+/* Exemplo: */
+h2.aba-legenda {
+  color: #292929;
+  margin-bottom: 18px;
+  font-size: 2em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    120deg,
+    #222 20%,
+    hwb(0 27% 73%) 38%,
+    #908a86 46%,
+    #444 62%,
+    #222 80%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: metal-brush-light 3s linear infinite;
+}
+
+@keyframes metal-brush-light {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.logo {
+  max-width: 85%;
+}
+
