@@ -176,6 +176,88 @@ html, body {
   </div>
 
  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('login-form');
+      const errorMessage = document.getElementById('login-error');
+      
+      // Dados de usuários válidos
+      const validUsers = {
+        "admin": { password: "admin123", type: "admin" },
+        "user": { password: "user123", type: "user" }
+      };
+      
+      // Função para lidar com o login
+      function handleLogin(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        // Verifica credenciais
+        if (validUsers[username] && validUsers[username].password === password) {
+          // Salva usuário no localStorage
+          localStorage.setItem("usuario", JSON.stringify({
+            nome: username,
+            tipo: validUsers[username].type
+          }));
+          
+          // Redireciona para a página principal
+          window.location.href = "index.html";
+        } else {
+          // Mostra mensagem de erro
+          errorMessage.style.display = "block";
+          document.getElementById('password').value = '';
+          document.getElementById('password').focus();
+        }
+      }
+      
+      // Evento de submit do formulário
+      loginForm.addEventListener('submit', handleLogin);
+      
+      // Foco automático no campo de usuário
+      document.getElementById('username').focus();
+    });
+  </script>
+
+  <!-- Corrija o script para comparar corretamente o tipo do usuário -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Recupera o usuário logado do localStorage
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const menu = document.getElementById('menu-abas-superior');
+  if (!menu) return;
+
+  // Limpa abas existentes
+  menu.innerHTML = '';
+
+  // Sempre mostra Almoxarifado e Frota
+  menu.innerHTML += `<button data-aba="almoxarifado">Almoxarifado</button>`;
+  menu.innerHTML += `<button data-aba="frota">Frota</button>`;
+
+  // Só mostra Ordens de Serviço para admin (atenção: tipo deve ser exatamente 'admin')
+  if (usuario && usuario.tipo && String(usuario.tipo).toLowerCase() === 'admin') {
+    menu.innerHTML += `<button data-aba="os">Ordens de Serviço</button>`;
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('toggle-password');
+  const passwordInput = document.getElementById('password');
+  if (toggle && passwordInput) {
+    toggle.addEventListener('click', function() {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggle.style.color = "#292929";
+      } else {
+        passwordInput.type = "password";
+        toggle.style.color = "#888";
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
