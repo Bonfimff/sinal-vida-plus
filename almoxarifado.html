@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <title>Almoxarifado</title>
+</head>
+<body>
+  <!-- Menu lateral Almoxarifado -->
+  <div class="menu menu-almoxarifado">
+    <button class="tab-btn active" data-tab="gerenciamento">Gerenciamento</button>
+    <button class="tab-btn" data-tab="busca">Busca</button>
+    <button class="tab-btn" data-tab="entrada">Entrada</button>
+    <button class="tab-btn" data-tab="retiradas">Retiradas</button>
+    <button class="tab-btn" data-tab="devolucao">Devolução</button>
+    <button class="tab-btn" data-tab="requisitantes">Requisitantes</button>
+    <button class="tab-btn" data-tab="fornecedores">Fornecedores</button>
+    <button class="tab-btn" data-tab="consultas-produtos">Produtos</button>
+    <button class="tab-btn" data-tab="consultas-relatorio">Relatório</button>
+    <button class="tab-btn" data-tab="consultas-kits">Kits</button>
+    <div class="menu-bottom">
+      <button class="menu-icon-btn" id="btn-config">
+        <img src="../IMG/configuracoes.png">
+      </button>
+      <button class="menu-icon-btn" id="btn-info">
+        <img src="../IMG/info.png">
+      </button>
+      <button class="menu-icon-btn" id="btn-logout">
+        <img src="../IMG/sair.png">
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra superior com informações da conta e navegação rápida -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="account-info">
+        <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
+        <span id="logged-user">Usuário Logado</span>
+      </span>
+    </div>
+    <div class="top-bar-right">
+      <button class="top-tab active" id="almoxarifado-tab">Almoxarifado</button>
+      <button class="top-tab" id="frota-tab">Frota</button>
+      <button class="top-tab" id="ordens-tab">Ordens de Serviço</button>
+      <button class="top-tab" id="nobreaks-tab">Nobreaks</button> 
+    </div>
+  </div>
+
+  <!-- Conteúdo principal Almoxarifado -->
+  <div class="content">
+    <!-- Painel principal: Gerenciamento -->
+    <div id="gerenciamento" class="tab-content active">
+      <h2 class="aba-legenda">Gerenciamento</h2>
+      <hr class="aba-linha">
+      <div class="inline-style-056c46">
+        <!-- Estoque Principal -->
+        <div class="inline-style-5139a9">
+          <h3 class="inline-style-8e4862">Estoque Principal</h3>
+          <div id="estoque-principal-info" class="inline-style-0a04c9">
+            <p>Quantidade atual: <b>0</b></p>
+            <p>Capacidade máxima: <b>0</b></p>
+          </div>
+        </div>
+        <!-- Estoque Secundário -->
+        <div class="inline-style-5139a9">
+          <h3 class="inline-style-2698e9">Estoque Secundário</h3>
+          <div id="estoque-secundario-info" class="inline-style-0a04c9">
+            <p>Quantidade atual: <b>0</b></p>
+            <p>Capacidade máxima: <b>0</b></p>
+          </div>
+        </div>
+        <!-- Pendências -->
+        <div class="inline-style-5139a9">
+          <h3 class="inline-style-c6eee8">Pendências</h3>
+          <div id="pendencias-info" class="inline-style-0a04c9">
+            <ul class="inline-style-3433e5">
+              <li>Nenhuma pendência no momento.</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Alertas -->
+        <div class="inline-style-5139a9">
+          <h3 class="inline-style-a38518">Alertas</h3>
+          <div id="alertas-info" class="inline-style-0a04c9">
+            <ul class="inline-style-3433e5">
+              <li>Nenhum alerta no momento.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agendamento de Entradas no Estoque -->
+      <div class="inline-style-40a339">
+        <h3 class="inline-style-5fd781">Agendamento de Entradas</h3>
+        <div id="agendamento-entradas-info">
+          <table class="inline-style-82c22b">
+            <thead>
+              <tr class="inline-style-881bd5">
+                <th class="inline-style-f91e21">Data Agendada</th>
+                <th class="inline-style-f91e21">Nº Nota</th>
+                <th class="inline-style-f91e21">Código Rastreamento</th>
+                <th class="inline-style-f91e21">Data Prevista Entrega</th>
+                <th class="inline-style-f91e21">Destinação</th>
+              </tr>
+            </thead>
+            <tbody class="inline-style-b82c65">
+              <tr>
+                <td class="inline-style-f91e21">10/06/2025</td>
+                <td class="inline-style-f91e21">123456</td>
+                <td class="inline-style-f91e21">BR1234567890</td>
+                <td class="inline-style-f91e21">12/06/2025</td>
+                <td class="inline-style-f91e21">Almoxarifado Central</td>
+              </tr>
+              <tr>
+                <td class="inline-style-f91e21">15/06/2025</td>
+                <td class="inline-style-f91e21">654321</td>
+                <td class="inline-style-f91e21">BR0987654321</td>
+                <td class="inline-style-f91e21">18/06/2025</td>
+                <td class="inline-style-f91e21">Obra Setor B</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Confirmação de Utilização de Itens -->
+      <div class="inline-style-5d47ce">
+        <h3 class="inline-style-7bbfe0">Confirmação de Utilização de Itens</h3>
+        <table class="inline-style-e0e97b">
+          <thead>
+            <tr class="inline-style-881bd5">
+              <th class="inline-style-f91e21">Nº OS</th>
+              <th class="inline-style-f91e21">ID Retirada</th>
+              <th class="inline-style-f91e21">Itens Utilizados</th>
+              <th class="inline-style-f91e21">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="inline-style-b82c65">
+            <tr>
+              <td class="inline-style-f91e21">OS-2025-0012</td>
+              <td class="inline-style-f91e21">145</td>
+              <td class="inline-style-f91e21">
+                <button type="button" onclick="mostrarDetalhesItens(this)" class="inline-style-bfaa2f">
+                  +
+                </button>
+                <div class="detalhes-itens inline-style-ccc240">
+                  <b>Itens usados:</b>
+                  <ul class="inline-style-3433e5">
+                    <li>Parafuso M10 (ID: 101) - Qtde: 12</li>
+                    <li>Fita Isolante (ID: 102) - Qtde: 2</li>
+                  </ul>
+                </div>
+              </td>
+              <td class="inline-style-f91e21">
+                <button type="button" class="inline-style-940163">
+                  Confirmar Retirada
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Busca -->
+    <div id="busca" class="tab-content">
+      <h2 class="aba-legenda">Busca</h2>
+      <hr class="aba-linha">
+      <form id="form-busca" class="inline-style-96ff27">
+        <div class="inline-style-098db5">
+          <div>
+            <label for="tipo-busca">Buscar em:</label>
+            <select id="tipo-busca" name="tipo-busca" required>
+              <option value="retiradas">Retiradas</option>
+              <option value="devolucoes">Devoluções</option>
+              <option value="fornecedores">Fornecedores</option>
+              <option value="produtos">Produtos</option>
+              <option value="requisitantes">Requisitantes</option>
+              <option value="kits">Kits</option>
+            </select>
+          </div>
+          <div>
+            <label for="busca-inicio">Data início:</label>
+            <input type="date" id="busca-inicio" name="busca-inicio">
+          </div>
+          <div>
+            <label for="busca-fim">Data fim:</label>
+            <input type="date" id="busca-fim" name="busca-fim">
+          </div>
+          <div id="filtros-dinamicos" class="inline-style-e75308"></div>
+          <button type="submit" class="btn-primario">Buscar</button>
+        </div>
+      </form>
+      <div id="resultado-busca"></div>
+    </div>
+
+    <!-- Aba Entrada -->
+    <div id="entrada" class="tab-content">
+      <h2 class="aba-legenda">Entrada</h2>
+      <hr class="aba-linha">
+      <form id="form-produtos">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna 1: Identificação -->
+          <div class="form-coluna">
+            <div>
+              <label for="id">ID</label>
+              <input type="number" id="id" name="id" required />
+            </div>
+            <div>
+              <label for="codigo">CÓDIGO</label>
+              <input type="text" id="codigo" name="codigo" required />
+            </div>
+            <div>
+              <label for="numero-serie">NÚMERO DE SÉRIE</label>
+              <input type="text" id="numero-serie" name="numero-serie" />
+            </div>
+            <div>
+              <label for="marca">MARCA</label>
+              <select id="marca" name="marca" required>
+                <option value="">Selecione</option>
+                <option value="Marca A">Marca A</option>
+                <option value="Marca B">Marca B</option>
+                <option value="Marca D">Marca D</option>
+              </select>
+            </div>
+            <div>
+              <label for="unid-medida">UNIDADE DE MEDIDA</label>
+              <select id="unid-medida" name="unid-medida" required>
+                <option value="">Selecione</option>
+                <option value="cm">Centímetro</option>
+                <option value="m">Metro</option>
+                <option value="unidade">Unidade</option>
+                <option value="litro">Litro</option>
+                <option value="kg">Kg</option>
+              </select>
+            </div>
+            <div>
+              <label for="estoque-minimo">ESTOQUE MÍNIMO</label>
+              <input type="number" id="estoque-minimo" name="estoque-minimo" />
+            </div>
+            <div>
+              <label for="data-compra">DATA DA COMPRA</label>
+              <input type="date" id="data-compra" name="data-compra" />
+            </div>
+          </div>
+
+          <!-- Coluna 2: Nota, fornecedor, patrimônio, local, categoria, custo -->
+          <div class="form-coluna">
+            <div>
+              <label for="numero-nota">NÚMERO DA NOTA</label>
+              <input type="text" id="numero-nota" name="numero-nota" pattern="[\d\-.,/ ]*" title="Apenas números e os caracteres - . , / são permitidos" />
+            </div>
+            <div>
+              <label for="fornecedor">FORNECEDOR</label>
+              <select id="fornecedor" name="fornecedor" required>
+                <option value="">Selecione</option>
+                <option value="Fornecedor X">Fornecedor X</option>
+                <option value="Fornecedor Y">Fornecedor Y</option>
+              </select>
+            </div>
+            <div>
+              <label for="patrimonio">PATRIMÔNIO</label>
+              <select id="patrimonio" name="patrimonio" required>
+                <option value="">Selecione</option>
+                <option value="Duque de caxias">Contrato 1</option>
+                <option value="Volta redonda">Contrato 2</option>
+              </select>
+            </div>
+            <div>
+              <label for="local-estoque">LOCAL ESTOQUE</label>
+              <select id="local-estoque" name="local-estoque" required>
+                <option value="">Selecione</option>
+                <option value="Almoxarifado">Almoxarifado</option>
+                <option value="Depósito Central">Estoque</option>
+              </select>
+            </div>
+            <div>
+              <label for="categoria">CATEGORIA</label>
+              <select id="categoria" name="categoria" required>
+                <option value="">Selecione</option>
+                <option value="Elétrico">Elétrico</option>
+                <option value="Mecânico">Mecânico</option>
+                <option value="Hidráulico">Hidráulico</option>
+              </select>
+            </div>
+            <div>
+              <label for="custo">CUSTO</label>
+              <input type="text" id="custo" name="custo" class="custo-input" required />
+            </div>
+            <div>
+              <label for="garantia">TERMINO DA GARANTIA</label>
+              <input type="date" id="garantia" name="garantia" />
+            </div>
+            <div>
+              <label for="data-validade">DATA VALIDADE</label>
+              <input type="date" id="data-validade" name="data-validade" />
+            </div>
+          </div>
+
+          <!-- Coluna 3: Imagem, nome do produto e quantidade -->
+          <div class="form-coluna inline-style-06ede4">
+            <div class="image-preview-container">
+              <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
+            </div>
+            <!-- Nome do Produto abaixo da imagem -->
+            <div class="inline-style-e5a802">
+              <label for="nome-produto">NOME DO PRODUTO</label>
+              <input type="text" id="nome-produto" name="nome-produto" required />
+            </div>
+            <!-- Quantidade abaixo do nome -->
+            <div class="inline-style-a7c563">
+              <label for="Quantidade">QUANTIDADE</label>
+              <input type="number" id="Quantidade" name="Quantidade" required />
+            </div>
+          </div>
+        </div>
+        <button type="submit">Salvar Produto</button>
+      </form>
+    </div>
+
+    <!-- Aba Retiradas -->
+    <div id="retiradas" class="tab-content">
+      <h2 class="aba-legenda">Retiradas</h2>
+      <hr class="aba-linha">
+      <form id="form-retiradas">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna esquerda: ID, DATA, REQUISITANTE, RESPONSÁVEL -->
+          <div class="inline-style-03497c">
+            <div>
+              <label for="retirada-id">ID DA RETIRADA</label>
+              <input type="number" id="retirada-id" name="retirada-id" required readonly />
+            </div>
+            <div>
+              <label for="retirada-data">DATA</label>
+              <input type="date" id="retirada-data" name="retirada-data" required />
+            </div>
+            <div>
+              <label for="retirada-requisitante">REQUISITANTE</label>
+              <select id="retirada-requisitante" name="retirada-requisitante" required>
+                <option value="">Selecione</option>
+                <option value="Setor A">Setor A</option>
+                <option value="Setor B">Setor B</option>
+                <option value="Setor C">Setor C</option>
+              </select>
+            </div>
+            <div>
+              <label for="retirada-responsavel">RESPONSÁVEL</label>
+              <input type="text" id="retirada-responsavel" name="retirada-responsavel" required class="inline-style-199b6f" />
+            </div>
+          </div>
+          <!-- Coluna central: LOCAL, FINALIDADE, OBSERVAÇÕES -->
+          <div class="inline-style-686f3e">
+            <div>
+              <label for="retirada-local">LOCAL DE DESTINO</label>
+              <select id="retirada-local" name="retirada-local" required class="inline-style-199b6f">
+                <option value="">Selecione</option>
+                <option value="Obra A">Obra A</option>
+                <option value="Obra B">Obra B</option>
+                <option value="Outro">Outro</option>
+              </select>
+              <div id="outro-local-container" class="inline-style-3e5771">
+                <label for="retirada-outro-local">INFORME O LOCAL</label>
+                <input type="text" id="retirada-outro-local" name="retirada-outro-local" class="inline-style-199b6f" />
+              </div>
+            </div>
+            <div>
+              <label for="retirada-finalidade">FINALIDADE</label>
+              <select id="retirada-finalidade" name="retirada-finalidade" required class="inline-style-199b6f">
+                <option value="">Selecione</option>
+                <option value="Manutenção">Manutenção</option>
+                <option value="Instalação">Instalação</option>
+                <option value="Reposição">Reposição</option>
+                <option value="Estoque externo">Estoque externo</option>
+              </select>
+            </div>
+            <div>
+              <label for="retirada-observacoes">OBSERVAÇÕES</label>
+              <textarea id="retirada-observacoes" name="retirada-observacoes" class="inline-style-23811f"></textarea>
+            </div>
+          </div>
+          <!-- Coluna direita: Imagem e Produto -->
+          <div class="inline-style-842cc1">
+            <img id="retirada-produto-img" src="../IMG/Sem imagem.png" alt="Imagem do Produto" class="inline-style-9c7011">
+            <div class="inline-style-199b6f">
+              <label for="retirada-produto">PRODUTO</label>
+              <input type="text" id="retirada-produto" name="retirada-produto" list="lista-produtos" class="inline-style-199b6f" />
+              <datalist id="lista-produtos">
+                <option value="Parafuso M10">
+                <option value="Fita Isolante">
+                <option value="Tinta Branca">
+                <option value="Lâmpada LED">
+                <option value="Cimento">
+              </datalist>
+            </div>
+            <div class="inline-style-199b6f">
+              <label for="retirada-quantidade">QUANTIDADE</label>
+              <input type="number" id="retirada-quantidade" name="retirada-quantidade" min="1" class="inline-style-199b6f" />
+            </div>
+          </div>
+        </div>
+        <div class="form-buttons">
+          <button type="button" id="btn-cancelar" class="btn-secundario">Cancelar</button>
+          <button type="submit" class="btn-primario">Finalizar Retirada</button>
+          <button type="button" id="btn-acrescentar-item" class="btn-secundario">Acrescentar Item</button>
+        </div>
+      </form>
+      <!-- Tabela de itens adicionados -->
+      <div class="tabela-itens">
+        <h3>Itens para Retirada</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Destino</th>
+              <th>Finalidade</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="itens-retirada">
+            <!-- Itens serão adicionados dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Devolução -->
+    <div id="devolucao" class="tab-content">
+      <h2 class="aba-legenda">Devolução</h2>
+      <hr class="aba-linha">
+      <form id="form-devolucao">
+        <div class="form-group linha inline-style-f12ec8">
+          <div class="inline-style-03497c">
+            <div>
+              <label for="devolucao-id">ID DA RETIRADA</label>
+              <input type="number" id="devolucao-id" name="devolucao-id" list="lista-ids-retirada" required />
+              <datalist id="lista-ids-retirada">
+                <!-- IDs de retiradas serão inseridos aqui via JS -->
+              </datalist>
+            </div>
+            <div>
+              <label for="devolucao-data">DATA</label>
+              <input type="date" id="devolucao-data" name="devolucao-data" required />
+            </div>
+            <div>
+              <label for="devolucao-requisitante">REQUISITANTE</label>
+              <select id="devolucao-requisitante" name="devolucao-requisitante" required>
+                <option value="">Selecione</option>
+                <option value="Setor A">Setor A</option>
+                <option value="Setor B">Setor B</option>
+                <option value="Setor C">Setor C</option>
+              </select>
+            </div>
+            <div>
+              <label for="devolucao-responsavel">RESPONSÁVEL</label>
+              <input type="text" id="devolucao-responsavel" name="devolucao-responsavel" required />
+            </div>
+          </div>
+          <div class="inline-style-686f3e">
+            <div class="inline-style-6fcd68">
+              <div class="inline-style-57ff79">
+                <label for="devolucao-observacao">OBSERVAÇÃO DA DEVOLUÇÃO</label>
+                <textarea id="devolucao-observacao" name="devolucao-observacao" class="inline-style-28ae09"></textarea>
+              </div>
+              <div class="image-preview-container inline-style-fdf84b" id="devolucao-image-preview-container">
+                <img id="devolucao-produto-img" src="../IMG/Sem imagem.png" alt="Imagem do Produto" class="image-preview inline-style-72b195" />
+              </div>
+            </div>
+            <div>
+              <label for="devolucao-produto">PRODUTO</label>
+              <input type="text" id="devolucao-produto" name="devolucao-produto" list="lista-produtos" required class="inline-style-199b6f" />
+            </div>
+            <div>
+              <label for="devolucao-quantidade">QUANTIDADE</label>
+              <input type="number" id="devolucao-quantidade" name="devolucao-quantidade" min="1" required class="inline-style-199b6f" />
+            </div>
+          </div>
+        </div>
+        <div class="form-buttons">
+          <button type="button" id="btn-cancelar-devolucao" class="btn-secundario">Cancelar</button>
+          <button type="submit" class="btn-primario">Registrar Devolução</button>
+        </div>
+      </form>
+      <div class="tabela-itens">
+        <h3>Devoluções Registradas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID Retirada</th>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Requisitante</th>
+              <th>Responsável</th>
+              <th>Observação</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody id="itens-devolucao">
+            <!-- Itens de devolução serão adicionados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Requisitantes -->
+    <div id="requisitantes" class="tab-content">
+      <h2 class="aba-legenda">Requisitantes</h2>
+      <hr class="aba-linha">
+      <form id="form-requisitantes">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna 1: Informações do requisitante -->
+          <div class="form-coluna">
+            <div>
+              <label for="nome-requisitante">Nome</label>
+              <input type="text" id="nome-requisitante" name="nome-requisitante" required />
+            </div>
+            <div>
+              <label for="departamento-requisitante">Departamento</label>
+              <input type="text" id="departamento-requisitante" name="departamento-requisitante" required />
+            </div>
+            <div>
+              <label for="email-requisitante">E-mail</label>
+              <input type="email" id="email-requisitante" name="email-requisitante" required />
+            </div>
+            <div>
+              <label for="telefone-requisitante">Telefone</label>
+              <input type="tel" id="telefone-requisitante" name="telefone-requisitante" required />
+            </div>
+          </div>
+
+          <!-- Coluna 2: Informações adicionais -->
+          <div class="form-coluna">
+            <div>
+              <label for="cargo-requisitante">Cargo</label>
+              <input type="text" id="cargo-requisitante" name="cargo-requisitante" required />
+            </div>
+            <div>
+              <label for="observacoes-requisitante">Observações</label>
+              <textarea id="observacoes-requisitante" name="observacoes-requisitante"></textarea>
+            </div>
+          </div>
+        </div>
+        <button type="submit">Salvar Requisitante</button>
+      </form>
+
+      <!-- Tabela de requisitantes -->
+      <div class="tabela-requisitantes">
+        <h3>Lista de Requisitantes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Departamento</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Cargo</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Fornecedores -->
+    <div id="fornecedores" class="tab-content">
+      <h2 class="aba-legenda">Fornecedores</h2>
+      <hr class="aba-linha">
+      <form id="form-fornecedores">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna 1: Informações do fornecedor -->
+          <div class="form-coluna">
+            <div>
+              <label for="nome-fornecedor">Nome</label>
+              <input type="text" id="nome-fornecedor" name="nome-fornecedor" required />
+            </div>
+            <div>
+              <label for="cnpj-fornecedor">CNPJ</label>
+              <input type="text" id="cnpj-fornecedor" name="cnpj-fornecedor" required />
+            </div>
+            <div>
+              <label for="email-fornecedor">E-mail</label>
+              <input type="email" id="email-fornecedor" name="email-fornecedor" required />
+            </div>
+            <div>
+              <label for="telefone-fornecedor">Telefone</label>
+              <input type="tel" id="telefone-fornecedor" name="telefone-fornecedor" required />
+            </div>
+          </div>
+
+          <!-- Coluna 2: Endereço e observações -->
+          <div class="form-coluna">
+            <div>
+              <label for="endereco-fornecedor">Endereço</label>
+              <input type="text" id="endereco-fornecedor" name="endereco-fornecedor" required />
+            </div>
+            <div>
+              <label for="cidade-fornecedor">Cidade</label>
+              <input type="text" id="cidade-fornecedor" name="cidade-fornecedor" required />
+            </div>
+            <div>
+              <label for="estado-fornecedor">Estado</label>
+              <select id="estado-fornecedor" name="estado-fornecedor" required>
+                <option value="">Selecione</option>
+                <option value="SP">São Paulo</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="MG">Minas Gerais</option>
+                <!-- Adicione outros estados conforme necessário -->
+              </select>
+            </div>
+            <div>
+              <label for="observacoes-fornecedor">Observações</label>
+              <textarea id="observacoes-fornecedor" name="observacoes-fornecedor"></textarea>
+            </div>
+          </div>
+        </div>
+        <button type="submit">Salvar Fornecedor</button>
+      </form>
+
+      <!-- Tabela de fornecedores -->
+      <div class="tabela-fornecedores">
+        <h3>Lista de Fornecedores</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CNPJ</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Cidade</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Produtos -->
+    <div id="consultas-produtos" class="tab-content">
+      <h2 class="aba-legenda">Produtos</h2>
+      <hr class="aba-linha">
+      <form id="form-produtos-consulta">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna 1: Filtros de busca -->
+          <div class="form-coluna">
+            <div>
+              <label for="nome-produto-consulta">Nome do Produto</label>
+              <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
+            </div>
+            <div>
+              <label for="codigo-produto-consulta">Código</label>
+              <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
+            </div>
+            <div>
+              <label for="categoria-produto-consulta">Categoria</label>
+              <select id="categoria-produto-consulta" name="categoria-produto-consulta">
+                <option value="">Selecione</option>
+                <option value="Elétrico">Elétrico</option>
+                <option value="Mecânico">Mecânico</option>
+                <option value="Hidráulico">Hidráulico</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-coluna">
+            <div>
+              <label for="marca-produto-consulta">Marca</label>
+              <select id="marca-produto-consulta" name="marca-produto-consulta">
+                <option value="">Selecione</option>
+                <option value="Marca A">Marca A</option>
+                <option value="Marca B">Marca B</option>
+                <option value="Marca C">Marca C</option>
+              </select>
+            </div>
+            <div>
+              <label for="estoque-minimo-consulta">Estoque Mínimo</label>
+              <input type="number" id="estoque-minimo-consulta" name="estoque-minimo-consulta" />
+            </div>
+            <div>
+              <label for="local-estoque-consulta">Local de Estoque</label>
+              <select id="local-estoque-consulta" name="local-estoque-consulta">
+                <option value="">Selecione</option>
+                <option value="Almoxarifado">Almoxarifado</option>
+                <option value="Depósito Central">Depósito Central</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button type="submit">Buscar Produtos</button>
+      </form>
+
+      <!-- Tabela de produtos -->
+      <div class="tabela-produtos">
+        <h3>Lista de Produtos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Código</th>
+              <th>Categoria</th>
+              <th>Marca</th>
+              <th>Estoque</th>
+              <th>Local</th>
+            </tr>
+          </thead>
+          <tbody>
+           
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Relatório -->
+    <div id="consultas-relatorio" class="tab-content">
+      <h2 class="aba-legenda">Relatórios</h2>
+      <hr class="aba-linha">
+      <form id="form-relatorios">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna 1: Filtros de relatório -->
+          <div class="form-coluna">
+            <div>
+              <label for="tipo-relatorio">Tipo de Relatório</label>
+              <select id="tipo-relatorio" name="tipo-relatorio" required>
+                <option value="">Selecione</option>
+                <option value="Entrada">Entrada</option>
+                <option value="Retirada">Retirada</option>
+                <option value="Devolução">Devolução</option>
+              </select>
+            </div>
+            <div>
+              <label for="data-inicial-relatorio">Data Inicial</label>
+              <input type="date" id="data-inicial-relatorio" name="data-inicial-relatorio" required />
+            </div>
+            <div>
+              <label for="data-final-relatorio">Data Final</label>
+              <input type="date" id="data-final-relatorio" name="data-final-relatorio" required />
+            </div>
+          </div>
+        </div>
+        <button type="submit">Gerar Relatório</button>
+      </form>
+
+      <!-- Tabela de relatórios -->
+      <div class="tabela-relatorios">
+        <h3>Relatórios Gerados</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Data Inicial</th>
+              <th>Data Final</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aba Kits -->
+    <div id="consultas-kits" class="tab-content">
+      <h2 class="aba-legenda">Kits</h2>
+      <hr class="aba-linha">
+      <form id="form-kits">
+        <div class="form-group linha inline-style-f12ec8">
+          <!-- Coluna 1: Informações do kit -->
+          <div class="form-coluna">
+            <div>
+              <label for="nome-kit">Nome do Kit</label>
+              <input type="text" id="nome-kit" name="nome-kit" required />
+            </div>
+            <div>
+              <label for="codigo-kit">Código</label>
+              <input type="text" id="codigo-kit" name="codigo-kit" required />
+            </div>
+            <div>
+              <label for="categoria-kit">Categoria</label>
+              <select id="categoria-kit" name="categoria-kit" required>
+                <option value="">Selecione</option>
+                <option value="Elétrico">Elétrico</option>
+                <option value="Mecânico">Mecânico</option>
+                <option value="Hidráulico">Hidráulico</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button type="submit">Salvar Kit</button>
+      </form>
+
+      <!-- Tabela de kits -->
+      <div class="tabela-kits">
+        <h3>Lista de Kits</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Código</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Linhas dinâmicas serão adicionadas aqui -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar direita Almoxarifado -->
+  <div class="sidebar-right sidebar-almoxarifado">
+    <img src="../IMG/Logo.png" alt="Logo" class="logo">
+    <hr class="logo-divider">
+    <div id="sidebar-content">
+      <h4>Status do Sistema</h4>
+      <p>Notificação: Novo produto salvo com sucesso!</p>
+    </div>
+  </div>
+
+  <script src="../scripts/main.js"></script>
+  <script src="../scripts/almoxarifado.js"></script>
+</body>
+</html>

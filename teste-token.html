@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teste de Token</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .mensagem {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .ok { background-color: #d4edda; color: #155724; }
+    .erro { background-color: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <h1>Teste de Token</h1>
+  <div id="resultado" class="mensagem"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      const resultado = document.getElementById('resultado');
+
+      if (!token) {
+        resultado.textContent = 'Token não encontrado no localStorage.';
+        resultado.className = 'mensagem erro';
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:5000/dados-protegidos', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const dados = await res.json();
+        console.log('Resposta da API:', dados);
+
+        if (res.ok && dados.status === 'ok') {
+          resultado.innerHTML = `
+            <strong>Token válido!</strong><br>
+            Usuário: ${dados.dados.username}<br>
+            Tipo: ${dados.dados.tipo}<br>
+            Nível de acesso: ${dados.dados.nivel_acesso}<br>
+            Nobreaks: ${dados.dados.nobreaks}
+          `;
+          resultado.className = 'mensagem ok';
+        } else {
+          resultado.textContent = dados.mensagem || 'Erro ao validar token.';
+          resultado.className = 'mensagem erro';
+        }
+      } catch (erro) {
+        console.error('Erro ao conectar com o servidor:', erro);
+        resultado.textContent = 'Erro ao conectar com o servidor.';
+        resultado.className = 'mensagem erro';
+      }
+    });
+  </script>
+</body>
+</html>
