@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   try {
-    const res = await fetch('https://api.exksvol.website/modulos', { // Alterado para usar o túnel
+    const res = await fetch('https://api.exksvol.website/login', {
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + token,
