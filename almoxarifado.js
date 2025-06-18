@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // Carregar e executar o main.js dinamicamente
+  const script = document.createElement('script');
+  script.src = 'main.js';
+  script.onload = () => {
+    console.log('✅ main.js foi carregado e executado com sucesso.');
+  };
+  script.onerror = () => {
+    console.error('❌ Falha ao carregar main.js.');
+  };
+  document.head.appendChild(script);
+
+  // Código existente do almoxarifado.js
   const sidebarContent = document.getElementById('sidebar-content'); // Painel lateral direito
   const tbodyItens = document.getElementById('itens-retirada'); // Tabela de itens para retirada
   const tabs = document.querySelectorAll('.tab-btn'); // Botões das abas
