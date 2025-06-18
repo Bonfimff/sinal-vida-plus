@@ -3,7 +3,27 @@ document.addEventListener('DOMContentLoaded', function () {
   const script = document.createElement('script');
   script.src = 'main.js';
   script.onload = () => {
-    console.log('✅ main.js foi carregado e executado com sucesso.');
+  //========================= Exibir mensagem na página =========================
+  console.log('✅ main.js foi executado com sucesso.');
+  
+  const body = document.querySelector('body');
+  const message = document.createElement('div');
+  message.textContent = 'main.js foi executado com sucesso.';
+  message.style.position = 'fixed';
+  message.style.bottom = '10px';
+  message.style.right = '10px';
+  message.style.backgroundColor = '#4CAF50';
+  message.style.color = '#fff';
+  message.style.padding = '10px';
+  message.style.borderRadius = '5px';
+  message.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+  body.appendChild(message);
+
+  setTimeout(() => {
+    message.remove(); // Remove a mensagem após 5 segundos
+  }, 5000);
+// =========================================================================
+
   };
   script.onerror = () => {
     console.error('❌ Falha ao carregar main.js.');
