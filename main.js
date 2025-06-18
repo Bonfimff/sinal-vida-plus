@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', async function () {
   const moduleTabs = document.querySelectorAll('.top-tab'); // Seleciona os botões dos módulos
   const modules = {
-    almoxarifado: '../htmls/almoxarifado.html',
-    frota: '../htmls/frota.html',
-    ordens: '../htmls/ordens.html',
-    nobreaks: '../htmls/nobreaks.html'
+    almoxarifado: 'almoxarifado.html',
+    frota: 'frota.html',
+    ordens: 'ordens.html',
+    nobreaks: 'nobreaks.html'
   };
 
   // Solicitar os valores dos módulos do servidor
