@@ -27,6 +27,24 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   script.onerror = () => {
     console.error('❌ Falha ao carregar main.js.');
+  
+  const body = document.querySelector('body');
+  const message = document.createElement('div');
+  message.textContent = ' Falha ao carregar main.js.';
+  message.style.position = 'fixed';
+  message.style.bottom = '10px';
+  message.style.right = '10px';
+  message.style.backgroundColor = '#ff0404';
+  message.style.color = '#fff';
+  message.style.padding = '10px';
+  message.style.borderRadius = '5px';
+  message.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+  body.appendChild(message);
+
+  setTimeout(() => {
+    message.remove(); // Remove a mensagem após 5 segundos
+  }, 5000);
+
   };
   document.head.appendChild(script);
 
