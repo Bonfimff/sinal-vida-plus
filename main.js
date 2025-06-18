@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   try {
-    const res = await fetch('http://localhost:5000/modulos', {
+   const res = await fetch('https://api.exksvol.website/login', {
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + token,
