@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../CSS/styles.css" />
+  <link rel="stylesheet" href="../CSS/geral.css" />
+  <link rel="stylesheet" href="../CSS/almoxarifado.css" />
   <title>Almoxarifado</title>
 </head>
 <body>
@@ -38,6 +39,7 @@
       <span class="account-info">
         <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
         <span id="logged-user"></span>
+        <span id="modulo-ativo">Almoxarifado</span>
       </span>
     </div>
     <div class="top-bar-right">
@@ -100,7 +102,6 @@
               <tr class="inline-style-881bd5">
                 <th class="inline-style-f91e21">Data Agendada</th>
                 <th class="inline-style-f91e21">Nº Nota</th>
-                <th class="inline-style-f91e21">Código Rastreamento</th>
                 <th class="inline-style-f91e21">Data Prevista Entrega</th>
                 <th class="inline-style-f91e21">Destinação</th>
               </tr>
@@ -109,14 +110,12 @@
               <tr>
                 <td class="inline-style-f91e21">10/06/2025</td>
                 <td class="inline-style-f91e21">123456</td>
-                <td class="inline-style-f91e21">BR1234567890</td>
                 <td class="inline-style-f91e21">12/06/2025</td>
                 <td class="inline-style-f91e21">Almoxarifado Central</td>
               </tr>
               <tr>
                 <td class="inline-style-f91e21">15/06/2025</td>
                 <td class="inline-style-f91e21">654321</td>
-                <td class="inline-style-f91e21">BR0987654321</td>
                 <td class="inline-style-f91e21">18/06/2025</td>
                 <td class="inline-style-f91e21">Obra Setor B</td>
               </tr>
@@ -198,126 +197,121 @@
 
     <!-- Aba Entrada -->
     <div id="entrada" class="tab-content">
-      <h2 class="aba-legenda">Entrada</h2>
-      <hr class="aba-linha">
-      <form id="form-produtos">
-        <div class="form-group linha inline-style-f12ec8">
-          <!-- Coluna 1: Identificação -->
-          <div class="form-coluna">
-            <div>
-              <label for="id">ID</label>
-              <input type="number" id="id" name="id" required />
-            </div>
-            <div>
-              <label for="codigo">CÓDIGO</label>
-              <input type="text" id="codigo" name="codigo" required />
-            </div>
-            <div>
-              <label for="numero-serie">NÚMERO DE SÉRIE</label>
-              <input type="text" id="numero-serie" name="numero-serie" />
-            </div>
-            <div>
-              <label for="marca">MARCA</label>
-              <select id="marca" name="marca" required>
-                <option value="">Selecione</option>
-                <option value="Marca A">Marca A</option>
-                <option value="Marca B">Marca B</option>
-                <option value="Marca D">Marca D</option>
-              </select>
-            </div>
-            <div>
-              <label for="unid-medida">UNIDADE DE MEDIDA</label>
-              <select id="unid-medida" name="unid-medida" required>
-                <option value="">Selecione</option>
-                <option value="cm">Centímetro</option>
-                <option value="m">Metro</option>
-                <option value="unidade">Unidade</option>
-                <option value="litro">Litro</option>
-                <option value="kg">Kg</option>
-              </select>
-            </div>
-            <div>
-              <label for="estoque-minimo">ESTOQUE MÍNIMO</label>
-              <input type="number" id="estoque-minimo" name="estoque-minimo" />
-            </div>
-            <div>
-              <label for="data-compra">DATA DA COMPRA</label>
-              <input type="date" id="data-compra" name="data-compra" />
-            </div>
-          </div>
-
-          <!-- Coluna 2: Nota, fornecedor, patrimônio, local, categoria, custo -->
-          <div class="form-coluna">
-            <div>
-              <label for="numero-nota">NÚMERO DA NOTA</label>
-              <input type="text" id="numero-nota" name="numero-nota" pattern="[\d\-.,/ ]*" title="Apenas números e os caracteres - . , / são permitidos" />
-            </div>
-            <div>
-              <label for="fornecedor">FORNECEDOR</label>
-              <select id="fornecedor" name="fornecedor" required>
-                <option value="">Selecione</option>
-                <option value="Fornecedor X">Fornecedor X</option>
-                <option value="Fornecedor Y">Fornecedor Y</option>
-              </select>
-            </div>
-            <div>
-              <label for="patrimonio">PATRIMÔNIO</label>
-              <select id="patrimonio" name="patrimonio" required>
-                <option value="">Selecione</option>
-                <option value="Duque de caxias">Contrato 1</option>
-                <option value="Volta redonda">Contrato 2</option>
-              </select>
-            </div>
-            <div>
-              <label for="local-estoque">LOCAL ESTOQUE</label>
-              <select id="local-estoque" name="local-estoque" required>
-                <option value="">Selecione</option>
-                <option value="Almoxarifado">Almoxarifado</option>
-                <option value="Depósito Central">Estoque</option>
-              </select>
-            </div>
-            <div>
-              <label for="categoria">CATEGORIA</label>
-              <select id="categoria" name="categoria" required>
-                <option value="">Selecione</option>
-                <option value="Elétrico">Elétrico</option>
-                <option value="Mecânico">Mecânico</option>
-                <option value="Hidráulico">Hidráulico</option>
-              </select>
-            </div>
-            <div>
-              <label for="custo">CUSTO</label>
-              <input type="text" id="custo" name="custo" class="custo-input" required />
-            </div>
-            <div>
-              <label for="garantia">TERMINO DA GARANTIA</label>
-              <input type="date" id="garantia" name="garantia" />
-            </div>
-            <div>
-              <label for="data-validade">DATA VALIDADE</label>
-              <input type="date" id="data-validade" name="data-validade" />
-            </div>
-          </div>
-
-          <!-- Coluna 3: Imagem, nome do produto e quantidade -->
-          <div class="form-coluna inline-style-06ede4">
-            <div class="image-preview-container">
-              <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
-            </div>
-            <!-- Nome do Produto abaixo da imagem -->
-            <div class="inline-style-e5a802">
-              <label for="nome-produto">NOME DO PRODUTO</label>
-              <input type="text" id="nome-produto" name="nome-produto" required />
-            </div>
-            <!-- Quantidade abaixo do nome -->
-            <div class="inline-style-a7c563">
-              <label for="Quantidade">QUANTIDADE</label>
-              <input type="number" id="Quantidade" name="Quantidade" required />
-            </div>
-          </div>
+      
+  <h2 class="aba-legenda">Entrada</h2>
+  <hr class="aba-linha">
+  <form id="form-produtos">
+    <div class="form-group linha inline-style-f12ec8">
+      
+      <!-- Coluna 1: Identificação -->
+      <div class="form-coluna">
+        <div>
+          <label for="id">ID</label>
+          <input type="number" id="id" name="id" required />
         </div>
-        <button type="submit">Salvar Produto</button>
-      </form>
+        <div>
+          <label for="codigo">CÓDIGO</label>
+          <input type="text" id="codigo" name="codigo" required />
+        </div>
+        <div>
+          <label for="nome-produto">NOME DO PRODUTO</label>
+          <input type="text" id="nome-produto" name="nome-produto" required />
+        </div>
+        <div>
+          <label for="numero-serie">NÚMERO DE SÉRIE</label>
+          <input type="text" id="numero-serie" name="numero-serie" />
+        </div>
+        <div>
+          <label for="categoria">CATEGORIA</label>
+          <select id="categoria" name="categoria" required>
+            <option value="">Selecione</option>
+            <option value="Elétrico">Elétrico</option>
+            <option value="Mecânico">Mecânico</option>
+            <option value="Hidráulico">Hidráulico</option>
+          </select>
+        </div>
+        <div>
+          <label for="Quantidade">QUANTIDADE</label>
+          <input type="number" id="Quantidade" name="Quantidade" required />
+        </div>
+      </div>
+
+      <!-- Coluna 2: Logística e origem -->
+      <div class="form-coluna">
+        <div>
+          <label for="unid-medida">UNIDADE DE MEDIDA</label>
+          <select id="unid-medida" name="unid-medida" required>
+            <option value="">Selecione</option>
+            <option value="cm">Centímetro</option>
+            <option value="m">Metro</option>
+            <option value="unidade">Unidade</option>
+            <option value="litro">Litro</option>
+            <option value="kg">Kg</option>
+          </select>
+        </div>
+        <div>
+          <label for="estoque-minimo">ESTOQUE MÍNIMO</label>
+          <input type="number" id="estoque-minimo" name="estoque-minimo" />
+        </div>
+        <div>
+          <label for="numero-nota">NÚMERO DA NOTA</label>
+          <input type="text" id="numero-nota" name="numero-nota"
+                 pattern="[\d\-.,/ ]*" title="Apenas números e os caracteres - . , / são permitidos" />
+        </div>
+        <div>
+          <label for="fornecedor">FORNECEDOR</label>
+          <select id="fornecedor" name="fornecedor" required>
+            <option value="">Selecione</option>
+            <option value="Fornecedor X">Fornecedor X</option>
+            <option value="Fornecedor Y">Fornecedor Y</option>
+          </select>
+        </div>
+        <div>
+          <label for="patrimonio">PATRIMÔNIO</label>
+          <select id="patrimonio" name="patrimonio" required>
+            <option value="">Selecione</option>
+            <option value="Duque de caxias">Contrato 1</option>
+            <option value="Volta redonda">Contrato 2</option>
+          </select>
+        </div>
+        <div>
+          <label for="local-estoque">LOCAL ESTOQUE</label>
+          <select id="local-estoque" name="local-estoque" required>
+            <option value="">Selecione</option>
+            <option value="Almoxarifado">Almoxarifado</option>
+            <option value="Depósito Central">Estoque</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Coluna 3: Financeiro + Imagem -->
+      <div class="form-coluna inline-style-06ede4">
+        <div class="image-preview-container">
+          <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
+        </div>
+        <div>
+          <label for="custo">CUSTO</label>
+          <input type="text" id="custo" name="custo" class="custo-input" required />
+        </div>
+        <div>
+          <label for="garantia">TERMINO DA GARANTIA</label>
+          <input type="date" id="garantia" name="garantia" />
+        </div>
+        <div>
+          <label for="data-validade">DATA VALIDADE</label>
+          <input type="date" id="data-validade" name="data-validade" />
+        </div>
+          <div>
+          <label for="data-compra">DATA DA COMPRA</label>
+          <input type="date" id="data-compra" name="data-compra" />
+        </div>
+      </div>
+    </div>
+
+    <button type="submit">Salvar Produto</button>
+  </form>
+
+
     </div>
 
     <!-- Aba Retiradas -->
@@ -815,7 +809,7 @@
   </div>
 
   <!-- Sidebar direita Almoxarifado -->
-  <div class="sidebar-right sidebar-almoxarifado">
+  <div class="sidebar-right sidebar-frota">
     <img src="../IMG/Logo.png" alt="Logo" class="logo">
     <hr class="logo-divider">
     <div id="sidebar-content">
