@@ -5,19 +5,14 @@
   padding: 0;
 }
 
-html, body {
-  height: 100%; /* Garante que o body ocupe 100% da altura da tela */
-}
-
 body {
   font-family: Arial, sans-serif;
-  min-height: 100dvh; /* Usa altura dinâmica da viewport */
+  min-height: 100vh;
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr) 300px;
   grid-template-rows: 60px auto;
   background-color: #FFFFFF;
   color: #060606;
-  overflow-x: hidden; /* Evita rolagem horizontal */
 }
 
 /* Estilo da barra superior (Top Bar) */
@@ -72,15 +67,16 @@ body {
 
 /* Estilo do menu lateral */
 .menu {
-  position: fixed;
-  top: 60px;
-  left: 0;
-  height: calc(100dvh - 60px); /* Substituído vh por dvh */
-  width: 40%; /* Ajusta a largura para telas pequenas */
-  overflow-y: auto; /* Permite rolagem vertical */
+  grid-row: 2;
+  width: 200px;
   background-color: #292929;
   border-right: 2px solid #877B66;
-  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 /* Estilo para os botões do painel lateral esquerdo */
 .menu button {
@@ -105,34 +101,25 @@ body {
   color: #FFCB1F;
 }
 .menu-bottom {
-  position: absolute; /* Posiciona os botões na base do painel */
-  bottom: 0; /* Fixa os botões na parte inferior */
+  position: absolute; /* Posiciona os botões de forma absoluta dentro do painel */
+  bottom: 0; /* Fixa os botões na base do painel */
   left: 0;
-  width: 100%; /* Faz o contêiner ocupar toda a largura do painel */
-  height: 60px; /* Define uma altura fixa para o contêiner */
+  width: 100%; /* Faz os botões ocuparem toda a largura do painel */
   background-color: #292929; /* Cor de fundo */
+  padding: 10px; /* Espaçamento interno */
   display: flex; /* Define o layout como flexbox */
-  justify-content: space-between; /* Distribui os botões horizontalmente */
-  align-items: center; /* Centraliza os botões verticalmente */
-  padding: 0; /* Remove o espaçamento interno */
+  justify-content: space-around; /* Distribui os botões horizontalmente */
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Adiciona sombra na parte superior */
-  overflow: hidden; /* Remove rolagem */
 }
 .menu-icon-btn {
-  flex-basis: 30%; /* Define a largura de cada botão como 30% da div */
-  height: 100%; /* Faz os botões ocuparem toda a altura do contêiner */
   background: none;
   border: none;
   cursor: pointer;
-  display: flex; /* Centraliza a imagem dentro do botão */
-  align-items: center; /* Centraliza verticalmente */
-  justify-content: center; /* Centraliza horizontalmente */
-  padding: 0; /* Remove o espaçamento interno */
-  margin: 0; /* Remove a distância entre os botões */
+  padding: 10px;
 }
 .menu-icon-btn img {
   width: 30px; /* Ajusta o tamanho das imagens */
-  height: auto; /* Mantém a proporção da imagem */
+  height: 30px;
 }
 
 /* Estilo do conteúdo principal */
@@ -149,26 +136,8 @@ body {
 /* Ajuste para telas pequenas */
 @media (max-width: 768px) {
   .content {
-    grid-column: 1 / -1;
-    padding: 10px;
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  .menu {
-    width: 40%; /* Define a largura do painel como 40% da tela */
-    height: calc(100dvh - 60px); /* Substituído vh por dvh */
-    position: fixed;
-    top: 60px;
-    left: 0;
-    overflow-y: auto; /* Permite rolagem vertical */
-    background-color: #292929;
-    border-right: 2px solid #877B66;
-    z-index: 1100;
-  }
-
-  .sidebar-right {
-    width: 100%; /* Ajusta o painel lateral direito para não exceder a largura da tela */
+    grid-column: 1 / -1; /* Faz o painel principal ocupar todas as colunas */
+    padding: 10px; /* Reduz o espaçamento interno para telas pequenas */
   }
 }
 
@@ -233,16 +202,15 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 /* Estilo da barra lateral direita */
 .sidebar-right {
-  position: fixed;
-  top: 60px;
-  right: 0;
+  grid-row: 2;
   width: 300px;
-  height: calc(100dvh - 60px); /* Substituído vh por dvh */
-  overflow-y: auto; /* Já estava correto */
-  overflow-x: hidden;
   background-color: #f9f9f9;
   border-left: 2px solid #877B66;
-  z-index: 1100;
+  padding: 20px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -537,8 +505,7 @@ button[type="submit"]:hover, .btn-primario:hover {
   top: 60px; /* Define a posição abaixo do painel superior */
   left: 0;
   height: calc(100vh - 60px); /* Ajusta a altura para ocupar o restante da tela */
-  width: 40%; /* Ajusta a largura para telas pequenas */
-  overflow: hidden; /* Remove a rolagem vertical e horizontal */
+  overflow-y: auto; /* Adiciona rolagem vertical se necessário */
   background-color: #292929; /* Cor de fundo */
   border-right: 2px solid #877B66; /* Borda direita */
   z-index: 1100; /* Garante que o painel fique acima do conteúdo */
@@ -549,10 +516,8 @@ button[type="submit"]:hover, .btn-primario:hover {
   position: fixed; /* Mantém o painel flutuante */
   top: 60px; /* Define a posição abaixo do painel superior */
   right: 0;
-  width: 300px; /* Define uma largura fixa para o painel */
   height: calc(100vh - 60px); /* Ajusta a altura para ocupar o restante da tela */
   overflow-y: auto; /* Adiciona rolagem vertical se necessário */
-  overflow-x: hidden; /* Remove a rolagem horizontal */
   background-color: #f9f9f9; /* Cor de fundo */
   border-left: 2px solid #877B66; /* Borda esquerda */
   z-index: 1100; /* Garante que o painel fique acima do conteúdo */
@@ -560,30 +525,19 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 /* Estilo para os botões na parte inferior do menu */
 .menu-icon-btn {
-  width: 30px; /* Define a largura do botão */
-  height: 30px; /* Define a altura do botão igual à largura */
+  width: 40px; /* Diminui a largura do botão */
+  height: 40px; /* Diminui a altura do botão */
   background: none;
   border: none;
   cursor: pointer;
   display: flex; /* Centraliza a imagem dentro do botão */
-  align-items: center; /* Centraliza verticalmente */
-  justify-content: center; /* Centraliza horizontalmente */
-  padding: 0; /* Remove o espaçamento interno */
-  margin: 0; /* Remove a distância entre os botões */
+  align-items: center;
+  justify-content: center;
+  padding: 5px; /* Ajusta o espaçamento interno */
 }
 
-/* Estilo específico para o botão de configuração */
-#btn-config {
-  margin-left: 0; /* Remove o espaço entre o botão e a lateral esquerda */
-}
-
-/* Estilo específico para o botão de logout */
-#btn-logout img {
-  transform: translateX(-20px); /* Move a imagem 10px para a esquerda */
-}
-#btn-info img {
-  transform: translateX(-10px); /* Move a imagem 20px para a esquerda */
-}
-#btn-config img {
-  transform: translateX(-4px); /* Move a imagem 20px para a esquerda */
+/* Estilo para as imagens dentro dos botões */
+.menu-icon-btn img {
+  width: 35px; /* Aumenta o tamanho da imagem */
+  height: 35px; /* Aumenta o tamanho da imagem */
 }
