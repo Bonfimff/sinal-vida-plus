@@ -5,19 +5,19 @@
   padding: 0;
 }
 
+html, body {
+  height: 100%; /* Garante que o body ocupe 100% da altura da tela */
+}
+
 body {
   font-family: Arial, sans-serif;
-  min-height: 100vh;
+  min-height: 100dvh; /* Usa altura dinâmica da viewport */
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr) 300px;
   grid-template-rows: 60px auto;
   background-color: #FFFFFF;
   color: #060606;
-}
-
-/* Ajuste global para evitar rolagem horizontal */
-body {
-  overflow-x: hidden; /* Remove a rolagem horizontal */
+  overflow-x: hidden; /* Evita rolagem horizontal */
 }
 
 /* Estilo da barra superior (Top Bar) */
@@ -72,16 +72,15 @@ body {
 
 /* Estilo do menu lateral */
 .menu {
-  grid-row: 2;
-  width: 200px;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  height: calc(100dvh - 60px); /* Substituído vh por dvh */
+  width: 40%; /* Ajusta a largura para telas pequenas */
+  overflow-y: auto; /* Permite rolagem vertical */
   background-color: #292929;
   border-right: 2px solid #877B66;
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 60px;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
+  z-index: 1100;
 }
 /* Estilo para os botões do painel lateral esquerdo */
 .menu button {
@@ -150,22 +149,22 @@ body {
 /* Ajuste para telas pequenas */
 @media (max-width: 768px) {
   .content {
-    grid-column: 1 / -1; /* Faz o painel principal ocupar todas as colunas */
-    padding: 10px; /* Reduz o espaçamento interno para telas pequenas */
-    width: 100%; /* Garante que o conteúdo ocupe 100% da largura da tela */
-    overflow-x: hidden; /* Remove a rolagem horizontal */
+    grid-column: 1 / -1;
+    padding: 10px;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   .menu {
     width: 40%; /* Define a largura do painel como 40% da tela */
-    height: calc(100vh - 60px); /* Mantém a altura ajustada */
-    position: fixed; /* Mantém o painel flutuante */
-    top: 60px; /* Define a posição abaixo do painel superior */
+    height: calc(100dvh - 60px); /* Substituído vh por dvh */
+    position: fixed;
+    top: 60px;
     left: 0;
-    overflow: hidden; /* Remove a rolagem vertical e horizontal */
-    background-color: #292929; /* Cor de fundo */
-    border-right: 2px solid #877B66; /* Borda direita */
-    z-index: 1100; /* Garante que o painel fique acima do conteúdo */
+    overflow-y: auto; /* Permite rolagem vertical */
+    background-color: #292929;
+    border-right: 2px solid #877B66;
+    z-index: 1100;
   }
 
   .sidebar-right {
@@ -234,15 +233,16 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 /* Estilo da barra lateral direita */
 .sidebar-right {
-  grid-row: 2;
+  position: fixed;
+  top: 60px;
+  right: 0;
   width: 300px;
+  height: calc(100dvh - 60px); /* Substituído vh por dvh */
+  overflow-y: auto; /* Já estava correto */
+  overflow-x: hidden;
   background-color: #f9f9f9;
   border-left: 2px solid #877B66;
-  padding: 20px;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
-  position: sticky;
-  top: 60px;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
   align-items: center;
