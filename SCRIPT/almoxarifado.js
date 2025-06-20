@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <td>${quantidade}</td>
         <td>${local}</td>
         <td>${finalidade}</td>
-        <td>
+        <td data-id="ID_AQUI">
           <button class="acao-btn editar-item">Editar</button>
           <button class="acao-btn remover-item">Remover</button>
         </td>
@@ -258,6 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       try {
         // Envia uma requisição ao servidor para buscar os produtos
+        
         const response = await fetch('https://api.exksvol.website/produtos', {
           method: 'POST',
           headers: {
