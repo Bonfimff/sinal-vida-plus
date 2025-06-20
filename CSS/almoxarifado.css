@@ -333,3 +333,45 @@
   background-color: #292929; /* Cor de fundo para o cabeçalho */
   color: #fff; /* Cor do texto no cabeçalho */
 }
+
+/* Estilo para o contêiner da tabela */
+.tabela-produtos-container {
+  margin-top: 20px; /* Espaço acima da tabela */
+}
+
+/* Estilo para habilitar rolagem na div */
+.tabela-scroll {
+  max-height: 400px; /* Limita a altura da tabela */
+  overflow-y: auto; /* Habilita rolagem vertical */
+  border: 1px solid #ddd; /* Adiciona uma borda ao redor da div */
+  padding: 10px; /* Adiciona espaçamento interno */
+  box-sizing: border-box; /* Inclui bordas e preenchimento no tamanho total */
+}
+
+/* Estilo para a tabela */
+.tabela-produtos table {
+  width: 100%; /* Faz a tabela ocupar toda a largura disponível */
+  border-collapse: collapse; /* Remove espaços entre as bordas das células */
+  font-size: 14px; /* Ajusta o tamanho da fonte */
+  background-color: #FFFFFF; /* Define a cor de fundo da tabela */
+}
+
+.tabela-produtos th, .tabela-produtos td {
+  border: 1px solid #877B66; /* Adiciona bordas às células */
+  padding: 8px; /* Adiciona espaçamento interno às células */
+  text-align: left; /* Alinha o texto à esquerda */
+}
+
+.tabela-produtos th {
+  background-color: #FFCB1F; /* Define a cor de fundo para os cabeçalhos */
+  color: #060606; /* Define a cor do texto dos cabeçalhos */
+  font-weight: bold; /* Deixa o texto dos cabeçalhos em negrito */
+}
+
+.tabela-produtos tr:nth-child(even) {
+  background-color: #F9F9F9; /* Define uma cor de fundo alternada para linhas pares */
+}
+
+.tabela-produtos tr:hover {
+  background-color: #E6E6E6; /* Adiciona um efeito de hover às linhas */
+}

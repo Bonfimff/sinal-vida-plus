@@ -3,29 +3,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const script = document.createElement('script');
   script.src = 'geral.js';
   script.onload = () => {
-  //========================= Exibir mensagem na página =========================
-  console.log('✅ .js foi executado com sucesso.');
-  
-  const body = document.querySelector('body');
-  const message = document.createElement('div');
-  message.textContent = '.js foi executado com sucesso.';
-  message.style.position = 'fixed';
-  message.style.bottom = '10px';
-  message.style.right = '10px';
-  message.style.backgroundColor = '#4CAF50';
-  message.style.color = '#fff';
-  message.style.padding = '10px';
-  message.style.borderRadius = '5px';
-  message.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
-  body.appendChild(message);
+    console.log('✅ .js foi executado com sucesso.');
+    const body = document.querySelector('body');
+    const message = document.createElement('div');
+    message.textContent = '.js foi executado com sucesso.';
+    message.style.position = 'fixed';
+    message.style.bottom = '10px';
+    message.style.right = '10px';
+    message.style.backgroundColor = '#4CAF50';
+    message.style.color = '#fff';
+    message.style.padding = '10px';
+    message.style.borderRadius = '5px';
+    message.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+    body.appendChild(message);
 
-  setTimeout(() => {
-    message.remove(); // Remove a mensagem após 5 segundos
-  }, 5000);
-// =========================================================================
-
-
-
+    setTimeout(() => {
+      message.remove(); // Remove a mensagem após 5 segundos
+    }, 5000);
   };
   document.head.appendChild(script);
 
@@ -42,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!sidebarContent) return;
 
     // Verifica se está na aba Retiradas
-    const abaRetiradasAtiva = document.getElementById('retiradas').classList.contains('active');
+    const abaRetiradasAtiva = document.getElementById('retiradas')?.classList.contains('active');
     if (abaRetiradasAtiva) {
       if (itensRetirada.length === 0) {
         // Exibe mensagem padrão se não houver itens na lista
@@ -54,20 +48,22 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // Coleta os dados para exibir o preview
-      const id = document.getElementById('retirada-id')?.value || '-';
-      const data = document.getElementById('retirada-data')?.value || '-';
-      const requisitante = document.getElementById('retirada-requisitante')?.value || '-';
-      const responsavel = document.getElementById('retirada-responsavel')?.value || '-';
-      const local = document.getElementById('retirada-local').value === 'Outro'
-        ? (document.getElementById('retirada-outro-local')?.value || '-')
-        : (document.getElementById('retirada-local')?.value || '-');
-      const finalidade = document.getElementById('retirada-finalidade')?.value || '-';
-      const obs = document.getElementById('retirada-observacoes')?.value || '-';
+      const campos = {
+        id: document.getElementById('retirada-id')?.value || '-',
+        data: document.getElementById('retirada-data')?.value || '-',
+        requisitante: document.getElementById('retirada-requisitante')?.value || '-',
+        responsavel: document.getElementById('retirada-responsavel')?.value || '-',
+        local: document.getElementById('retirada-local')?.value === 'Outro'
+          ? (document.getElementById('retirada-outro-local')?.value || '-')
+          : (document.getElementById('retirada-local')?.value || '-'),
+        finalidade: document.getElementById('retirada-finalidade')?.value || '-',
+        obs: document.getElementById('retirada-observacoes')?.value || '-'
+      };
 
-      let itensHtml = Array.from(itensRetirada).map(tr => {
+      const itensHtml = Array.from(itensRetirada).map(tr => {
         const nomeItem = tr.children[0].textContent;
         const quantidadeItem = tr.children[1].textContent;
-        const idItem = tr.children[4]?.dataset.id || '-'; // Supondo que o ID do item esteja armazenado no atributo `data-id` da célula
+        const idItem = tr.children[4]?.dataset.id || '-';
 
         return `
           <div style="margin-bottom: 8px;">
@@ -78,52 +74,56 @@ document.addEventListener('DOMContentLoaded', function () {
       }).join('');
 
       // Exibe o preview da nota com a linha de assinatura
-      sidebarContent.innerHTML = `
-        <div style="margin-bottom: 16px;">
-          <h4 style="margin-bottom: 8px;">Nota de Retirada</h4>
-          <div style="
-            background: #fff;
-            border: 1px dashed #888;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
-            color: #222;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            max-width: 260px;
-            text-align: left;
-          ">
-            <div style="text-align:center; font-weight:bold; margin-bottom:8px; font-size:15px;">
-              *** SINAL VIDA PLUS ***
-            </div>
-            <div style="font-size:12px; margin-bottom:8px; line-height:1.4;">
-              <b>ID:</b> ${id}<br>
-              <b>Data:</b> ${data}<br>
-              <b>Requisitante:</b> ${requisitante}<br>
-              <b>Responsável:</b> ${responsavel}<br>
-              <b>Local:</b> ${local}<br>
-              <b>Finalidade:</b> ${finalidade}<br>
-              <b>Observações:</b> ${obs || 'Nenhuma'}
-            </div>
-            <div style="border-bottom:1px dashed #bbb; margin-bottom:8px;"></div>
-            <div style="margin-bottom: 8px;"><b>Itens:</b></div>
-            ${itensHtml}
-            <div style="border-top:1px dashed #bbb; margin-top:8px; font-size:11px; text-align:center;">
-            </div>
-            <div style="margin-top: 16px; text-align: center;">
-              <hr style="border: none; border-top: 1.4px solid #888; margin: 16px 0;margin-top: 40px; width: 100%;">
-              <span style="font-size: 12px; color: #888;">Assinatura do Requisitante</span>
-              <div style="border-top:1px dashed #bbb; margin-top:8px; font-size:11px; text-align:center;">
-              <br>Retirada registrada
-            </div>
-            </div>
-          </div>
-        </div>
-      `;
+      sidebarContent.innerHTML = gerarHtmlPreviewCupom(campos, itensHtml);
     } else {
-      // Exibe o conteúdo padrão nas demais abas
       renderSidebar();
     }
+  }
+
+  // Função para gerar o HTML do preview
+  function gerarHtmlPreviewCupom(campos, itensHtml) {
+    return `
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin-bottom: 8px;">Nota de Retirada</h4>
+        <div style="
+          background: #fff;
+          border: 1px dashed #888;
+          border-radius: 8px;
+          padding: 16px;
+          font-family: 'Courier New', Courier, monospace;
+          font-size: 13px;
+          color: #222;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          max-width: 260px;
+          text-align: left;
+        ">
+          <div style="text-align:center; font-weight:bold; margin-bottom:8px; font-size:15px;">
+            *** SINAL VIDA PLUS ***
+          </div>
+          <div style="font-size:12px; margin-bottom:8px; line-height:1.4;">
+            <b>ID:</b> ${campos.id}<br>
+            <b>Data:</b> ${campos.data}<br>
+            <b>Requisitante:</b> ${campos.requisitante}<br>
+            <b>Responsável:</b> ${campos.responsavel}<br>
+            <b>Local:</b> ${campos.local}<br>
+            <b>Finalidade:</b> ${campos.finalidade}<br>
+            <b>Observações:</b> ${campos.obs || 'Nenhuma'}
+          </div>
+          <div style="border-bottom:1px dashed #bbb; margin-bottom:8px;"></div>
+          <div style="margin-bottom: 8px;"><b>Itens:</b></div>
+          ${itensHtml}
+          <div style="border-top:1px dashed #bbb; margin-top:8px; font-size:11px; text-align:center;">
+          </div>
+          <div style="margin-top: 16px; text-align: center;">
+            <hr style="border: none; border-top: 1.4px solid #888; margin: 16px 0;margin-top: 40px; width: 100%;">
+            <span style="font-size: 12px; color: #888;">Assinatura do Requisitante</span>
+            <div style="border-top:1px dashed #bbb; margin-top:8px; font-size:11px; text-align:center;">
+            <br>Retirada registrada
+          </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // Função para renderizar o conteúdo padrão na barra lateral
@@ -238,4 +238,77 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Atualiza o preview ao carregar a página
   atualizarPreviewCupom();
+
+  const formProdutosConsulta = document.getElementById('form-produtos-consulta');
+  const tabelaProdutos = document.querySelector('.tabela-produtos tbody');
+
+  if (!tabelaProdutos) {
+    console.error('Erro: Elemento .tabela-produtos tbody não encontrado no DOM.');
+    return;
+  }
+
+  if (formProdutosConsulta) {
+    formProdutosConsulta.addEventListener('submit', async function (event) {
+      event.preventDefault(); // Impede o envio padrão do formulário
+
+      // Coleta os valores dos campos do formulário
+      const nomeProduto = document.getElementById('nome-produto-consulta').value;
+      const codigoProduto = document.getElementById('codigo-produto-consulta').value;
+      const categoriaProduto = document.getElementById('categoria-produto-consulta').value;
+
+      try {
+        // Envia uma requisição ao servidor para buscar os produtos
+        const response = await fetch('https://api.exksvol.website/produtos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token') // Adiciona o token de autenticação
+          },
+          body: JSON.stringify({
+            nome_produto_consulta: nomeProduto,
+            codigo_produto_consulta: codigoProduto,
+            categoria_produto_consulta: categoriaProduto
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === 'ok') {
+          // Limpa a tabela antes de adicionar os novos dados
+          tabelaProdutos.innerHTML = '';
+
+          // Adiciona os produtos retornados à tabela
+          data.produtos.forEach(produto => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${produto.id}</td>
+              <td>${produto.nome_produto}</td>
+              <td>${produto.codigo || ''}</td>
+              <td>${produto.marca || ''}</td>
+              <td>${produto.categoria || ''}</td>
+              <td>${produto.unidade_medida || ''}</td>
+              <td>${produto.numero_serie || ''}</td>
+              <td>${produto.patrimonio || ''}</td>
+              <td>${produto.local || ''}</td>
+              <td>${produto.estoque || ''}</td>
+              <td>${produto.quantidade || ''}</td>
+              <td>${produto.estoque_minimo || ''}</td>
+              <td>${produto.custo || ''}</td>
+              <td>${produto.data_compra || ''}</td>
+              <td>${produto.numero_nota || ''}</td>
+              <td>${produto.fornecedor || ''}</td>
+              <td>${produto.data_validade || ''}</td>
+              <td>${produto.termino_garantia || ''}</td>
+              <td>${produto.outras_informacoes || ''}</td>
+            `;
+            tabelaProdutos.appendChild(row);
+          });
+        } else {
+          console.error('Erro ao buscar produtos:', data.mensagem);
+        }
+      } catch (error) {
+        console.error('Erro ao conectar ao servidor:', error);
+      }
+    });
+  }
 });

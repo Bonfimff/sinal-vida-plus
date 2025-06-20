@@ -15,7 +15,7 @@ body {
   color: #060606;
 }
 
-/* Estilo da barra superior (Top Bar) */
+/* Barra superior */
 .top-bar {
   grid-column: 1 / -1;
   background-color: #292929;
@@ -31,41 +31,34 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.658);
 }
 
-/* Estilo para os botões da barra superior */
+/* Botões da barra superior */
 .top-tab {
-  background-color: #292929; /* Cor de fundo dos botões */
-  color: white; /* Cor do texto para botões não ativos */
-  border: none; /* Remove bordas */
-  cursor: pointer; /* Define o cursor como ponteiro */
-  padding: 10px 20px; /* Espaçamento interno */
-  font-size: 14px; /* Tamanho da fonte */
-  font-weight: bold; /* Deixa o texto em negrito */
-  border-radius: 8px; /* Bordas arredondadas */
-  transition: all 0.3s; /* Adiciona transição para hover */
+  background-color: #292929;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: all 0.3s;
 }
 
 .top-tab:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Cor de fundo ao passar o mouse */
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .top-tab.active {
-  background-color: #FFFFFF; /* Cor de fundo para o botão ativo */
-  color: #FFCB1F; /* Cor do texto para o botão ativo */
-  border: 2px solid #FFCB1F; /* Adiciona uma borda amarela ao botão ativo */
+  background-color: #FFFFFF;
+  color: #FFCB1F;
+  border: 2px solid #FFCB1F;
 }
 
 .top-tab.visible {
   display: inline-block;
 }
-.top-tab:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-.top-tab.active {
-  background-color: #FFFFFF;
-  color: #292929;
-}
 
-/* Estilo do menu lateral */
+/* Menu lateral */
 .menu {
   grid-row: 2;
   width: 200px;
@@ -78,7 +71,7 @@ body {
   height: calc(100vh - 60px);
   overflow-y: auto;
 }
-/* Estilo para os botões do painel lateral esquerdo */
+
 .menu button {
   background: none;
   border: none;
@@ -89,91 +82,101 @@ body {
   font-size: 16px;
   color: #FFFFFF;
   transition: all 0.2s;
-  margin: 2px; /* Adiciona espaço de 2px ao redor do botão */
-  width: 100%; /* Faz os botões ocuparem 100% da largura do painel */
+  margin: 2px;
+  width: 100%;
 }
+
 .menu button:hover {
   background-color: #877B66;
 }
+
 .menu button.active {
   border-left-color: #FFCB1F;
   font-weight: bold;
   color: #FFCB1F;
 }
+
 .menu-bottom {
-  position: absolute; /* Posiciona os botões de forma absoluta dentro do painel */
-  bottom: 0; /* Fixa os botões na base do painel */
+  position: absolute;
+  bottom: 0;
   left: 0;
-  width: 100%; /* Faz os botões ocuparem toda a largura do painel */
-  background-color: #292929; /* Cor de fundo */
-  padding: 10px; /* Espaçamento interno */
-  display: flex; /* Define o layout como flexbox */
-  justify-content: space-around; /* Distribui os botões horizontalmente */
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Adiciona sombra na parte superior */
+  width: 100%;
+  background-color: #292929;
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
 }
+
 .menu-icon-btn {
   background: none;
   border: none;
   cursor: pointer;
   padding: 10px;
 }
+
 .menu-icon-btn img {
-  width: 30px; /* Ajusta o tamanho das imagens */
+  width: 30px;
   height: 30px;
 }
 
-/* Estilo do conteúdo principal */
+/* Conteúdo principal */
 .content {
-  grid-row: 2; /* Ocupa a segunda linha da grade */
-  padding: 20px; /* Espaçamento interno */
-  overflow-y: auto; /* Adiciona rolagem vertical */
-  background-color: #FFFFFF; /* Cor de fundo branca */
-  width: 100%; /* Largura total */
-  max-width: 100%; /* Largura máxima */
-  box-sizing: border-box; /* Inclui bordas e preenchimento no tamanho total */
+  grid-row: 2;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Ajuste para telas pequenas */
 @media (max-width: 768px) {
   .content {
-    grid-column: 1 / -1; /* Faz o painel principal ocupar todas as colunas */
-    padding: 10px; /* Reduz o espaçamento interno para telas pequenas */
+    grid-column: 1 / -1;
+    padding: 10px;
   }
 }
 
-/* Estilo das abas */
+/* Abas */
 .tab-content {
   display: none;
   width: 100%;
 }
+
 .tab-content.active {
   display: block;
 }
 
-/* Estilo dos formulários */
+/* Formulários */
 form {
   background-color: #FFFFFF;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(6, 6, 6, 0.1);
 }
+
 form label {
   display: block;
   margin: 8px 0 3px;
   font-weight: bold;
   color: #292929;
 }
+
 form input, form select {
   width: 100%;
   padding: 8px;
   border: 1px solid #877B66;
   border-radius: 4px;
 }
+
 form input:focus, form select:focus {
   outline: none;
   border-color: #FFCB1F;
   box-shadow: 0 0 0 2px rgba(255, 203, 31, 0.2);
 }
+
 button[type="submit"], .btn-primario {
   background-color: #FFCB1F;
   border: none;
@@ -184,9 +187,11 @@ button[type="submit"], .btn-primario {
   border-radius: 4px;
   cursor: pointer;
 }
+
 button[type="submit"]:hover, .btn-primario:hover {
   background-color: #e6b800;
 }
+
 .btn-secundario {
   background-color: #877B66;
   color: white;
@@ -196,11 +201,12 @@ button[type="submit"]:hover, .btn-primario:hover {
   cursor: pointer;
   font-weight: bold;
 }
+
 .btn-secundario:hover {
   background-color: #6b6252;
 }
 
-/* Estilo da barra lateral direita */
+/* Barra lateral direita */
 .sidebar-right {
   grid-row: 2;
   width: 300px;
@@ -216,36 +222,39 @@ button[type="submit"]:hover, .btn-primario:hover {
   align-items: center;
   justify-content: flex-start;
 }
+
 .sidebar-right .logo {
-  width: 90%; 
-  height: auto; 
+  width: 90%;
+  height: auto;
   object-fit: contain;
   border-radius: 12px;
   margin: 16px auto;
 }
+
 .sidebar-right .logo-divider {
   width: 90%;
   border-top: 2px solid #ccc;
   margin: 10px auto;
 }
+
 .user-icon {
-  width: 40px; /* Ajusta o tamanho da imagem */
-  height: 40px; /* Ajusta o tamanho da imagem */
-  border-radius: 50%; /* Adiciona bordas arredondadas */
-  border: 2px solid #c19400; /* Define a margem amarela ao redor da imagem */
-  background-color: #FFFFFF; /* Define o fundo branco */
-  display: inline-block; /* Exibe a imagem como um bloco inline */
-  margin-right: 10px; /* Adiciona espaço à direita */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #c19400;
+  background-color: #FFFFFF;
+  display: inline-block;
+  margin-right: 10px;
 }
 
 /* Centralizar verticalmente a imagem de login */
 .account-info {
-  display: flex; /* Define o layout como flexbox */
-  align-items: center; /* Centraliza verticalmente os itens */
-  justify-content: flex-start; /* Alinha os itens à esquerda */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-/* Estilo da legenda das abas com efeito metálico */
+/* Legenda das abas */
 .aba-legenda {
   font-size: 2em;
   font-weight: bold;
@@ -278,41 +287,41 @@ button[type="submit"]:hover, .btn-primario:hover {
   }
 }
 
-/* Estilo para mensagens exibidas no painel lateral */
+/* Mensagens no painel lateral */
 .sidebar-right ul {
-  list-style-type: none; 
-  padding-left: 0; 
+  list-style-type: none;
+  padding-left: 0;
   width: 95%;
-  margin: 0 auto; 
+  margin: 0 auto;
 }
 
 .sidebar-right ul li {
-  padding: 10px; 
-  margin-bottom: 10px; 
-  background-color: #FFFFFF; 
-  border-left: 4px solid #FFCB1F; 
-  border-radius: 4px; 
-  font-size: 14px; 
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #FFFFFF;
+  border-left: 4px solid #FFCB1F;
+  border-radius: 4px;
+  font-size: 14px;
   color: #060606;
 }
 
-/* Estilo para o contêiner do painel lateral */
+/* Contêiner do painel lateral */
 .sidebar-right {
-  padding: 10px; 
+  padding: 10px;
 }
 
-/* Estilo para os títulos no painel lateral */
+/* Títulos no painel lateral */
 .sidebar-right h4 {
-  margin-bottom: 10px; 
-  padding: 5px; 
-  background-color: #f9f9f9; 
-  border-radius: 4px; 
-  font-size: 16px; 
-  font-weight: bold; 
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
   color: #292929;
 }
 
-/* Estilo para o botão flutuante */
+/* Botão flutuante */
 #toggle-panels {
   position: fixed;
   bottom: 20px;
@@ -328,7 +337,7 @@ button[type="submit"]:hover, .btn-primario:hover {
   z-index: 1200;
 }
 
-/* Estilo para o botão de módulos no painel superior */
+/* Botão de módulos no painel superior */
 #toggle-modules {
   background-color: #FFCB1F;
   color: #060606;
@@ -336,39 +345,38 @@ button[type="submit"]:hover, .btn-primario:hover {
   border-radius: 4px;
   padding: 10px;
   cursor: pointer;
-  display: none; /* Oculto por padrão */
+  display: none;
 }
 
-/* Estilo para o botão de seleção de módulos */
+/* Botão de seleção de módulos */
 #module-selector {
   background-color: #FFCB1F;
   color: #060606;
   border: none;
   border-radius: 4px;
-  padding: 10px 15px; /* Ajusta o espaçamento interno */
+  padding: 10px 15px;
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
-  height: 40px; /* Define uma altura consistente */
-  display: flex; /* Define o layout como flexbox */
-  align-items: center; /* Centraliza verticalmente o texto */
+  height: 40px;
+  display: flex;
+  align-items: center;
 }
 
-/* Estilo para a lista de módulos */
+/* Lista de módulos */
 #module-list {
   position: absolute;
   top: 60px;
-  right: 10px; /* Posiciona a lista no lado direito */
+  right: 10px;
   background-color: #FFFFFF;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   padding: 10px;
   z-index: 1200;
-
 }
 
-/* Estilo para os botões da lista de módulos */
+/* Botões da lista de módulos */
 .module-button {
   display: block;
   background-color: #FFCB1F;
@@ -388,29 +396,27 @@ button[type="submit"]:hover, .btn-primario:hover {
   color: #FFFFFF;
 }
 
-/* Estilo para os botões dos módulos quando a tela for grande */
-
-  .module-button {
-    display: inline-block; /* Exibe os botões em linha */
-    background-color: #FFCB1F; /* Cor de fundo */
-    color: #060606; /* Cor do texto */
-    border: none; /* Remove bordas */
-    border-radius: 4px; /* Bordas arredondadas */
-    padding: 10px 15px; /* Espaçamento interno */
-    font-size: 16px; /* Ajusta o tamanho da fonte */
-    font-weight: bold; /* Deixa o texto em negrito */
-    cursor: pointer; /* Define o cursor como ponteiro */
-    margin: 5px; /* Adiciona espaçamento entre os botões */
-    transition: all 0.3s; /* Adiciona transição para hover */
-  }
-
-  .module-button:hover {
-    background-color: #292929; /* Cor de fundo ao passar o mouse */
-    color: #FFFFFF; /* Cor do texto ao passar o mouse */
-  
+/* Botões dos módulos para telas grandes */
+.module-button {
+  display: inline-block;
+  background-color: #FFCB1F;
+  color: #060606;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 5px;
+  transition: all 0.3s;
 }
 
-/* Estilo para a label do nome da aba selecionada */
+.module-button:hover {
+  background-color: #292929;
+  color: #FFFFFF;
+}
+
+/* Label do nome da aba selecionada */
 #module-label {
   font-size: 14px;
   font-weight: bold;
@@ -418,34 +424,34 @@ button[type="submit"]:hover, .btn-primario:hover {
   margin-right: 10px;
 }
 
-/* Estilo para o módulo ativo */
+/* Módulo ativo */
 #modulo-ativo {
   font-size: 14px;
   font-weight: bold;
   color: #FFFFFF;
   background-color: #292929;
-  padding: 10px 15px; /* Ajusta o espaçamento interno */
+  padding: 10px 15px;
   border-radius: 4px;
-  height: 40px; /* Define uma altura consistente */
-  display: flex; /* Define o layout como flexbox */
-  align-items: center; /* Centraliza verticalmente o texto */
-  margin-right: 10px; /* Adiciona espaço à direita */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
 }
 
-/* Estilo para o nome do usuário */
+/* Nome do usuário */
 #logged-user {
   font-size: 16px;
   font-weight: bold;
   color: #FFFFFF;
   background-color: #292929;
-  padding: 10px 15px; /* Ajusta o espaçamento interno */
+  padding: 10px 15px;
   border-radius: 4px;
-  height: 40px; /* Define uma altura consistente */
-  display: flex; /* Define o layout como flexbox */
-  align-items: center; /* Centraliza verticalmente o texto */
-  margin-left: 10px; /* Adiciona espaço à esquerda */
-  margin-right: 10px; /* Adiciona espaço à direita */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Adiciona sombra */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Ajuste para telas pequenas */
@@ -456,88 +462,88 @@ button[type="submit"]:hover, .btn-primario:hover {
   }
 
   #user-photo {
-    display: inline-block; /* Exibe a foto do usuário */
+    display: inline-block;
   }
 
   #logged-user {
-    display: inline-block; /* Exibe o nome do usuário */
+    display: inline-block;
   }
 
   #active-module {
-    display: inline-block; /* Exibe o módulo ativo */
+    display: inline-block;
   }
 
   #module-selector {
-    display: inline-block; /* Exibe o botão de seleção de módulos */
+    display: inline-block;
   }
 
   .top-tab {
-    display: none; /* Oculta os botões de módulos */
+    display: none;
   }
 }
 
-/* Ocultar o módulo ativo quando a tela for maior que 768px */
+/* Ocultar o módulo ativo para telas maiores */
 @media (min-width: 769px) {
   #modulo-ativo {
-    display: none; /* Oculta o elemento */
+    display: none;
   }
 }
 
-/* Exibir o módulo ativo quando a tela for menor ou igual a 768px */
+/* Exibir o módulo ativo para telas menores */
 @media (max-width: 768px) {
   #modulo-ativo {
-    display: inline-block; /* Exibe o elemento */
-    text-align: center; /* Centraliza o texto */
-    font-size: 16px; /* Ajusta o tamanho da fonte */
-    font-weight: bold; /* Deixa o texto em negrito */
-    color: #FFCB1F; /* Define a cor do texto */
-    background-color: #292929; /* Define a cor de fundo */
-    padding: 10px 20px; /* Adiciona espaçamento interno */
-    border-radius: 8px; /* Adiciona bordas arredondadas */
-    margin: 0 auto; /* Centraliza horizontalmente */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Adiciona sombra */
+    display: inline-block;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFCB1F;
+    background-color: #292929;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 0 auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
 }
 
-/* Estilo para o painel lateral esquerdo */
+/* Painel lateral esquerdo */
 .menu {
-  position: fixed; /* Mantém o painel flutuante */
-  top: 60px; /* Define a posição abaixo do painel superior */
+  position: fixed;
+  top: 60px;
   left: 0;
-  height: calc(100vh - 60px); /* Ajusta a altura para ocupar o restante da tela */
-  overflow-y: auto; /* Adiciona rolagem vertical se necessário */
-  background-color: #292929; /* Cor de fundo */
-  border-right: 2px solid #877B66; /* Borda direita */
-  z-index: 1100; /* Garante que o painel fique acima do conteúdo */
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  background-color: #292929;
+  border-right: 2px solid #877B66;
+  z-index: 1100;
 }
 
-/* Estilo para o painel lateral direito */
+/* Painel lateral direito */
 .sidebar-right {
-  position: fixed; /* Mantém o painel flutuante */
-  top: 60px; /* Define a posição abaixo do painel superior */
+  position: fixed;
+  top: 60px;
   right: 0;
-  height: calc(100vh - 60px); /* Ajusta a altura para ocupar o restante da tela */
-  overflow-y: auto; /* Adiciona rolagem vertical se necessário */
-  background-color: #f9f9f9; /* Cor de fundo */
-  border-left: 2px solid #877B66; /* Borda esquerda */
-  z-index: 1100; /* Garante que o painel fique acima do conteúdo */
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  border-left: 2px solid #877B66;
+  z-index: 1100;
 }
 
-/* Estilo para os botões na parte inferior do menu */
+/* Botões na parte inferior do menu */
 .menu-icon-btn {
-  width: 40px; /* Diminui a largura do botão */
-  height: 40px; /* Diminui a altura do botão */
+  width: 40px;
+  height: 40px;
   background: none;
   border: none;
   cursor: pointer;
-  display: flex; /* Centraliza a imagem dentro do botão */
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px; /* Ajusta o espaçamento interno */
+  padding: 5px;
 }
 
-/* Estilo para as imagens dentro dos botões */
+/* Imagens dentro dos botões */
 .menu-icon-btn img {
-  width: 35px; /* Aumenta o tamanho da imagem */
-  height: 35px; /* Aumenta o tamanho da imagem */
+  width: 35px;
+  height: 35px;
 }

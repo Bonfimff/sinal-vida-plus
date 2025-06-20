@@ -639,74 +639,59 @@
       <h2 class="aba-legenda">Produtos</h2>
       <hr class="aba-linha">
       <form id="form-produtos-consulta">
-        <div class="form-group linha inline-style-f12ec8">
-          <!-- Coluna 1: Filtros de busca -->
-          <div class="form-coluna">
-            <div>
-              <label for="nome-produto-consulta">Nome do Produto</label>
-              <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
-            </div>
-            <div>
-              <label for="codigo-produto-consulta">Código</label>
-              <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
-            </div>
-            <div>
-              <label for="categoria-produto-consulta">Categoria</label>
-              <select id="categoria-produto-consulta" name="categoria-produto-consulta">
-                <option value="">Selecione</option>
-                <option value="Elétrico">Elétrico</option>
-                <option value="Mecânico">Mecânico</option>
-                <option value="Hidráulico">Hidráulico</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-coluna">
-            <div>
-              <label for="marca-produto-consulta">Marca</label>
-              <select id="marca-produto-consulta" name="marca-produto-consulta">
-                <option value="">Selecione</option>
-                <option value="Marca A">Marca A</option>
-                <option value="Marca B">Marca B</option>
-                <option value="Marca C">Marca C</option>
-              </select>
-            </div>
-            <div>
-              <label for="estoque-minimo-consulta">Estoque Mínimo</label>
-              <input type="number" id="estoque-minimo-consulta" name="estoque-minimo-consulta" />
-            </div>
-            <div>
-              <label for="local-estoque-consulta">Local de Estoque</label>
-              <select id="local-estoque-consulta" name="local-estoque-consulta">
-                <option value="">Selecione</option>
-                <option value="Almoxarifado">Almoxarifado</option>
-                <option value="Depósito Central">Depósito Central</option>
-              </select>
-            </div>
-          </div>
+        <div>
+          <label for="nome-produto-consulta">Nome do Produto</label>
+          <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
+        </div>
+        <div>
+          <label for="codigo-produto-consulta">Código</label>
+          <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
+        </div>
+        <div>
+          <label for="categoria-produto-consulta">Categoria</label>
+          <select id="categoria-produto-consulta" name="categoria-produto-consulta">
+            <option value="">Selecione</option>
+            <option value="Elétrico">Elétrico</option>
+            <option value="Mecânico">Mecânico</option>
+            <option value="Hidráulico">Hidráulico</option>
+          </select>
         </div>
         <button type="submit">Buscar Produtos</button>
       </form>
 
       <!-- Tabela de produtos -->
       <div class="tabela-produtos">
-        <h3>Lista de Produtos</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Código</th>
-              <th>Categoria</th>
-              <th>Marca</th>
-              <th>Estoque</th>
-              <th>Local</th>
-            </tr>
-          </thead>
-          <tbody>
-           
-          </tbody>
-        </table>
-      </div>
+        <div style="overflow-x: auto; max-height: 400px; border: 1px solid #ccc; padding: 10px;">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome do Produto</th>
+          <th>Código</th>
+          <th>Marca</th>
+          <th>Categoria</th>
+          <th>Unidade de Medida</th>
+          <th>Número de Série</th>
+          <th>Patrimônio</th>
+          <th>Local</th>
+          <th>Estoque</th>
+          <th>Quantidade</th>
+          <th>Estoque Mínimo</th>
+          <th>Custo</th>
+          <th>Data de Compra</th>
+          <th>Número da Nota</th>
+          <th>Fornecedor</th>
+          <th>Data de Validade</th>
+          <th>Término da Garantia</th>
+          <th>Outras Informações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linhas dinâmicas serão adicionadas aqui -->
+      </tbody>
+    </table>
+  </div>
+</div>
     </div>
 
     <!-- Aba Relatório -->
