@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="../CSS/geral.css" />
   <link rel="stylesheet" href="../CSS/ordens.css" />
+  <link rel="icon" href="../IMG/logoSvplus.png" type="image/png">
   <title>Ordens de Serviço</title>
 </head>
 <body>
@@ -27,7 +28,7 @@
   </div>
 
   <!-- Menu lateral Ordens de Serviço -->
-  <div class="menu menu-ordens">
+  <div class="menu">
     <button class="tab-btn active" data-tab="gerenciamento">Gerenciamento</button>
     <button class="tab-btn" data-tab="abertas">Ordens Abertas</button>
     <button class="tab-btn" data-tab="andamento">Em Andamento</button>
@@ -93,7 +94,7 @@
   </div>
 
   <!-- Sidebar direita Ordens de Serviço -->
-  <div class="sidebar-right sidebar-ordens">
+  <div class="sidebar-right">
     <img src="../IMG/Logo.png" alt="Logo" class="logo">
     <hr class="logo-divider">
     <div id="sidebar-content">
@@ -103,5 +104,13 @@
 
   <script src="../SCRIPT/geral.js"></script>
   <script src="../SCRIPT/ordens.js"></script>
+
+    <!-- Painel notificação -->
+<div id="info-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <p>Versão de desenvolvimento: 1.0.0</p>
+    <button id="modal-ok-btn">OK</button>
+  </div>
+</div>
 </body>
 </html>

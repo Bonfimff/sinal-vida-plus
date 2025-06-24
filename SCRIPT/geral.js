@@ -130,14 +130,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   openLeftPanelButton.addEventListener('click', () => {
     sidebarLeft.style.display = sidebarLeft.style.display === 'block' ? 'none' : 'block';
-    sidebarRight.style.display = 'none'; // Oculta o painel direito
-    optionsContainer.style.display = 'none'; // Oculta o container de opções
+    sidebarRight.style.display = 'none'; 
+    optionsContainer.style.display = 'none'; 
   });
 
   openRightPanelButton.addEventListener('click', () => {
     sidebarRight.style.display = sidebarRight.style.display === 'block' ? 'none' : 'block';
-    sidebarLeft.style.display = 'none'; // Oculta o painel esquerdo
-    optionsContainer.style.display = 'none'; // Oculta o container de opções
+    sidebarLeft.style.display = 'none'; 
+    optionsContainer.style.display = 'none'; 
   });
 
   // ============================
@@ -155,10 +155,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   moduleSelector.style.padding = '10px';
   moduleSelector.style.cursor = 'pointer';
   moduleSelector.style.fontSize = '14px';
-  moduleSelector.style.position = 'absolute'; // Define posição absoluta
-  moduleSelector.style.right = '10px'; // Fixa a 10px da direita
-  moduleSelector.style.top = '10px'; // Ajusta a posição vertical
-  moduleSelector.style.zIndex = '1200'; // Garante que fique acima de outros elementos
+  moduleSelector.style.position = 'absolute'; 
+  moduleSelector.style.right = '10px'; 
+  moduleSelector.style.top = '10px'; 
+  moduleSelector.style.zIndex = '1200'; 
 
 
   const topBar = document.querySelector('.top-bar');
@@ -220,14 +220,14 @@ document.addEventListener('DOMContentLoaded', async function () {
       sidebarRight.style.position = 'sticky';
       toggleButton.style.display = 'none';
       optionsContainer.style.display = 'none';
-      moduleSelector.style.display = 'none'; // Oculta o moduleSelector
+      moduleSelector.style.display = 'none'; 
       moduleList.style.display = 'none';
       moduleTabs.forEach(tab => tab.style.display = 'inline-block');
     } else {
       sidebarLeft.style.display = 'none';
       sidebarRight.style.display = 'none';
       toggleButton.style.display = 'block';
-      moduleSelector.style.display = toggleButton.style.display === 'block' ? 'inline-block' : 'none'; // Sincroniza com o toggleButton
+      moduleSelector.style.display = toggleButton.style.display === 'block' ? 'inline-block' : 'none'; 
       moduleTabs.forEach(tab => tab.style.display = 'none');
     }
   }
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Configuração da lista de módulos
   moduleList.id = 'module-list';
-  moduleList.style.display = 'none'; // Oculto por padrão
+  moduleList.style.display = 'none'; 
   moduleList.style.backgroundColor = '#FFFFFF';
   moduleList.style.border = '1px solid #ccc';
   moduleList.style.borderRadius = '8px';
@@ -277,4 +277,45 @@ document.addEventListener('DOMContentLoaded', function () {
       moduleList.style.display = 'none';
     }
   });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const infoButton = document.getElementById('btn-info'); // Botão "Info"
+  const modal = document.getElementById('info-modal'); // Painel flutuante
+  const modalOkButton = document.getElementById('modal-ok-btn'); // Botão "OK" no modal
+
+  // Exibir o modal ao clicar no botão "Info"
+  infoButton.addEventListener('click', function () {
+    modal.style.display = 'flex'; // Exibe o modal
+  });
+
+  // Fechar o modal ao clicar no botão "OK"
+  modalOkButton.addEventListener('click', function () {
+    modal.style.display = 'none'; // Oculta o modal
+  });
+
+  // Fechar o modal ao clicar fora do conteúdo
+  modal.addEventListener('click', function (event) {
+    if (event.target === modal) {
+      modal.style.display = 'none'; // Oculta o modal
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  function ajustarZoom() {
+    const larguraTela = window.innerWidth;
+
+    if (larguraTela <= 768) {
+      document.body.style.zoom = '90%'; 
+    } else {
+      document.body.style.zoom = '100%';
+    }
+  }
+
+  // Ajusta o zoom ao carregar a página
+  ajustarZoom();
+
+  // Ajusta o zoom ao redimensionar a janela
+  window.addEventListener('resize', ajustarZoom);
 });

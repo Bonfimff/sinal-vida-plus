@@ -312,4 +312,134 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // Função para alternar entre abas
+  function alternarAba(event) {
+    const todasAbas = document.querySelectorAll('.tab-content');
+    const todosBotoes = document.querySelectorAll('.top-tab2');
+
+    // Remove a classe 'active' de todas as abas e botões
+    todasAbas.forEach(aba => aba.classList.remove('active'));
+    todosBotoes.forEach(botao => botao.classList.remove('active'));
+
+    // Identifica a aba correspondente ao botão clicado
+    const abaId = event.target.getAttribute('data-tab');
+    const abaSelecionada = document.getElementById(abaId);
+
+    // Adiciona a classe 'active' à aba e ao botão selecionados
+    if (abaSelecionada) {
+      abaSelecionada.classList.add('active');
+    }
+    event.target.classList.add('active');
+  }
+
+  // Função para inicializar a aba ativa
+  function inicializarAbaAtiva() {
+    // Remove qualquer aba ou botão marcado como ativo
+    const abasAtivas = document.querySelectorAll('.tab-content.active');
+    const botoesAtivos = document.querySelectorAll('.top-tab2.active');
+
+    abasAtivas.forEach(aba => aba.classList.remove('active'));
+    botoesAtivos.forEach(botao => botao.classList.remove('active'));
+
+    // Ativa a aba "Gerenciamento" por padrão
+    const abaGerenciamento = document.getElementById('gerenciamento');
+    const botaoGerenciamento = document.querySelector('.tab-btn[data-tab="gerenciamento"]');
+
+    if (abaGerenciamento) {
+      abaGerenciamento.classList.add('active');
+    }
+    if (botaoGerenciamento) {
+      botaoGerenciamento.classList.add('active');
+    }
+  }
+
+  // Adiciona o evento de clique a todos os botões de troca de aba
+  document.querySelectorAll('.top-tab2').forEach(button => {
+    button.addEventListener('click', alternarAba);
+  });
+
+  // Inicializa a aba ativa ao carregar a página
+  document.addEventListener('DOMContentLoaded', function () {
+    inicializarAbaAtiva();
+  });
+
+  // Garante que o botão "Requisitantes" seja selecionado ao abrir a aba "Requisitantes"
+  const abaRequisitantes = document.getElementById('requisitantes');
+  if (abaRequisitantes) {
+    abaRequisitantes.addEventListener('click', function () {
+      const botaoRequisitantes = document.querySelector('.top-tab2[data-tab="requisitantes"]');
+      if (botaoRequisitantes) {
+        botaoRequisitantes.classList.add('active');
+      }
+    });
+  }
+
+  const botaoEntrada = document.getElementById('btn-entrada'); // Botão Entrada
+  const botaoTransferencia = document.getElementById('btn-transferencia'); // Botão tranferência
+  const botaoBaixa = document.getElementById('btn-baixa'); // Botão baixa
+  const todasAbas = document.querySelectorAll('.tab-content'); // Todas as abas
+  const todosBotoes = document.querySelectorAll('.top-tab2'); // Todos os botões de abas
+
+
+// Remove a classe 'active' de todos os botões
+todosBotoes.forEach(botao => botao.classList.remove('active'));
+
+  if (botaoEntrada) {
+    botaoEntrada.addEventListener('click', function () {
+      // Remove a classe 'active' de todas as abas e botões
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      todosBotoes.forEach(botao => botao.classList.remove('active'));
+
+      // Ativa a aba "Movimentações" e o botão "movimentaçoes"
+      const abaMovimentacoes = document.getElementById('movimentacoes');
+      if (abaMovimentacoes) {
+        abaMovimentacoes.classList.add('active');
+      }
+      botaoEntrada.classList.add('active');
+    });
+  }
+
+  todosBotoes.forEach(botao => botao.classList.remove('active'));
+   if (botaoTransferencia) {
+    botaoTransferencia.addEventListener('click', function () {
+      // Remove a classe 'active' de todas as abas e botões
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+     // todosBotoes.forEach(botao => botao.classList.remove('active'));
+
+      // Ativa a aba "Transferencia" e o botão "Transferencia"
+      const abaTransferencia = document.getElementById('transferencia');
+      if (abaTransferencia) {
+        abaTransferencia.classList.add('active');
+      }
+      botaoTransferencia.classList.add('active');
+    });
+  }
+
+todosBotoes.forEach(botao => botao.classList.remove('active'));
+   if (botaoBaixa) {
+    botaoBaixa.addEventListener('click', function () {
+      // Remove a classe 'active' de todas as abas e botões
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      todosBotoes.forEach(botao => botao.classList.remove('active'));
+
+      // Ativa a aba "baixa" e o botão "Baixa"
+      const abaBaixa = document.getElementById('baixa');
+      if (abaBaixa) {
+        abaBaixa.classList.add('active');
+      }
+      botaoBaixa.classList.add('active');
+    });
+ 
+  }
+
+  const botaoCarregarNota = document.getElementById('btn-carregar-nota');
+
+  if (botaoCarregarNota) {
+    botaoCarregarNota.addEventListener('click', function () {
+      console.log('Botão "Carregar Nota" clicado');
+      alert('Função de carregar nota ainda não implementada.');
+      // Aqui você pode implementar a lógica para carregar a nota
+    });
+  }
 });

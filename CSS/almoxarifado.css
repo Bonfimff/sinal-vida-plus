@@ -375,3 +375,94 @@
 .tabela-produtos tr:hover {
   background-color: #E6E6E6; /* Adiciona um efeito de hover às linhas */
 }
+
+/* Estilo das abas */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Estilo para o cabeçalho das abas */
+.requisitantes-header,
+.fornecedores-header,
+.produto-header {
+  display: flex;
+  justify-content: space-between; /* Espaça a legenda e os botões */
+  align-items: center; /* Alinha verticalmente os itens */
+}
+
+.outros-header .header-container {
+  display: flex;
+  justify-content: space-between; /* Espaça a legenda e os botões */
+  align-items: center; /* Alinha verticalmente os itens */
+}
+
+.aba-legenda {
+  margin: 0;
+}
+
+.opcoes-abas {
+  display: flex;
+  gap: 8px; /* Espaçamento entre os botões */
+}
+
+.top-tab {
+  background-color: #292929;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.top-tab:hover {
+  background-color: #444;
+  color: #FFFFFF;
+}
+
+.top-tab2 {
+  background-color: #292929;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.top-tab2.active {
+  background-color: #444;
+  color: #FFCB1F;
+}
+
+.top-tab2.active-requisitantes {
+  color: #FFCB1F; /* Cor do texto amarelo */
+  border: 2px solid #FFCB1F; /* Borda amarela */
+}
+
+.top-tab2:hover {
+  background-color: #555;
+}
+
+.acao-btn {
+  background-color: #FFCB1F;
+  color: #060606;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.acao-btn:hover {
+  background-color: #e0b71a;
+}
