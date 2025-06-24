@@ -451,7 +451,7 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 @media (max-width: 768px) {
   .menu {
-    height: calc(120vh - 50px);
+    height: calc(150vh - 50px);
   }
 }
 
@@ -555,7 +555,7 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 @media (max-width: 768px) {
   .sidebar-right {
-    height: calc(120vh - 50px); 
+    height: calc(150vh - 50px); 
   }
 }
 
