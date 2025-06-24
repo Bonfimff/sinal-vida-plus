@@ -375,71 +375,92 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const botaoEntrada = document.getElementById('btn-entrada'); // Botão Entrada
-  const botaoTransferencia = document.getElementById('btn-transferencia'); // Botão tranferência
-  const botaoBaixa = document.getElementById('btn-baixa'); // Botão baixa
-  const todasAbas = document.querySelectorAll('.tab-content'); // Todas as abas
-  const todosBotoes = document.querySelectorAll('.top-tab2'); // Todos os botões de abas
+  const todasAbas = document.querySelectorAll('.tab-content'); 
+  const todosBotoes = document.querySelectorAll('.top-tab2'); 
 
 
-// Remove a classe 'active' de todos os botões
-todosBotoes.forEach(botao => botao.classList.remove('active'));
-
-  if (botaoEntrada) {
-    botaoEntrada.addEventListener('click', function () {
-      // Remove a classe 'active' de todas as abas e botões
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-      todosBotoes.forEach(botao => botao.classList.remove('active'));
-
-      // Ativa a aba "Movimentações" e o botão "movimentaçoes"
-      const abaMovimentacoes = document.getElementById('movimentacoes');
-      if (abaMovimentacoes) {
-        abaMovimentacoes.classList.add('active');
-      }
-      botaoEntrada.classList.add('active');
-    });
-  }
-
-  todosBotoes.forEach(botao => botao.classList.remove('active'));
-   if (botaoTransferencia) {
-    botaoTransferencia.addEventListener('click', function () {
-      // Remove a classe 'active' de todas as abas e botões
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-     // todosBotoes.forEach(botao => botao.classList.remove('active'));
-
-      // Ativa a aba "Transferencia" e o botão "Transferencia"
-      const abaTransferencia = document.getElementById('transferencia');
-      if (abaTransferencia) {
-        abaTransferencia.classList.add('active');
-      }
-      botaoTransferencia.classList.add('active');
-    });
-  }
-
-todosBotoes.forEach(botao => botao.classList.remove('active'));
-   if (botaoBaixa) {
-    botaoBaixa.addEventListener('click', function () {
-      // Remove a classe 'active' de todas as abas e botões
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-      todosBotoes.forEach(botao => botao.classList.remove('active'));
-
-      // Ativa a aba "baixa" e o botão "Baixa"
-      const abaBaixa = document.getElementById('baixa');
-      if (abaBaixa) {
-        abaBaixa.classList.add('active');
-      }
-      botaoBaixa.classList.add('active');
-    });
  
+  todosBotoes.forEach(botao => botao.classList.remove('active'));
+
+   // ------------ evento abertura aba tranferencia ------------
+  const botaoEntrada1 = document.getElementById('btn-entrada1'); 
+  const botaoEntrada2 = document.getElementById('btn-entrada2'); 
+  const botaoEntrada3 = document.getElementById('btn-entrada3'); 
+  const abaMovimentacoes = document.getElementById('movimentacoes'); 
+  
+  if (botaoEntrada1 || botaoEntrada2 || botaoEntrada3) {
+    botaoEntrada1.addEventListener('click', function () {
+     
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaMovimentacoes.classList.add('active');
+    });
+    botaoEntrada2.addEventListener('click', function () {
+     
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaMovimentacoes.classList.add('active');
+    });
+    botaoEntrada3.addEventListener('click', function () {
+      
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaMovimentacoes.classList.add('active');
+    });
   }
 
-  const botaoCarregarNota = document.getElementById('btn-carregar-nota');
+   // ------------ evento abertura aba tranferencia ------------
+  const botaoTransferencia1 = document.getElementById('btn-transferencia1'); 
+  const botaoTransferencia2 = document.getElementById('btn-transferencia2'); 
+  const botaoTransferencia3 = document.getElementById('btn-transferencia3'); 
+  const abaTransferencia = document.getElementById('transferencia'); 
 
+  if (botaoTransferencia1||botaoTransferencia2||botaoTransferencia3) {
+    botaoTransferencia1.addEventListener('click', function () {
+    
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaTransferencia.classList.add('active');
+    });
+        botaoTransferencia2.addEventListener('click', function () {
+     
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaTransferencia.classList.add('active');
+    });
+        botaoTransferencia3.addEventListener('click', function () {
+      
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaTransferencia.classList.add('active');
+    });
+  }
+   
+   // ------------ evento abertura aba baixa ------------
+  const abaBaixa = document.getElementById('baixa');
+  const botaoBaixa1 = document.getElementById('btn-baixa1');
+  const botaoBaixa2 = document.getElementById('btn-baixa2');
+  const botaoBaixa3 = document.getElementById('btn-baixa3');
+  if (botaoBaixa1||botaoBaixa2||botaoBaixa3) {
+    botaoBaixa1.addEventListener('click', function () {
+    
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaBaixa.classList.add('active');
+      });
+ 
+      botaoBaixa2.addEventListener('click', function () {
+      
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaBaixa.classList.add('active');
+    }); 
+  
+    botaoBaixa3.addEventListener('click', function () {
+     
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaBaixa.classList.add('active');
+    });
+  }
+   
+  const botaoCarregarNota = document.getElementById('btn-carregar-nota');
   if (botaoCarregarNota) {
     botaoCarregarNota.addEventListener('click', function () {
-      console.log('Botão "Carregar Nota" clicado');
+     
       alert('Função de carregar nota ainda não implementada.');
-      // Aqui você pode implementar a lógica para carregar a nota
+      
     });
   }
 });
