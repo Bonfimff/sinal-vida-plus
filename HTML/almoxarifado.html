@@ -13,8 +13,7 @@
   <div class="menu">
     <button class="tab-btn active" data-tab="gerenciamento">Gerenciamento</button>
     <button class="tab-btn" data-tab="busca">Busca</button>
-    <button class="tab-btn" data-tab="retiradas">Retirada</button>
-    <button class="tab-btn" data-tab="devolucao">Devolução</button>
+
     <button class="tab-btn" data-tab="consultas-produtos">Produtos</button>
     <button class="tab-btn" data-tab="movimentacoes">Movimentações</button>
     <button class="tab-btn" data-tab="requisitantes">Cadastros</button>
@@ -97,7 +96,7 @@
       <div class="inline-style-40a339">
         <h3 class="inline-style-5fd781">Agendamento de Entradas</h3>
         <div id="agendamento-entradas-info">
-          <table class="inline-style-82c22b">
+          <table class="estilo-tabela">
             <thead>
               <tr class="inline-style-881bd5">
                 <th class="inline-style-f91e21">Data Agendada</th>
@@ -127,7 +126,8 @@
       <!-- Confirmação de Utilização de Itens -->
       <div class="inline-style-5d47ce">
         <h3 class="inline-style-7bbfe0">Confirmação de Utilização de Itens</h3>
-        <table class="inline-style-e0e97b">
+        <div id="agendamento-entradas-info">
+        <table class="estilo-tabela">
           <thead>
             <tr class="inline-style-881bd5">
               <th class="inline-style-f91e21">Nº OS</th>
@@ -160,6 +160,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 
@@ -198,14 +199,16 @@
     <!-- Aba Movimentações -->
     <div id="movimentacoes" class="tab-content">
       <div class="entrada-header">
-        <h2 class="aba-legenda">Movimentações ➜</h2>
+        <h2 class="aba-legenda">Entrada ⮷</h2>
         <div class="opcoes-abas">
-        <button id="btn-entrada1" class="top-tab2"style=" color: #FFCB1F; border: 2px solid #FFCB1F;">Entrada</button>
-        <button id="btn-transferencia1" class="top-tab2">Transferência</button>
-        <button id="btn-baixa1" class="top-tab2">Baixa</button>
-      </div>
-      </div>
-      <hr class="aba-linha">
+          <button id="btn-entrada1" class="top-tab2" style="color: #FFCB1F; border: 2px solid #FFCB1F;">Entrada</button>
+          <button id="btn-retirada1"class="top-tab2" data-tab="retiradas">Retirada</button>
+          <button id="btn-devolucao1"class="top-tab2" data-tab="devolucao">Devolução</button>
+          <button id="btn-transferencia1" class="top-tab2">Transferência</button>
+          <button id="btn-baixa1" class="top-tab2">Baixa</button>
+          </div>
+        </div>
+        <hr class="aba-linha">
       <!-- Conteúdo da antiga aba Entrada -->
       <form id="form-produtos">
         <div class="form-group linha inline-style-f12ec8">
@@ -213,19 +216,19 @@
           <div class="form-coluna">
             <div>
               <label for="id">ID</label>
-              <input type="number" id="id" name="id" required />
+              <input type="number" id="id-entrada" name="id" required />
             </div>
             <div>
               <label for="codigo">CÓDIGO</label>
-              <input type="text" id="codigo" name="codigo" required />
+              <input type="text" id="codigo-entrada" name="codigo" required />
             </div>
             <div>
               <label for="nome-produto">NOME DO PRODUTO</label>
-              <input type="text" id="nome-produto" name="nome-produto" required />
+              <input type="text" id="nome-produto-entrada" name="nome-produto" required />
             </div>
             <div>
               <label for="categoria">CATEGORIA</label>
-              <select id="categoria" name="categoria" required>
+              <select id="categoria-entrada" name="categoria" required>
                 <option value="">Selecione</option>
                 <option value="Elétrico">Elétrico</option>
                 <option value="Mecânico">Mecânico</option>
@@ -234,18 +237,18 @@
             </div>
             <div>
               <label for="quantidade">QUANTIDADE</label>
-              <input type="number" id="quantidade" name="quantidade" required />
+              <input type="number" id="quantidade-entrada" name="quantidade" required />
             </div>
             <div>
               <label for="numero-serie">NÚMERO DE SÉRIE</label>
-              <input type="text" id="numero-serie" name="numero-serie" />
+              <input type="text" id="numero-serie-entrada" name="numero-serie" />
             </div>
           </div>
           <!-- Coluna 2: Logística e origem -->
           <div class="form-coluna">
             <div>
               <label for="unid-medida">UNIDADE DE MEDIDA</label>
-              <select id="unid-medida" name="unid-medida" required>
+              <select id="unid-medida-entrada" name="unid-medida" required>
                 <option value="">Selecione</option>
                 <option value="cm">Centímetro</option>
                 <option value="m">Metro</option>
@@ -256,23 +259,24 @@
             </div>
             <div>
               <label for="estoque-minimo">ESTOQUE MÍNIMO</label>
-              <input type="number" id="estoque-minimo" name="estoque-minimo" />
+              <input type="number" id="estoque-minimo-entrada" name="estoque-minimo" />
             </div>
             <div>
               <label for="numero-nota">NÚMERO DA NOTA</label>
-              <input type="text" id="numero-nota" name="numero-nota"
+              <input type="text" id="numero-nota-entrada" name="numero-nota"
                      pattern="[\d\-.,/ ]*" title="Apenas números e os caracteres - . , / são permitidos" />
             </div>
             <div>
               <label for="fornecedor">FORNECEDOR</label>
-              <select id="fornecedor" name="fornecedor" required>
+              <select id="fornecedor-entrada" name="fornecedor" required>
                 <option value="">Selecione</option>
-                <option value="Fornecedor X">Fornecedor X</option>
+                <option value="Fornecedor X">BMB MATERIAL DE CONSTRUCAO S.A.</option>
+
                 <option value="Fornecedor Y">Fornecedor Y</option>
               </select>
             </div>
             <div>
-              <label for="patrimonio">PATRIMÔNIO</label>
+              <label for="patrimonio-entrada">PATRIMÔNIO</label>
               <select id="patrimonio" name="patrimonio" required>
                 <option value="">Selecione</option>
                 <option value="Duque de caxias">Contrato 1</option>
@@ -280,7 +284,7 @@
               </select>
             </div>
             <div>
-              <label for="local-estoque">LOCAL ESTOQUE</label>
+              <label for="local-estoque-entrada">LOCAL ESTOQUE</label>
               <select id="local-estoque" name="local-estoque" required>
                 <option value="">Selecione</option>
                 <option value="Almoxarifado">Almoxarifado</option>
@@ -290,31 +294,32 @@
           </div>
 
           <!-- Coluna 3: Financeiro + Imagem -->
-          <div class="form-coluna inline-style-06ede4">
+          <div class="form-coluna">
             <div class="image-preview-container">
-              <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
+              <img id="preview-entrada" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
             </div>
             <div>
               <label for="custo">CUSTO</label>
-              <input type="text" id="custo" name="custo" class="custo-input" required />
+              <input type="text" id="custo-entrada" name="custo" class="custo-input" required />
             </div>
             <div>
               <label for="garantia">TERMINO DA GARANTIA</label>
-              <input type="date" id="garantia" name="garantia" />
+              <input type="date" id="garantia-entrada" name="garantia" />
             </div>
             <div>
               <label for="data-validade">DATA VALIDADE</label>
-              <input type="date" id="data-validade" name="data-validade" />
+              <input type="date" id="data-validade-entrada" name="data-validade" />
             </div>
               <div>
               <label for="data-compra">DATA DA COMPRA</label>
-              <input type="date" id="data-compra" name="data-compra" />
+              <input type="date" id="data-compra-entrada" name="data-compra" />
             </div>
           </div>
         </div>
 
-        <button type="submit">Salvar Produto</button>
-        <button type="button" id="btn-carregar-nota" class="acao-btn">Carregar Nota</button>
+        <button id="btn-add" class="acao-btn" type= add-produto>Salvar entrada</button>
+        <button type="button" id="btn-carregar-nota" class="acao-btn">Carregar Nota ⭳</button>
+        <input type="file" id="input-carregar-nota-movimentacao" accept=".xml" style="display: none;">
       </form>
     </div>
 
@@ -322,9 +327,11 @@
         <!-- Aba Transferência -->
     <div id="transferencia" class="tab-content">
       <div class="entrada-header">
-        <h2 class="aba-legenda">Movimentações ➜</h2>
+        <h2 class="aba-legenda">Movimentações ⮷</h2>
         <div class="opcoes-abas">
         <button id="btn-entrada2" class="top-tab2">Entrada</button>
+        <button id="btn-retirada2"class="top-tab2" data-tab="retiradas">Retirada</button>
+        <button id="btn-devolucao2"class="top-tab2" data-tab="devolucao">Devolução</button>
         <button id="btn-transferencia2" class="top-tab2"style=" color: #FFCB1F; border: 2px solid #FFCB1F;">Transferência</button>
         <button id="btn-baixa2" class="top-tab2">Baixa</button>
       </div>
@@ -340,9 +347,11 @@
             <!-- Aba Baixa -->
     <div id="baixa" class="tab-content">
       <div class="entrada-header">
-        <h2 class="aba-legenda">Movimentações ➜</h2>
+        <h2 class="aba-legenda">Movimentações ⮷</h2>
         <div class="opcoes-abas">
         <button id="btn-entrada3" class="top-tab2">Entrada</button>
+        <button id="btn-retirada3"class="top-tab2" data-tab="retiradas">Retirada</button>
+        <button id="btn-devolucao3"class="top-tab2" data-tab="devolucao">Devolução</button>
         <button id="btn-transferencia3" class="top-tab2">Transferência</button>
         <button id="btn-baixa3" class="top-tab2"style=" color: #FFCB1F; border: 2px solid #FFCB1F;">Baixa</button>
       </div>
@@ -356,12 +365,20 @@
 
     <!-- Aba Retiradas -->
     <div id="retiradas" class="tab-content">
-      <h2 class="aba-legenda">Retiradas</h2>
+      <div class="entrada-header"></div>
+      <h2 class="aba-legenda">Retirada ⮷</h2>
+        <div class="opcoes-abas">
+          <button id="btn-entrada4" class="top-tab2" >Entrada</button>
+          <button id="btn-retirada4"class="top-tab2" data-tab="retiradas"style="color: #FFCB1F; border: 2px solid #FFCB1F;">Retirada</button>
+          <button id="btn-devolucao4"class="top-tab2" data-tab="devolucao">Devolução</button>
+          <button id="btn-transferencia4" class="top-tab2">Transferência</button>
+          <button id="btn-baixa4" class="top-tab2">Baixa</button>
+        </div>
       <hr class="aba-linha">
       <form id="form-retiradas">
         <div class="form-group linha inline-style-f12ec8">
           <!-- Coluna esquerda: ID, DATA, REQUISITANTE, RESPONSÁVEL -->
-          <div class="inline-style-03497c">
+          <div class="form-coluna">
             <div>
               <label for="retirada-id">ID DA RETIRADA</label>
               <input type="number" id="retirada-id" name="retirada-id" required readonly />
@@ -385,7 +402,7 @@
             </div>
           </div>
           <!-- Coluna central: LOCAL, FINALIDADE, OBSERVAÇÕES -->
-          <div class="inline-style-686f3e">
+          <div class="form-coluna">
             <div>
               <label for="retirada-local">LOCAL DE DESTINO</label>
               <select id="retirada-local" name="retirada-local" required class="inline-style-199b6f">
@@ -415,7 +432,7 @@
             </div>
           </div>
           <!-- Coluna direita: Imagem e Produto -->
-          <div class="inline-style-842cc1">
+          <div class="form-coluna">
             <img id="retirada-produto-img" src="../IMG/Sem imagem.png" alt="Imagem do Produto" class="inline-style-9c7011">
             <div class="inline-style-199b6f">
               <label for="retirada-produto">PRODUTO</label>
@@ -462,7 +479,14 @@
 
     <!-- Aba Devolução -->
     <div id="devolucao" class="tab-content">
-      <h2 class="aba-legenda">Devolução</h2>
+      <h2 class="aba-legenda">Movimentações ⮷</h2>
+      <div class="opcoes-abas">
+          <button id="btn-entrada5" class="top-tab2" >Entrada</button>
+          <button id="btn-retirada5"class="top-tab2" data-tab="retiradas">Retirada</button>
+          <button id="btn-devolucao5"class="top-tab2" data-tab="devolucao"style="color: #FFCB1F; border: 2px solid #FFCB1F;">Devolução</button>
+          <button id="btn-transferencia5" class="top-tab2">Transferência</button>
+          <button id="btn-baixa5" class="top-tab2">Baixa</button>
+      </div>
       <hr class="aba-linha">
       <form id="form-devolucao">
         <div class="form-group linha inline-style-f12ec8">
@@ -699,11 +723,12 @@
 
       <!-- Tabela de produtos -->
       <div class="tabela-produtos">
-        <div style="overflow-x: auto; max-height: 400px; border: 1px solid #ccc; padding: 10px;">
-    <table>
+        <div style="overflow-x: auto; max-height: 400px; border: 0px solid #040404; padding: 10px;">
+    <table class= "estilo-tabela">
       <thead>
-        <tr>
-          <th>ID</th>
+        <tr class="inline-style-881bd5">
+           <th class="inline-style-f91e21">ID</th>
+
           <th>Nome do Produto</th>
           <th>Código</th>
           <th>Marca</th>
@@ -728,6 +753,7 @@
         <!-- Linhas dinâmicas serão adicionadas aqui -->
       </tbody>
     </table>
+    
   </div>
 </div>
     </div>
@@ -830,7 +856,8 @@
       </div>
     </div>
 
-    <!-- Aba Cadastro de Produtos -->
+    <!-- ======================= Aba Cadastro de Produtos ========================================== -->
+
      <div id="cadastro-produto" class="tab-content">
       <div class="produto-header">
         <h2 class="aba-legenda">Cadastros ➜</h2>
@@ -847,10 +874,6 @@
         <div class="form-group linha inline-style-f12ec8">
           <!-- Coluna 1: Identificação -->
           <div class="form-coluna">
-            <div>
-              <label for="id">ID</label>
-              <input type="number" id="id" name="id" required />
-            </div>
             <div>
               <label for="codigo">CÓDIGO</label>
               <input type="text" id="codigo" name="codigo" required />
@@ -876,6 +899,11 @@
               <label for="numero-serie">NÚMERO DE SÉRIE</label>
               <input type="text" id="numero-serie" name="numero-serie" />
             </div>
+
+            <label for="retirada-observacoes">OBSERVAÇÕES</label>
+              <textarea id="retirada-observacoes"  class=""></textarea>
+            
+
           </div>
           <!-- Coluna 2: Logística e origem -->
           <div class="form-coluna">
@@ -903,7 +931,7 @@
               <label for="fornecedor">FORNECEDOR</label>
               <select id="fornecedor" name="fornecedor" required>
                 <option value="">Selecione</option>
-                <option value="Fornecedor X">Fornecedor X</option>
+                <option value="Fornecedor X">BMB MATERIAL DE CONSTRUCAO S.A.</option>
                 <option value="Fornecedor Y">Fornecedor Y</option>
               </select>
             </div>
@@ -926,9 +954,10 @@
           </div>
 
           <!-- Coluna 3: Financeiro + Imagem -->
-          <div class="form-coluna inline-style-06ede4">
+          <div class="form-coluna">
             <div class="image-preview-container">
               <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
+              <input type="file" id="input-carregar-nota-cadastro" accept="image/*" style="display: none;" />
             </div>
             <div>
               <label for="custo">CUSTO</label>
@@ -949,8 +978,33 @@
           </div>
         </div>
 
-        <button type="submit">Salvar Produto</button>
-        <button type="button" id="btn-carregar-nota" class="acao-btn">Carregar Nota</button>
+         <div class="tabela-produtos">
+      <div style="overflow-x: auto; max-height: 400px; border: 0px solid #ccc; padding: 10px;">
+        <table id="tabelaProdutos" class="estilo-tabela">
+          <thead>
+            <tr class="inline-style-881bd5">
+              <th class="inline-style-f91e21">ID</th>
+              <th>Nome do Produto</th>
+              <th>Código</th>
+              <th>Marca</th>
+              <th>Unidade de Medida</th>
+              <th>Quantidade</th>
+              <th>Custo unitario</th>
+              <th>Data de emissão da nota</th>
+              <th>Número da Nota</th>
+              <th>Fornecedor</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+        <button id="btn-novoProduto" class="acao-btn" type= add-produto>Salvar novo produto </button>
+        <button type="button" id="btn-carregar-nota-cadastro" class="acao-btn">Carregar Nota ⭳</button>
+        <input type="file" id="input-carregar-nota-cadastro" accept=".xml" style="display: none;">
       </form>
     </div>
 
@@ -1000,7 +1054,7 @@
   <!-- Painel notificação -->
 <div id="info-modal" class="modal" style="display: none;">
   <div class="modal-content">
-    <p>Versão de desenvolvimento: 24.06 v3</p>
+    <p>Versão de desenvolvimento: 25.06 v1</p>
     <button id="modal-ok-btn">OK</button>
   </div>
 </div>

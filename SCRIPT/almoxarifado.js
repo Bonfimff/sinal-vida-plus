@@ -18,16 +18,16 @@ document.addEventListener('DOMContentLoaded', function () {
     body.appendChild(message);
 
     setTimeout(() => {
-      message.remove(); // Remove a mensagem após 5 segundos
+      message.remove(); 
     }, 5000);
   };
   document.head.appendChild(script);
 
   // Código existente do almoxarifado.js
-  const sidebarContent = document.getElementById('sidebar-content'); // Painel lateral direito
-  const tbodyItens = document.getElementById('itens-retirada'); // Tabela de itens para retirada
-  const tabs = document.querySelectorAll('.tab-btn'); // Botões das abas
-  const tabContents = document.querySelectorAll('.tab-content'); // Conteúdo das abas
+  const sidebarContent = document.getElementById('sidebar-content'); 
+  const tbodyItens = document.getElementById('itens-retirada');
+  const tabs = document.querySelectorAll('.tab-btn'); 
+  const tabContents = document.querySelectorAll('.tab-content'); 
 
   // Função para atualizar o preview no painel lateral
   function atualizarPreviewCupom() {
@@ -382,25 +382,32 @@ document.addEventListener('DOMContentLoaded', function () {
  
   todosBotoes.forEach(botao => botao.classList.remove('active'));
 
-   // ------------ evento abertura aba tranferencia ------------
+   // ------------ evento abertura aba Entrada ------------
   const botaoEntrada1 = document.getElementById('btn-entrada1'); 
   const botaoEntrada2 = document.getElementById('btn-entrada2'); 
   const botaoEntrada3 = document.getElementById('btn-entrada3'); 
+  const botaoEntrada4 = document.getElementById('btn-entrada4'); 
+  const botaoEntrada5 = document.getElementById('btn-entrada5'); 
   const abaMovimentacoes = document.getElementById('movimentacoes'); 
   
-  if (botaoEntrada1 || botaoEntrada2 || botaoEntrada3) {
+  if (botaoEntrada1 || botaoEntrada2 || botaoEntrada3|| botaoEntrada4|| botaoEntrada5) {
     botaoEntrada1.addEventListener('click', function () {
-     
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaMovimentacoes.classList.add('active');
     });
-    botaoEntrada2.addEventListener('click', function () {
-     
+    botaoEntrada2.addEventListener('click', function () { 
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaMovimentacoes.classList.add('active');
     });
     botaoEntrada3.addEventListener('click', function () {
-      
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaMovimentacoes.classList.add('active');
+    });
+        botaoEntrada4.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaMovimentacoes.classList.add('active');
+    });
+        botaoEntrada5.addEventListener('click', function () {
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaMovimentacoes.classList.add('active');
     });
@@ -410,24 +417,32 @@ document.addEventListener('DOMContentLoaded', function () {
   const botaoTransferencia1 = document.getElementById('btn-transferencia1'); 
   const botaoTransferencia2 = document.getElementById('btn-transferencia2'); 
   const botaoTransferencia3 = document.getElementById('btn-transferencia3'); 
+  const botaoTransferencia4 = document.getElementById('btn-transferencia4'); 
+  const botaoTransferencia5 = document.getElementById('btn-transferencia5');
   const abaTransferencia = document.getElementById('transferencia'); 
 
-  if (botaoTransferencia1||botaoTransferencia2||botaoTransferencia3) {
+  if (botaoTransferencia1||botaoTransferencia2||botaoTransferencia3||botaoTransferencia4||botaoTransferencia5) {
     botaoTransferencia1.addEventListener('click', function () {
-    
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaTransferencia.classList.add('active');
     });
         botaoTransferencia2.addEventListener('click', function () {
-     
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaTransferencia.classList.add('active');
     });
         botaoTransferencia3.addEventListener('click', function () {
-      
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaTransferencia.classList.add('active');
     });
+        botaoTransferencia4.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaTransferencia.classList.add('active');
+    });
+        botaoTransferencia5.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaTransferencia.classList.add('active');
+    });
+
   }
    
    // ------------ evento abertura aba baixa ------------
@@ -435,32 +450,371 @@ document.addEventListener('DOMContentLoaded', function () {
   const botaoBaixa1 = document.getElementById('btn-baixa1');
   const botaoBaixa2 = document.getElementById('btn-baixa2');
   const botaoBaixa3 = document.getElementById('btn-baixa3');
-  if (botaoBaixa1||botaoBaixa2||botaoBaixa3) {
+  const botaoBaixa4 = document.getElementById('btn-baixa4');
+  const botaoBaixa5 = document.getElementById('btn-baixa5');
+  if (botaoBaixa1||botaoBaixa2||botaoBaixa3||botaoBaixa4||botaoBaixa5) {
     botaoBaixa1.addEventListener('click', function () {
-    
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaBaixa.classList.add('active');
       });
  
       botaoBaixa2.addEventListener('click', function () {
-      
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaBaixa.classList.add('active');
     }); 
   
     botaoBaixa3.addEventListener('click', function () {
-     
       todasAbas.forEach(aba => aba.classList.remove('active'));
       abaBaixa.classList.add('active');
     });
+    botaoBaixa4.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaBaixa.classList.add('active');
+    });
+
+    botaoBaixa5.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaBaixa.classList.add('active');
+    });
+
   }
+
+
+   // ------------ evento abertura aba devolução ------------
+  const abaDevolucao = document.getElementById('devolucao');
+  const botaoDdevolucao1 = document.getElementById('btn-devolucao1');
+  const botaoDdevolucao2 = document.getElementById('btn-devolucao2');
+  const botaoDdevolucao3 = document.getElementById('btn-devolucao3');
+  const botaoDdevolucao4 = document.getElementById('btn-devolucao4');
+  const botaoDdevolucao5 = document.getElementById('btn-devolucao5');
+  if (botaoDdevolucao1||botaoDdevolucao2||botaoDdevolucao3||botaoDdevolucao4||botaoDdevolucao5) {
+    botaoDdevolucao1.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaDevolucao.classList.add('active');
+      });
+ 
+      botaoDdevolucao2.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaDevolucao.classList.add('active');
+    }); 
+  
+    botaoDdevolucao3.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaDevolucao.classList.add('active');
+    });
+    botaoDdevolucao4.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaDevolucao.classList.add('active');
+    });
+
+    botaoDdevolucao5.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaDevolucao.classList.add('active');
+    });
+
+  }
+
+
+   // ------------ evento abertura aba Retirada ------------
+  const abaRetiradas = document.getElementById('retiradas');
+  const botaoRetiradas1 = document.getElementById('btn-retirada1');
+  const botaoRetiradas2 = document.getElementById('btn-retirada2');
+  const botaoRetiradas3 = document.getElementById('btn-retirada3');
+  const botaoRetiradas4 = document.getElementById('btn-retirada4');
+  const botaoRetiradas5 = document.getElementById('btn-retirada5');
+  if (botaoRetiradas1||botaoRetiradas2||botaoRetiradas3||botaoRetiradas4||botaoRetiradas5) {
+
+    botaoRetiradas1.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaRetiradas.classList.add('active');
+      });
+ 
+      botaoRetiradas2.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaRetiradas.classList.add('active');
+    }); 
+  
+    botaoRetiradas3.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaRetiradas.classList.add('active');
+    });
+
+    botaoRetiradas4.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      abaRetiradas.classList.add('active');
+    });
+
+    botaoRetiradas5.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+     abaRetiradas.classList.add('active');
+    });
+
+  }
+
+
    
-  const botaoCarregarNota = document.getElementById('btn-carregar-nota');
-  if (botaoCarregarNota) {
-    botaoCarregarNota.addEventListener('click', function () {
-     
-      alert('Função de carregar nota ainda não implementada.');
-      
+  // Evento para carregar a nota de cadastro
+  const btnCarregarNota = document.getElementById('btn-carregar-nota-cadastro');
+  const inputCarregarNota = document.getElementById('input-carregar-nota-cadastro');
+
+  if (btnCarregarNota && inputCarregarNota) {
+    // Evento para abrir o seletor de arquivos
+    btnCarregarNota.addEventListener('click', function () {
+      inputCarregarNota.click(); // Simula o clique no campo de entrada de arquivo
+    });
+
+    // Evento para processar o arquivo XML selecionado
+    inputCarregarNota.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) {
+        alert('Nenhum arquivo selecionado.');
+        return;
+      }
+
+      // Verifica se o arquivo é um XML
+      if (!file.name.endsWith('.xml')) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const xmlText = e.target.result;
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+
+          // Verifica se houve erro no parsing do XML
+          if (xmlDoc.querySelector('parsererror')) {
+            alert('Erro ao processar o arquivo XML. Verifique o formato do arquivo.');
+            return;
+          }
+
+          const tabelaBody = document.querySelector("#tabelaProdutos tbody");
+
+          // Limpa o conteúdo anterior da tabela
+          tabelaBody.innerHTML = "";
+
+          // Detecta o tipo de nota com base na estrutura do XML
+          if (xmlDoc.querySelector("NFe")) {
+            processarNFe(xmlDoc, tabelaBody);
+          } else if (xmlDoc.querySelector("InfNfse")) {
+            processarNFSe(xmlDoc, tabelaBody);
+          } else {
+            alert("Tipo de nota não reconhecido.");
+          }
+        } catch (error) {
+          console.error('Erro ao processar o arquivo:', error);
+          alert('Ocorreu um erro ao processar o arquivo. Verifique o console para mais detalhes.');
+        }
+      };
+
+      reader.readAsText(file);
+    });
+  } else {
+    console.error('Erro: Elementos de botão ou input para carregar nota não encontrados no DOM.');
+  }
+
+  // Função para processar NF-e
+  function processarNFe(xmlDoc, tabelaBody) {
+    const dets = xmlDoc.querySelectorAll("det");
+    const dataEmissaoRaw = xmlDoc.querySelector("ide > dhEmi")?.textContent || "N/A";
+    const numeroNota = xmlDoc.querySelector("ide > nNF")?.textContent || "N/A";
+    const fornecedor = xmlDoc.querySelector("emit > xNome")?.textContent || "N/A";
+
+    const dataEmissao = formatarData(dataEmissaoRaw);
+ 
+    dets.forEach((det, index) => {
+      const prod = det.querySelector("prod");
+      const nomeProd = prod?.querySelector("xProd")?.textContent || "N/A";
+      const codigo = prod?.querySelector("cProd")?.textContent || "N/A";
+      const marca = prod?.querySelector("xMarca")?.textContent || "N/A";
+      const unidadeMedida = prod?.querySelector("uCom")?.textContent || "N/A";
+      const quantidadeRaw = prod?.querySelector("qCom")?.textContent || "N/A";
+      const custoUnitarioRaw = prod?.querySelector("vUnCom")?.textContent || "N/A";
+
+      // Formata os valores
+      const quantidade = formatarQuantidade(quantidadeRaw);
+      const custoUnitario = formatarValor(custoUnitarioRaw);
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${nomeProd}</td>
+        <td>${codigo}</td>
+        <td>${marca}</td>
+        <td>${unidadeMedida}</td>
+        <td>${quantidade}</td>
+        <td>${custoUnitario}</td>
+        <td>${dataEmissao}</td>
+        <td>${numeroNota}</td>
+        <td>${fornecedor}</td>
+        <td>
+          <button class="btn-editar" data-index="${index}">⮵</button>
+        </td>
+      `;
+      tabelaBody.appendChild(row);
     });
   }
+
+  // Função para processar NFS-e
+  function processarNFSe(xmlDoc, tabelaBody) {
+    const numeroNota = xmlDoc.querySelector("InfNfse > Numero")?.textContent || "N/A";
+    const dataEmissaoRaw = xmlDoc.querySelector("InfNfse > DataEmissao")?.textContent || "N/A";
+    const fornecedor = xmlDoc.querySelector("PrestadorServico > RazaoSocial")?.textContent || "N/A";
+
+    const dataEmissao = formatarData(dataEmissaoRaw);
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>1</td>
+      <td>Serviço</td>
+      <td>N/A</td>
+      <td>N/A</td>
+      <td>N/A</td>
+      <td>N/A</td>
+      <td>N/A</td>
+      <td>${dataEmissao}</td>
+      <td>${numeroNota}</td>
+      <td>${fornecedor}</td>
+      <td>
+        <button class="btn-editar" data-index="0">Editar</button>
+      </td>
+    `;
+    tabelaBody.appendChild(row);
+  }
+
+  // Função para formatar valores monetários (R$)
+  function formatarValor(valor) {
+    if (valor === "N/A") return "N/A";
+    const numero = parseFloat(valor);
+    if (isNaN(numero)) return "N/A";
+    return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  // Função para formatar quantidade
+  function formatarQuantidade(quantidade) {
+    if (quantidade === "N/A") return "N/A";
+    const numero = parseFloat(quantidade);
+    if (isNaN(numero)) return "N/A";
+    return numero.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Função para formatar a data no formato dd/mm/yyyy
+  function formatarData(dataISO) {
+    if (dataISO === "N/A") return "N/A";
+    const data = new Date(dataISO);
+    if (isNaN(data)) return "N/A"; // Verifica se a data é inválida
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+  // Evento para editar produtos na tabela
+  document.querySelector("#tabelaProdutos").addEventListener("click", function (event) {
+    if (event.target.classList.contains("btn-editar")) {
+      const row = event.target.closest("tr"); // Obtém a linha correspondente
+
+      // Captura os valores das células da linha
+      const nomeProduto = row.cells[1].textContent.trim();
+      const codigo = row.cells[2].textContent.trim();
+      const unidMedida = row.cells[4].textContent.trim();
+      const quantidadeRaw = row.cells[5].textContent.trim(); // Captura a quantidade
+      const custo = row.cells[6].textContent.trim();
+      const dataCompra = row.cells[7].textContent.trim();
+      const numeroNota = row.cells[8].textContent.trim();
+      const fornecedor = row.cells[9].textContent.trim();
+
+      // Remove formatações da quantidade, se necessário
+      const quantidade = quantidadeRaw.replace(/\./g, '').replace(',', '.'); // Converte para formato numérico
+
+      // Preenche os campos do formulário, ignorando valores "N/A"
+      if (nomeProduto !== "N/A") document.getElementById("nome-produto").value = nomeProduto;
+      if (codigo !== "N/A") document.getElementById("codigo").value = codigo;
+      if (unidMedida !== "N/A") document.getElementById("unid-medida").value = unidMedida;
+      if (quantidade !== "N/A") document.getElementById("quantidade").value = quantidade;
+      if (custo !== "N/A") document.getElementById("custo").value = custo;
+
+      // Preenche o campo de data (DATA DA COMPRA)
+      if (dataCompra !== "N/A") {
+        const dataFormatada = formatarDataParaInput(dataCompra); // Converte para o formato yyyy-MM-dd
+        document.getElementById("data-compra").value = dataFormatada;
+      }
+
+      // Seleciona o fornecedor no campo de seleção
+      const fornecedorSelect = document.getElementById("fornecedor");
+      if (fornecedor !== "N/A") {
+        const option = Array.from(fornecedorSelect.options).find(opt => opt.textContent.trim() === fornecedor);
+        if (option) fornecedorSelect.value = option.value;
+      }
+ 
+      if (numeroNota !== "N/A") document.getElementById("numero-nota").value = numeroNota;
+    }
+  });
+
+  // Função para converter a data no formato dd/MM/yyyy para yyyy-MM-dd
+  function formatarDataParaInput(data) {
+    const [dia, mes, ano] = data.split("/");
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  document.getElementById("btn-novoProduto").addEventListener("click", function (event) {
+    event.preventDefault(); // Impede o envio do formulário
+
+    const nomeProduto = document.getElementById("nome-produto").value; // Captura o nome do produto
+    const codigoProduto = document.getElementById("codigo").value; // Captura o código do produto
+
+    if (!nomeProduto) {
+      alert("Por favor, preencha o nome do produto.");
+      return;
+    }
+
+    // Adiciona o produto à tabela
+    const tabelaBody = document.querySelector("#tabelaProdutos tbody");
+    const newRow = document.createElement("tr");
+    newRow.innerHTML = `
+      <td>${codigoProduto || "N/A"}</td>
+      <td>${nomeProduto}</td>
+      <td>
+        <button class="btn-editar">Editar</button>
+      </td>
+    `;
+    tabelaBody.appendChild(newRow);
+
+    // Limpa o campo do formulário
+    document.getElementById("nome-produto").value = "";
+    document.getElementById("codigo").value = "";
+  });
+
+  const previewImg = document.getElementById('preview');
+  const inputImagem = document.getElementById('input-carregar-nota-cadastro'); // ID corrigido
+
+  if (previewImg && inputImagem) {
+    // Evento de clique na imagem para abrir o seletor de arquivos
+    previewImg.addEventListener('click', function () {
+      inputImagem.click(); // Simula o clique no input de arquivo
+    });
+
+    // Evento para exibir a imagem selecionada
+    inputImagem.addEventListener('change', function (event) {
+      const file = event.target.files[0]; // Obtém o arquivo selecionado
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImg.src = e.target.result; // Define a imagem no componente
+        };
+        reader.readAsDataURL(file); // Lê o arquivo como URL de dados
+      }
+    });
+  } else {
+    console.error('Erro: Elementos de imagem ou input não encontrados no DOM.');
+  }
+
+  // Referências às abas e botões
+const todasAbasMovimentacoes = document.querySelectorAll('.tab-content');
+
+const botaoDevolucao1 = document.getElementById('btn-devolucao1');
+const botaoRetirada1 = document.getElementById('btn-retirada1');
+//const conteudoMovimentacoes = document.getElementById('conteudo-movimentacoes');
+
+
 });

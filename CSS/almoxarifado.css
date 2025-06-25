@@ -41,7 +41,7 @@
   border: 2px solid #ffd5007b;
 }
 .inline-style-5fd781 { color: #555; }
-.inline-style-82c22b {
+.estilo-tabela {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -310,70 +310,70 @@
 
 /* Estilo para habilitar rolagem horizontal na tabela */
 #agendamento-entradas-info {
-  overflow-x: auto; /* Habilita rolagem horizontal */
-  max-width: 100%; /* Garante que a largura máxima seja respeitada */
-  border: 0px solid #ccc; /* Adiciona uma borda para delimitar a área */
-  padding: 10px; /* Adiciona espaçamento interno */
-  box-sizing: border-box; /* Inclui bordas e preenchimento no tamanho total */
+  overflow-x: auto; 
+  max-width: 100%; 
+  border: 0px solid #ccc; 
+  padding: 10px; 
+  box-sizing: border-box; 
 }
 
 #agendamento-entradas-info table {
-  width: 100%; /* Faz a tabela ocupar toda a largura disponível */
-  border-collapse: collapse; /* Remove espaços entre as bordas das células */
+  width: 100%; 
+  border-collapse: collapse; 
 }
 
 #agendamento-entradas-info th,
 #agendamento-entradas-info td {
-  padding: 10px; /* Adiciona espaçamento interno nas células */
-  text-align: left; /* Alinha o texto à esquerda */
-  border: 1px solid #ddd; /* Adiciona bordas às células */
+  padding: 10px; 
+  text-align: left; 
+  border: 1px solid #ddd; 
 }
 
 #agendamento-entradas-info th {
-  background-color: #292929; /* Cor de fundo para o cabeçalho */
-  color: #fff; /* Cor do texto no cabeçalho */
+  background-color: #292929; 
+  color: #fff;
 }
 
 /* Estilo para o contêiner da tabela */
 .tabela-produtos-container {
-  margin-top: 20px; /* Espaço acima da tabela */
+  margin-top: 20px; 
 }
 
 /* Estilo para habilitar rolagem na div */
 .tabela-scroll {
-  max-height: 400px; /* Limita a altura da tabela */
-  overflow-y: auto; /* Habilita rolagem vertical */
-  border: 1px solid #ddd; /* Adiciona uma borda ao redor da div */
-  padding: 10px; /* Adiciona espaçamento interno */
-  box-sizing: border-box; /* Inclui bordas e preenchimento no tamanho total */
+  max-height: 400px; 
+  overflow-y: auto; 
+  border: 1px solid #ddd; 
+  padding: 10px; 
+  box-sizing: border-box; 
 }
 
 /* Estilo para a tabela */
 .tabela-produtos table {
-  width: 100%; /* Faz a tabela ocupar toda a largura disponível */
-  border-collapse: collapse; /* Remove espaços entre as bordas das células */
-  font-size: 14px; /* Ajusta o tamanho da fonte */
-  background-color: #FFFFFF; /* Define a cor de fundo da tabela */
+  width: 100%; 
+  border-collapse: collapse;
+  font-size: 14px; 
+  background-color: #FFFFFF;
 }
 
 .tabela-produtos th, .tabela-produtos td {
-  border: 1px solid #877B66; /* Adiciona bordas às células */
-  padding: 8px; /* Adiciona espaçamento interno às células */
-  text-align: left; /* Alinha o texto à esquerda */
+  border: 1px solid #877B66;
+  padding: 8px; 
+  text-align: left; 
 }
 
 .tabela-produtos th {
-  background-color: #FFCB1F; /* Define a cor de fundo para os cabeçalhos */
-  color: #060606; /* Define a cor do texto dos cabeçalhos */
-  font-weight: bold; /* Deixa o texto dos cabeçalhos em negrito */
+  background-color: #262625; 
+  color: #ffffff;
+  font-weight: bold; 
 }
 
 .tabela-produtos tr:nth-child(even) {
-  background-color: #F9F9F9; /* Define uma cor de fundo alternada para linhas pares */
+  background-color: #F9F9F9; 
 }
 
 .tabela-produtos tr:hover {
-  background-color: #E6E6E6; /* Adiciona um efeito de hover às linhas */
+  background-color: #E6E6E6; 
 }
 
 /* Estilo das abas */
@@ -390,14 +390,13 @@
 .fornecedores-header,
 .produto-header {
   display: flex;
-  justify-content: space-between; /* Espaça a legenda e os botões */
-  align-items: center; /* Alinha verticalmente os itens */
+  justify-content: space-between; 
 }
 
 .outros-header .header-container {
   display: flex;
-  justify-content: space-between; /* Espaça a legenda e os botões */
-  align-items: center; /* Alinha verticalmente os itens */
+  justify-content: space-between;
+  align-items: center; 
 }
 
 .aba-legenda {
@@ -406,7 +405,7 @@
 
 .opcoes-abas {
   display: flex;
-  gap: 8px; /* Espaçamento entre os botões */
+  gap: 8px; 
 }
 
 .top-tab {
@@ -427,8 +426,9 @@
 }
 
 .top-tab2 {
-  background-color: #292929;
-  color: white;
+  background-color: #FFFFFF;
+  color: #808080;
+  border: 2px solid #808080;
   border: none;
   cursor: pointer;
   padding: 10px 20px;
@@ -439,17 +439,19 @@
 }
 
 .top-tab2.active {
-  background-color: #444;
+  
   color: #FFCB1F;
 }
 
 .top-tab2.active-requisitantes {
-  color: #FFCB1F; /* Cor do texto amarelo */
-  border: 2px solid #FFCB1F; /* Borda amarela */
+  color: #FFCB1F;
+  border: 2px solid #FFCB1F;
 }
 
 .top-tab2:hover {
-  background-color: #555;
+  background-color: #F0F0F0; 
+  color: #606060; 
+  border-color: #606060; 
 }
 
 .acao-btn {
@@ -465,4 +467,24 @@
 
 .acao-btn:hover {
   background-color: #e0b71a;
+}
+
+/* Estilo para o botão "Editar" */
+.btn-editar {
+  background-color: #4CAF50; 
+  color: white; 
+  border: none;
+  padding: 10px 14px; 
+  font-size: 20px; 
+  border-radius: 4px;
+  cursor: pointer; 
+  transition: background-color 0.3s ease;
+}
+
+.btn-editar:hover {
+  background-color: #45a049; 
+}
+
+.btn-editar:active {
+  background-color: #3e8e41; 
 }
