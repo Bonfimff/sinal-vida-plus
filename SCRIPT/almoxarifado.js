@@ -240,75 +240,80 @@ document.addEventListener('DOMContentLoaded', function () {
   atualizarPreviewCupom();
 
   const formProdutosConsulta = document.getElementById('form-produtos-consulta');
-  const tabelaProdutos = document.querySelector('.tabela-produtos tbody');
-
-  if (!tabelaProdutos) {
-    console.error('Erro: Elemento .tabela-produtos tbody não encontrado no DOM.');
-    return;
-  }
 
   if (formProdutosConsulta) {
     formProdutosConsulta.addEventListener('submit', async function (event) {
       event.preventDefault(); // Impede o envio padrão do formulário
 
-      // Coleta os valores dos campos do formulário
-      const nomeProduto = document.getElementById('nome-produto-consulta').value;
-      const codigoProduto = document.getElementById('codigo-produto-consulta').value;
-      const categoriaProduto = document.getElementById('categoria-produto-consulta').value;
+      // Captura os valores dos campos
+      const nomeProduto = document.getElementById("nome-produto-consulta").value.trim();
+      const codigoProduto = document.getElementById("codigo-produto-consulta").value.trim();
+      const categoriaProduto = document.getElementById("categoria-produto-consulta").value;
 
       try {
-        // Envia uma requisição ao servidor para buscar os produtos
-        
-        const response = await fetch('https://api.exksvol.website/produtos', {
-          method: 'POST',
+        // Envia a requisição ao backend
+        const response = await fetch("https://api.exksvol.website/produtos/consultar", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.getItem('token') // Adiciona o token de autenticação
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"), // Token de autenticação
           },
           body: JSON.stringify({
             nome_produto_consulta: nomeProduto,
             codigo_produto_consulta: codigoProduto,
-            categoria_produto_consulta: categoriaProduto
-          })
+            categoria_produto_consulta: categoriaProduto,
+          }),
         });
 
         const data = await response.json();
 
-        if (response.ok && data.status === 'ok') {
+        if (response.ok && data.status === "ok") {
+          const tabelaProdutos = document.querySelector(".tabela-produtos tbody");
+
           // Limpa a tabela antes de adicionar os novos dados
-          tabelaProdutos.innerHTML = '';
+          tabelaProdutos.innerHTML = "";
 
           // Adiciona os produtos retornados à tabela
           data.produtos.forEach(produto => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${produto.id}</td>
-              <td>${produto.nome_produto}</td>
-              <td>${produto.codigo || ''}</td>
-              <td>${produto.marca || ''}</td>
-              <td>${produto.categoria || ''}</td>
-              <td>${produto.unidade_medida || ''}</td>
-              <td>${produto.numero_serie || ''}</td>
-              <td>${produto.patrimonio || ''}</td>
-              <td>${produto.local || ''}</td>
-              <td>${produto.estoque || ''}</td>
-              <td>${produto.quantidade || ''}</td>
-              <td>${produto.estoque_minimo || ''}</td>
-              <td>${produto.custo || ''}</td>
-              <td>${produto.data_compra || ''}</td>
-              <td>${produto.numero_nota || ''}</td>
-              <td>${produto.fornecedor || ''}</td>
-              <td>${produto.data_validade || ''}</td>
-              <td>${produto.termino_garantia || ''}</td>
-              <td>${produto.outras_informacoes || ''}</td>
-            `;
+            const row = document.createElement("tr");
+
+            // Função para verificar se a coluna está visível
+            function colunaVisivel(coluna) {
+              const checkbox = document.querySelector(`#colunas-visiveis input[type="checkbox"][value="${coluna}"]`);
+              return checkbox && checkbox.checked;
+            }
+
+            // Adiciona as células à linha somente se a coluna correspondente estiver visível
+            if (colunaVisivel("id")) row.innerHTML += `<td data-coluna="id">${produto.id}</td>`;
+            if (colunaVisivel("nome-produto")) row.innerHTML += `<td data-coluna="nome-produto">${produto.nome_produto}</td>`;
+            if (colunaVisivel("codigo")) row.innerHTML += `<td data-coluna="codigo">${produto.codigo || ""}</td>`;
+            if (colunaVisivel("marca")) row.innerHTML += `<td data-coluna="marca">${produto.marca || ""}</td>`;
+            if (colunaVisivel("categoria")) row.innerHTML += `<td data-coluna="categoria">${produto.categoria || ""}</td>`;
+            if (colunaVisivel("unidade-medida")) row.innerHTML += `<td data-coluna="unidade-medida">${produto.unidade_medida || ""}</td>`;
+            if (colunaVisivel("numero-serie")) row.innerHTML += `<td data-coluna="numero-serie">${produto.numero_serie || ""}</td>`;
+            if (colunaVisivel("patrimonio")) row.innerHTML += `<td data-coluna="patrimonio">${produto.patrimonio || ""}</td>`;
+            if (colunaVisivel("local")) row.innerHTML += `<td data-coluna="local">${produto.local || ""}</td>`;
+            if (colunaVisivel("estoque")) row.innerHTML += `<td data-coluna="estoque">${produto.estoque || ""}</td>`;
+            if (colunaVisivel("quantidade")) row.innerHTML += `<td data-coluna="quantidade">${produto.quantidade || ""}</td>`;
+            if (colunaVisivel("estoque-minimo")) row.innerHTML += `<td data-coluna="estoque-minimo">${produto.estoque_minimo || ""}</td>`;
+            if (colunaVisivel("custo")) row.innerHTML += `<td data-coluna="custo">${produto.custo || ""}</td>`;
+            if (colunaVisivel("data-compra")) row.innerHTML += `<td data-coluna="data-compra">${produto.data_compra || ""}</td>`;
+            if (colunaVisivel("numero-nota")) row.innerHTML += `<td data-coluna="numero-nota">${produto.numero_nota || ""}</td>`;
+            if (colunaVisivel("fornecedor")) row.innerHTML += `<td data-coluna="fornecedor">${produto.fornecedor || ""}</td>`;
+            if (colunaVisivel("data-validade")) row.innerHTML += `<td data-coluna="data-validade">${produto.data_validade || ""}</td>`;
+            if (colunaVisivel("termino-garantia")) row.innerHTML += `<td data-coluna="termino-garantia">${produto.termino_garantia || ""}</td>`;
+            if (colunaVisivel("outras-informacoes")) row.innerHTML += `<td data-coluna="outras-informacoes">${produto.outras_informacoes || ""}</td>`;
+
+            // Adiciona a linha à tabela
+            const tabelaProdutos = document.querySelector("#Lista-dos-produtos tbody");
             tabelaProdutos.appendChild(row);
           });
         } else {
-          console.error('Erro ao buscar produtos:', data.mensagem);
+          alert("Erro ao buscar produtos: " + data.mensagem);
         }
       } catch (error) {
-        console.error('Erro ao conectar ao servidor:', error);
+        console.error("Erro ao conectar ao servidor:", error);
+        alert("Erro ao buscar produtos. Verifique o console para mais detalhes.");
       }
     });
   }
@@ -573,6 +578,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Verifica se o arquivo é um XML
       if (!file.name.endsWith('.xml')) {
+        alert('Por favor, selecione um arquivo XML válido.');
         return;
       }
 
@@ -622,11 +628,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const fornecedor = xmlDoc.querySelector("emit > xNome")?.textContent || "N/A";
 
     const dataEmissao = formatarData(dataEmissaoRaw);
- 
+
     dets.forEach((det, index) => {
       const prod = det.querySelector("prod");
       const nomeProd = prod?.querySelector("xProd")?.textContent || "N/A";
-      const codigo = prod?.querySelector("cProd")?.textContent || "N/A";
+      let codigo = prod?.querySelector("cProd")?.textContent || "N/A"; 
+
+      // Remove os zeros à esquerda do código
+      codigo = codigo.replace(/^0+/, ''); 
+
       const marca = prod?.querySelector("xMarca")?.textContent || "N/A";
       const unidadeMedida = prod?.querySelector("uCom")?.textContent || "N/A";
       const quantidadeRaw = prod?.querySelector("qCom")?.textContent || "N/A";
@@ -716,13 +726,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Captura os valores das células da linha
       const nomeProduto = row.cells[1].textContent.trim();
-      const codigo = row.cells[2].textContent.trim();
-      const unidMedida = row.cells[4].textContent.trim();
-      const quantidadeRaw = row.cells[5].textContent.trim(); // Captura a quantidade
-      const custo = row.cells[6].textContent.trim();
-      const dataCompra = row.cells[7].textContent.trim();
-      const numeroNota = row.cells[8].textContent.trim();
-      const fornecedor = row.cells[9].textContent.trim();
+      let codigo = row.cells[2].textContent.trim(); // Captura o código
+
+      // Remove os zeros à esquerda do código
+      codigo = codigo.replace(/^0+/, ''); 
+
+      const unidMedida = row.cells[4]?.textContent.trim() || "N/A"; 
+      const quantidadeRaw = row.cells[5]?.textContent.trim() || "N/A"; 
+      const custo = row.cells[6]?.textContent.trim() || "N/A";
+      const dataCompra = row.cells[7]?.textContent.trim() || "N/A";
+      const numeroNota = row.cells[8]?.textContent.trim() || "N/A";
+      const fornecedor = row.cells[9]?.textContent.trim() || "N/A";
 
       // Remove formatações da quantidade, se necessário
       const quantidade = quantidadeRaw.replace(/\./g, '').replace(',', '.'); // Converte para formato numérico
@@ -730,7 +744,6 @@ document.addEventListener('DOMContentLoaded', function () {
       // Preenche os campos do formulário, ignorando valores "N/A"
       if (nomeProduto !== "N/A") document.getElementById("nome-produto").value = nomeProduto;
       if (codigo !== "N/A") document.getElementById("codigo").value = codigo;
-      if (unidMedida !== "N/A") document.getElementById("unid-medida").value = unidMedida;
       if (quantidade !== "N/A") document.getElementById("quantidade").value = quantidade;
       if (custo !== "N/A") document.getElementById("custo").value = custo;
 
@@ -746,8 +759,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const option = Array.from(fornecedorSelect.options).find(opt => opt.textContent.trim() === fornecedor);
         if (option) fornecedorSelect.value = option.value;
       }
- 
+
       if (numeroNota !== "N/A") document.getElementById("numero-nota").value = numeroNota;
+
+      // Seleciona a unidade de medida no campo <select>
+      const selectUnidadeMedida = document.getElementById("unid-medida");
+      if (selectUnidadeMedida && unidMedida !== "N/A") {
+        const option = Array.from(selectUnidadeMedida.options).find(opt => opt.textContent.trim() === unidMedida);
+        if (option) selectUnidadeMedida.value = option.value;
+      }
     }
   });
 
@@ -757,36 +777,79 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${ano}-${mes}-${dia}`;
   }
 
-  document.getElementById("btn-novoProduto").addEventListener("click", function (event) {
-    event.preventDefault(); // Impede o envio do formulário
+  document.getElementById("btn-novoProduto").addEventListener("click", async function (event) {
+    event.preventDefault(); // Impede o envio padrão do formulário
 
-    const nomeProduto = document.getElementById("nome-produto").value; // Captura o nome do produto
-    const codigoProduto = document.getElementById("codigo").value; // Captura o código do produto
+    // Captura os valores dos campos
+    const nomeProduto = document.getElementById("nome-produto").value;
+    const codigo = document.getElementById("codigo").value;
+    const categoria = document.getElementById("categoria").value;
+    const quantidade = document.getElementById("quantidade").value;
+    const numeroSerie = document.getElementById("numero-serie").value;
+    const unidadeMedida = document.getElementById("unid-medida").value;
+    const estoqueMinimo = document.getElementById("estoque-minimo").value;
+    const numeroNota = document.getElementById("numero-nota").value;
+    const fornecedor = document.getElementById("fornecedor").value;
+    const patrimonio = document.getElementById("patrimonio").value;
+    const localEstoque = document.getElementById("local-estoque").value;
+    let custo = document.getElementById("custo").value.trim();
 
-    if (!nomeProduto) {
-      alert("Por favor, preencha o nome do produto.");
-      return;
+    // Remove "R$", pontos e espaços, e troca vírgula por ponto
+    custo = custo.replace(/[R$\s]/g, "").replace(".", "").replace(",", ".");
+
+    const dataCompra = document.getElementById("data-compra").value;
+    const dataValidade = document.getElementById("data-validade").value;
+    const terminoGarantia = document.getElementById("garantia").value;
+    const observacoes = document.getElementById("retirada-observacoes").value;
+
+    // Monta o objeto com os dados
+    const produto = {
+      nome_produto: nomeProduto,
+      codigo: codigo,
+      categoria: categoria,
+      quantidade: quantidade,
+      numero_serie: numeroSerie,
+      unid_medida: unidadeMedida,
+      estoque_minimo: estoqueMinimo,
+      numero_nota: numeroNota,
+      fornecedor: fornecedor,
+      patrimonio: patrimonio,
+      local_estoque: localEstoque,
+      custo: custo,
+      data_compra: dataCompra,
+      data_validade: dataValidade,
+      garantia: terminoGarantia,
+      observacoes: observacoes,
+    };
+
+    try {
+      // Envia os dados para o backend
+      const response = await fetch("https://api.exksvol.website/produtos/salvar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"), // Token de autenticação
+        },
+        body: JSON.stringify(produto),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "ok") {
+        alert("Produto salvo com sucesso!");
+        // Limpa os campos do formulário
+        document.getElementById("form-produtos").reset();
+      } else {
+        alert("Erro ao salvar produto: " + data.mensagem);
+      }
+    } catch (error) {
+      console.error("Erro ao conectar ao servidor:", error);
+      alert("Erro ao salvar produto. Verifique o console para mais detalhes.");
     }
-
-    // Adiciona o produto à tabela
-    const tabelaBody = document.querySelector("#tabelaProdutos tbody");
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `
-      <td>${codigoProduto || "N/A"}</td>
-      <td>${nomeProduto}</td>
-      <td>
-        <button class="btn-editar">Editar</button>
-      </td>
-    `;
-    tabelaBody.appendChild(newRow);
-
-    // Limpa o campo do formulário
-    document.getElementById("nome-produto").value = "";
-    document.getElementById("codigo").value = "";
   });
 
   const previewImg = document.getElementById('preview');
-  const inputImagem = document.getElementById('input-carregar-nota-cadastro'); // ID corrigido
+  const inputImagem = document.getElementById('input-carregar-img-cadastro'); // ID corrigido
 
   if (previewImg && inputImagem) {
     // Evento de clique na imagem para abrir o seletor de arquivos
@@ -796,13 +859,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Evento para exibir a imagem selecionada
     inputImagem.addEventListener('change', function (event) {
-      const file = event.target.files[0]; // Obtém o arquivo selecionado
+      const file = event.target.files[0]; 
       if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-          previewImg.src = e.target.result; // Define a imagem no componente
+          previewImg.src = e.target.result; 
         };
-        reader.readAsDataURL(file); // Lê o arquivo como URL de dados
+        reader.readAsDataURL(file); 
       }
     });
   } else {
@@ -817,4 +880,193 @@ const botaoRetirada1 = document.getElementById('btn-retirada1');
 //const conteudoMovimentacoes = document.getElementById('conteudo-movimentacoes');
 
 
+// Referências específicas para a aba "Entrada de Produtos"
+const previewImgEntrada = document.querySelector('#entrada-produtos #preview'); // ID específico para a aba
+const inputImagemEntrada = document.querySelector('#entrada-produtos #input-carregar-nota-cadastro'); // ID específico para a aba
+
+if (previewImgEntrada && inputImagemEntrada) {
+  // Evento de clique na imagem para abrir o seletor de arquivos
+  previewImgEntrada.addEventListener('click', function () {
+    inputImagemEntrada.click(); 
+  });
+
+  // Evento para exibir a imagem selecionada
+  inputImagemEntrada.addEventListener('change', function (event) {
+    const file = event.target.files[0]; 
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        previewImgEntrada.src = e.target.result; 
+      };
+      reader.readAsDataURL(file); 
+    }
+  });
+}
+
+// Novos códigos para a funcionalidade de parâmetros
+const parametroSelect = document.getElementById("parametro-outros");
+const camposDinamicos = document.getElementById("campos-dinamicos");
+const tabelaParametros = document.getElementById("tabela-parametros");
+const formOutros = document.getElementById("form-outros");
+
+// Campos dinâmicos para cada parâmetro
+const camposPorParametro = {
+  categoria: `
+    <div>
+      <label for="nome-categoria">Nome da Categoria:</label>
+      <input type="text" id="nome-categoria" name="nome-categoria" required />
+    </div>
+  `,
+  "unidade-medida": `
+    <div>
+      <label for="valor-unidade">Valor da Unidade de Medida:</label>
+      <input type="text" id="valor-unidade" name="valor-unidade" required />
+    </div>
+  `,
+  patrimonio: `
+    <div>
+      <label for="nome-patrimonio">Nome:</label>
+      <input type="text" id="nome-patrimonio" name="nome-patrimonio" required />
+    </div>
+    <div>
+      <label for="endereco-patrimonio">Endereço:</label>
+      <input type="text" id="endereco-patrimonio" name="endereco-patrimonio" required />
+    </div>
+    <div>
+      <label for="obs-patrimonio">Observações:</label>
+      <textarea id="obs-patrimonio" name="obs-patrimonio"></textarea>
+    </div>
+  `,
+  "local-estoque": `
+    <div>
+      <label for="nome-local-estoque">Nome:</label>
+      <input type="text" id="nome-local-estoque" name="nome-local-estoque" required />
+    </div>
+    <div>
+      <label for="endereco-local-estoque">Endereço:</label>
+      <input type="text" id="endereco-local-estoque" name="endereco-local-estoque" required />
+    </div>
+    <div>
+      <label for="obs-local-estoque">Observações:</label>
+      <textarea id="obs-local-estoque" name="obs-local-estoque"></textarea>
+    </div>
+  `,
+  "local-destino": `
+    <div>
+      <label for="nome-local-destino">Nome:</label>
+      <input type="text" id="nome-local-destino" name="nome-local-destino" required />
+    </div>
+    <div>
+      <label for="endereco-local-destino">Endereço:</label>
+      <input type="text" id="endereco-local-destino" name="endereco-local-destino" required />
+    </div>
+    <div>
+      <label for="obs-local-destino">Observações:</label>
+      <textarea id="obs-local-destino" name="obs-local-destino"></textarea>
+    </div>
+  `,
+  finalidade: `
+    <div>
+      <label for="nome-finalidade">Nome da Finalidade:</label>
+      <input type="text" id="nome-finalidade" name="nome-finalidade" required />
+    </div>
+  `,
+};
+
+// Atualiza os campos dinâmicos com base no parâmetro selecionado
+parametroSelect.addEventListener("change", function () {
+  const parametro = parametroSelect.value;
+  camposDinamicos.innerHTML = camposPorParametro[parametro] || "";
+});
+
+// Adiciona os dados na tabela ao salvar
+formOutros.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const parametro = parametroSelect.value;
+  if (!parametro) {
+    alert("Selecione um parâmetro para cadastrar.");
+    return;
+  }
+
+  const nome = document.querySelector(`#nome-${parametro.replace("-", "-")}`)?.value || "";
+  const endereco = document.querySelector(`#endereco-${parametro.replace("-", "-")}`)?.value || "";
+  const observacoes = document.querySelector(`#obs-${parametro.replace("-", "-")}`)?.value || "";
+
+  const newRow = document.createElement("tr");
+  newRow.innerHTML = `
+    <td>${nome}</td>
+    <td>${endereco}</td>
+    <td>${observacoes}</td>
+    <td>
+      <button type="button" class="btn-editar">Editar</button>
+      <button type="button" class="btn-excluir">Excluir</button>
+    </td>
+  `;
+  tabelaParametros.appendChild(newRow);
+
+  // Limpa o formulário
+  formOutros.reset();
+  camposDinamicos.innerHTML = "";
+});
+
+  const toggleColunasBtn = document.getElementById("toggle-colunas");
+  const colunasVisiveisDiv = document.getElementById("colunas-visiveis");
+  const checkboxes = document.querySelectorAll("#colunas-visiveis input[type='checkbox']");
+  const tabela = document.getElementById("Lista-dos-produtos");
+
+  // Alternar visibilidade da lista de checkboxes
+  toggleColunasBtn.addEventListener("click", function () {
+    if (colunasVisiveisDiv.style.display === "none") {
+      colunasVisiveisDiv.style.display = "block";
+      toggleColunasBtn.textContent = "▲ Recolher opções";
+    } else {
+      colunasVisiveisDiv.style.display = "none";
+      toggleColunasBtn.textContent = "▼ Escolha as colunas a serem exibidas";
+    }
+  });
+
+  // Atualizar visibilidade das colunas
+  function atualizarColunas() {
+    checkboxes.forEach(checkbox => {
+      const th = tabela.querySelector(`thead th[data-coluna="${checkbox.value}"]`);
+      const tds = tabela.querySelectorAll(`tbody td[data-coluna="${checkbox.value}"]`);
+
+      if (checkbox.checked) {
+        if (th) th.style.display = ""; 
+        tds.forEach(td => td.style.display = ""); 
+      } else {
+        if (th) th.style.display = "none"; 
+        tds.forEach(td => td.style.display = "none"); 
+      }
+    });
+  }
+
+  // Adicionar evento aos checkboxes
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener("change", atualizarColunas);
+  });
+
+  // Atualizar colunas ao carregar a página
+  atualizarColunas();
+
+  function adicionarLinhaTabela(dados) {
+    const tabelaBody = document.querySelector("#Lista-dos-produtos tbody");
+    const novaLinha = document.createElement("tr");
+
+    // Itera sobre os dados e verifica se a coluna correspondente está visível
+    Object.keys(dados).forEach(coluna => {
+      const th = document.querySelector(`thead th[data-coluna="${coluna}"]`);
+      if (th && th.style.display !== "none") {
+        const novaCelula = document.createElement("td");
+        novaCelula.setAttribute("data-coluna", coluna);
+        novaCelula.textContent = dados[coluna];
+        novaLinha.appendChild(novaCelula);
+      }
+    });
+
+    tabelaBody.appendChild(novaLinha);
+  }
+
+  
 });

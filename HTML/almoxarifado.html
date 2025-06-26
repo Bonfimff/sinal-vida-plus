@@ -7,6 +7,26 @@
   <link rel="stylesheet" href="../CSS/almoxarifado.css" />
   <link rel="icon" href="../IMG/logoSvplus.png" type="image/png">
   <title>Almoxarifado</title>
+  <style>
+    #colunas-visiveis {
+      margin: 10px 0;
+      display: none;
+    }
+
+    #colunas-visiveis label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .tabela-produtos div {
+      overflow-x: auto;
+      max-height: 400px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+  </style>
 </head>
 <body>
   <!-- Menu lateral Almoxarifado -->
@@ -327,7 +347,7 @@
         <!-- Aba Transferência -->
     <div id="transferencia" class="tab-content">
       <div class="entrada-header">
-        <h2 class="aba-legenda">Movimentações ⮷</h2>
+        <h2 class="aba-legenda">Transferência ⮷</h2>
         <div class="opcoes-abas">
         <button id="btn-entrada2" class="top-tab2">Entrada</button>
         <button id="btn-retirada2"class="top-tab2" data-tab="retiradas">Retirada</button>
@@ -347,7 +367,7 @@
             <!-- Aba Baixa -->
     <div id="baixa" class="tab-content">
       <div class="entrada-header">
-        <h2 class="aba-legenda">Movimentações ⮷</h2>
+        <h2 class="aba-legenda">Baixa ⮷</h2>
         <div class="opcoes-abas">
         <button id="btn-entrada3" class="top-tab2">Entrada</button>
         <button id="btn-retirada3"class="top-tab2" data-tab="retiradas">Retirada</button>
@@ -365,7 +385,7 @@
 
     <!-- Aba Retiradas -->
     <div id="retiradas" class="tab-content">
-      <div class="entrada-header"></div>
+      <div class="entrada-header">
       <h2 class="aba-legenda">Retirada ⮷</h2>
         <div class="opcoes-abas">
           <button id="btn-entrada4" class="top-tab2" >Entrada</button>
@@ -374,6 +394,7 @@
           <button id="btn-transferencia4" class="top-tab2">Transferência</button>
           <button id="btn-baixa4" class="top-tab2">Baixa</button>
         </div>
+      </div>
       <hr class="aba-linha">
       <form id="form-retiradas">
         <div class="form-group linha inline-style-f12ec8">
@@ -479,7 +500,8 @@
 
     <!-- Aba Devolução -->
     <div id="devolucao" class="tab-content">
-      <h2 class="aba-legenda">Movimentações ⮷</h2>
+      <div class="entrada-header">
+      <h2 class="aba-legenda">Devolução ⮷</h2>
       <div class="opcoes-abas">
           <button id="btn-entrada5" class="top-tab2" >Entrada</button>
           <button id="btn-retirada5"class="top-tab2" data-tab="retiradas">Retirada</button>
@@ -487,6 +509,7 @@
           <button id="btn-transferencia5" class="top-tab2">Transferência</button>
           <button id="btn-baixa5" class="top-tab2">Baixa</button>
       </div>
+    </div>
       <hr class="aba-linha">
       <form id="form-devolucao">
         <div class="form-group linha inline-style-f12ec8">
@@ -564,13 +587,13 @@
 
     <!-- Aba Requisitantes -->
     <div id="requisitantes" class="tab-content">
-  <div class="requisitantes-header">
-    <h2 class="aba-legenda">Cadastros ➜</h2>
+  <div class="entrada-header">
+    <h2 class="aba-legenda">Requisitantes ⮷</h2>
     <div class="opcoes-abas">
       <button class="top-tab2" style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="requisitantes">Requisitantes</button>
       <button class="top-tab2" data-tab="fornecedores">Fornecedores</button>
       <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
-      <button class="top-tab2" data-tab="outros">Outros</button>
+      <button class="top-tab2" data-tab="outros">Parâmetros</button>
     </div>
   </div>
   <hr class="aba-linha">
@@ -615,13 +638,13 @@
 
     <!-- Aba Fornecedores -->
     <div id="fornecedores" class="tab-content">
-      <div class="fornecedores-header">
-  <h2 class="aba-legenda">Cadastros ➜</h2>
+    <div class="entrada-header">
+  <h2 class="aba-legenda">Fornecedores ⮷</h2>
   <div class="opcoes-abas">
     <button class="top-tab2" data-tab="requisitantes">Requisitantes</button>
     <button class="top-tab2 " style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="fornecedores">Fornecedores</button>
     <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
-    <button class="top-tab2" data-tab="outros">Outros</button>
+    <button class="top-tab2" data-tab="outros">Parâmetros</button>
   </div>
 </div>
       <hr class="aba-linha">
@@ -697,66 +720,97 @@
     </div>
 
     <!-- Aba Produtos -->
-    <div id="consultas-produtos" class="tab-content">
-      <h2 class="aba-legenda">Produtos</h2>
-      <hr class="aba-linha">
-      <form id="form-produtos-consulta">
-        <div>
-          <label for="nome-produto-consulta">Nome do Produto</label>
-          <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
-        </div>
-        <div>
-          <label for="codigo-produto-consulta">Código</label>
-          <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
-        </div>
-        <div>
-          <label for="categoria-produto-consulta">Categoria</label>
-          <select id="categoria-produto-consulta" name="categoria-produto-consulta">
-            <option value="">Selecione</option>
-            <option value="Elétrico">Elétrico</option>
-            <option value="Mecânico">Mecânico</option>
-            <option value="Hidráulico">Hidráulico</option>
-          </select>
-        </div>
-        <button type="submit">Buscar Produtos</button>
-      </form>
+<div id="consultas-produtos" class="tab-content">
+  <h2 class="aba-legenda">Produtos</h2>
+  <hr class="aba-linha">
 
-      <!-- Tabela de produtos -->
-      <div class="tabela-produtos">
-        <div style="overflow-x: auto; max-height: 400px; border: 0px solid #040404; padding: 10px;">
-    <table class= "estilo-tabela">
+  <form id="form-produtos-consulta">
+    <div>
+      <label for="nome-produto-consulta">Nome do Produto</label>
+      <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
+    </div>
+
+    <div>
+      <label for="codigo-produto-consulta">Código</label>
+      <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
+    </div>
+
+    <div>
+      <label for="categoria-produto-consulta">Categoria</label>
+      <select id="categoria-produto-consulta" name="categoria-produto-consulta">
+        <option value="">Selecione</option>
+        <option value="MATERIAL DE ESCRITÓRIO">MATERIAL DE ESCRITÓRIO</option>
+        <option value="EPI">EPI</option>
+        <option value="FERRAMENTA">FERRAMENTA</option>
+      </select>
+    </div>
+
+    <div style="margin-top: 10px;">
+      <button type="button" id="toggle-colunas">▼ Escolha as colunas a serem exibidas</button>
+      <button type="submit" id="btn-listarProdutos">Buscar Produtos</button>
+    </div>
+  </form>
+
+  <!-- Container de colunas visíveis -->
+  <div id="toggle-colunas-container">
+    <div id="colunas-visiveis">
+      <div id="eu-mandei-vc-deitar"> 
+        <label><input type="checkbox" value="id"> ID</label>
+        <label><input type="checkbox" value="nome-produto" checked> Nome do Produto</label>
+        <label><input type="checkbox" value="codigo" checked> Código</label>
+        <label><input type="checkbox" value="marca"> Marca</label>
+        <label><input type="checkbox" value="categoria" checked> Categoria</label>
+        <label><input type="checkbox" value="unidade-medida" checked> Unidade de Medida</label>
+        <label><input type="checkbox" value="numero-serie"> Número de Série</label>
+        <label><input type="checkbox" value="patrimonio"> Patrimônio</label>
+        <label><input type="checkbox" value="local"> Local de estoque</label>
+        <label><input type="checkbox" value="estoque"> Estoque</label>
+        <label><input type="checkbox" value="quantidade" checked> Quantidade</label>
+        <label><input type="checkbox" value="estoque-minimo" checked> Estoque Mínimo</label>
+        <label><input type="checkbox" value="custo"> Custo</label>
+        <label><input type="checkbox" value="data-compra"> Data de Compra</label>
+        <label><input type="checkbox" value="numero-nota"> Número da Nota</label>
+        <label><input type="checkbox" value="fornecedor"> Fornecedor</label>
+        <label><input type="checkbox" value="data-validade"> Data de Validade</label>
+        <label><input type="checkbox" value="termino-garantia"> Término da Garantia</label>
+        <label><input type="checkbox" value="outras-informacoes"> Outras Informações</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de produtos -->
+  <div class="tabela-produtos">
+    <table id="Lista-dos-produtos" class="estilo-tabela">
       <thead>
-        <tr class="inline-style-881bd5">
-           <th class="inline-style-f91e21">ID</th>
-
-          <th>Nome do Produto</th>
-          <th>Código</th>
-          <th>Marca</th>
-          <th>Categoria</th>
-          <th>Unidade de Medida</th>
-          <th>Número de Série</th>
-          <th>Patrimônio</th>
-          <th>Local</th>
-          <th>Estoque</th>
-          <th>Quantidade</th>
-          <th>Estoque Mínimo</th>
-          <th>Custo</th>
-          <th>Data de Compra</th>
-          <th>Número da Nota</th>
-          <th>Fornecedor</th>
-          <th>Data de Validade</th>
-          <th>Término da Garantia</th>
-          <th>Outras Informações</th>
+        <tr>
+          <th data-coluna="id">ID</th>
+          <th data-coluna="nome-produto">Nome do Produto</th>
+          <th data-coluna="codigo">Código</th>
+          <th data-coluna="marca">Marca</th>
+          <th data-coluna="categoria">Categoria</th>
+          <th data-coluna="unidade-medida">Unidade de Medida</th>
+          <th data-coluna="numero-serie">Número de Série</th>
+          <th data-coluna="patrimonio">Patrimônio</th>
+          <th data-coluna="local">Local</th>
+          <th data-coluna="estoque">Estoque</th>
+          <th data-coluna="quantidade">Quantidade</th>
+          <th data-coluna="estoque-minimo">Estoque Mínimo</th>
+          <th data-coluna="custo">Custo</th>
+          <th data-coluna="data-compra">Data de Compra</th>
+          <th data-coluna="numero-nota">Número da Nota</th>
+          <th data-coluna="fornecedor">Fornecedor</th>
+          <th data-coluna="data-validade">Data de Validade</th>
+          <th data-coluna="termino-garantia">Término da Garantia</th>
+          <th data-coluna="outras-informacoes">Outras Informações</th>
         </tr>
       </thead>
       <tbody>
         <!-- Linhas dinâmicas serão adicionadas aqui -->
       </tbody>
     </table>
-    
   </div>
 </div>
-    </div>
+
 
     <!-- Aba Relatório -->
     <div id="consultas-relatorio" class="tab-content">
@@ -858,14 +912,14 @@
 
     <!-- ======================= Aba Cadastro de Produtos ========================================== -->
 
-     <div id="cadastro-produto" class="tab-content">
-      <div class="produto-header">
-        <h2 class="aba-legenda">Cadastros ➜</h2>
+     <div id="cadastro-produto"  class="tab-content">
+      <div class="entrada-header">
+        <h2 class="aba-legenda">Produtos ⮷</h2>
         <div class="opcoes-abas">
           <button class="top-tab2" data-tab="requisitantes">Requisitantes</button>
           <button class="top-tab2"  data-tab="fornecedores">Fornecedores</button>
           <button class="top-tab2" style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="cadastro-produto">Produto</button>
-          <button class="top-tab2" data-tab="outros">Outros</button>
+          <button class="top-tab2" data-tab="outros">Parâmetros</button>
         </div>
       </div>
       <hr class="aba-linha">
@@ -913,7 +967,7 @@
                 <option value="">Selecione</option>
                 <option value="cm">Centímetro</option>
                 <option value="m">Metro</option>
-                <option value="unidade">Unidade</option>
+                <option value="unidade">UN</option>
                 <option value="litro">Litro</option>
                 <option value="kg">Kg</option>
               </select>
@@ -957,7 +1011,7 @@
           <div class="form-coluna">
             <div class="image-preview-container">
               <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
-              <input type="file" id="input-carregar-nota-cadastro" accept="image/*" style="display: none;" />
+              <input type="file" id="input-carregar-img-cadastro" accept=".xml" style="display: none;">
             </div>
             <div>
               <label for="custo">CUSTO</label>
@@ -989,7 +1043,7 @@
               <th>Marca</th>
               <th>Unidade de Medida</th>
               <th>Quantidade</th>
-              <th>Custo unitario</th>
+              <th>Custo unitário</th>
               <th>Data de emissão da nota</th>
               <th>Número da Nota</th>
               <th>Fornecedor</th>
@@ -997,6 +1051,7 @@
             </tr>
           </thead>
           <tbody>
+            <!-- Linhas dinâmicas serão adicionadas aqui -->
           </tbody>
         </table>
       </div>
@@ -1009,34 +1064,68 @@
     </div>
 
     <!-- Aba Outros -->
-    <div id="outros" class="tab-content">
-  <div class="outros-header">
-    <div class="header-container">
-      <h2 class="aba-legenda">Cadastros ➜ </h2>
+   <div id="outros" class="tab-content">
+    <div class="entrada-header">
+      <h2 class="aba-legenda">Outros ⮷</h2>
       <div class="opcoes-abas">
         <button class="top-tab2" data-tab="requisitantes">Requisitantes</button>
         <button class="top-tab2" data-tab="fornecedores">Fornecedores</button>
-        <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
-        <button class="top-tab2" style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="outros">Outros</button>
+        <button class="top-tab2" data-tab="cadastro_produto">Produtos</button>
+        <button class="top-tab2" style="color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="outros">Parâmetros</button>
       </div>
     </div>
-  </div>
-  <hr class="aba-linha">
-  <!-- Conteúdo da aba Outros -->
+   <hr class="aba-linha">
+
+      <!-- Formulário para cadastro -->
   <form id="form-outros">
     <div class="form-group linha inline-style-f12ec8">
       <div class="form-coluna">
         <div>
-          <label for="nome-outro">Nome Categoria</label>
-          <input type="text" id="nome-outro" name="nome-outro" required />
+          <label for="parametro-outros">Selecione o parâmetro que será cadastrado:</label>
+          <select id="parametro-outros" name="parametro-outros" required>
+            <option value="">Selecione</option>
+            <option value="categoria">Categoria</option>
+            <option value="unidade-medida">Unidade de Medida</option>
+            <option value="patrimonio">Patrimônio</option>
+            <option value="local-estoque">Local Estoque</option>
+            <option value="local-destino">Local de Destino</option>
+            <option value="finalidade">Finalidade</option>
+          </select>
+        </div>
+        <div id="campos-dinamicos">
+          <!-- Campos dinâmicos serão adicionados aqui -->
         </div>
       </div>
     </div>
-    <button type="submit">Salvar</button>
+    <button type="submit" class="btn-primario">Salvar</button>
   </form>
+
+  <!-- Tabela de parâmetros -->
+  <div class="tabela-parametros">
+    <h3>Cadastrados</h3>
+    <div style="overflow-x: auto; max-height: 400px; border: 0px solid #ccc; padding: 10px;">
+      <table id="tabela-parametros" class="estilo-tabela">
+        <thead>
+          <tr class="inline-style-881bd5">
+            <th class="inline-style-f91e21">Nome</th>
+            <th class="inline-style-f91e21">Endereço</th>
+            <th class="inline-style-f91e21">Observações</th>
+            <th class="inline-style-f91e21">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linhas dinâmicas serão adicionadas aqui -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
   </div>
+    </div>
+  </div>
+ </div>
 
+ 
   <!-- Sidebar direita Almoxarifado -->
   <div class="sidebar-right ">
     <img src="../IMG/Logo.png" alt="Logo" class="logo">
@@ -1054,9 +1143,10 @@
   <!-- Painel notificação -->
 <div id="info-modal" class="modal" style="display: none;">
   <div class="modal-content">
-    <p>Versão de desenvolvimento: 25.06 v1</p>
+    <p>Versão de desenvolvimento: 26.06-v3</p>
     <button id="modal-ok-btn">OK</button>
   </div>
 </div>
+
 </body>
 </html>

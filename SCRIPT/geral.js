@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   optionsContainer.style.borderRadius = '8px';
   optionsContainer.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
   optionsContainer.style.padding = '10px';
-  optionsContainer.style.display = 'none'; // Oculta o contêiner inicialmente
-  optionsContainer.style.flexDirection = 'column'; // Organiza os botões verticalmente
+  optionsContainer.style.display = 'none'; 
+  optionsContainer.style.flexDirection = 'column'; 
   optionsContainer.style.zIndex = '1200';
 
   const openLeftPanelButton = document.createElement('button');

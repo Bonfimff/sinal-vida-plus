@@ -405,7 +405,9 @@
 
 .opcoes-abas {
   display: flex;
-  gap: 8px; 
+  justify-content: flex-start; 
+  gap: 10px; 
+  margin-top: 10px; 
 }
 
 .top-tab {
@@ -487,4 +489,107 @@
 
 .btn-editar:active {
   background-color: #3e8e41; 
+}
+
+/* Estilo padrão para telas maiores */
+.entrada-header {
+  display: flex;
+  
+}
+
+.opcoes-abas {
+  display: flex;
+  justify-content: flex-start; 
+  gap: 10px; 
+  margin-top: 10px; 
+}
+
+/* Estilo para telas pequenas */
+@media (max-width: 768px) {
+  .entrada-header {
+    align-items: flex-start; 
+    flex-direction: column; 
+  }
+
+  .opcoes-abas {
+   
+    margin-top: 20px; 
+    align-items: flex-start;
+    width: 100%; 
+    gap: 1px; 
+    margin-top: 5px;
+  }
+
+  .opcoes-abas button {
+    width: auto; 
+  }
+}
+
+/* Estilo para o botão de alternar colunas */
+#toggle-colunas {
+  background-color: #ffffff; 
+  color: #000000; 
+  border: 2px solid #FFD700; 
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease; 
+  margin-bottom: 10px;
+}
+
+
+
+#toggle-colunas:hover {
+  background-color: #FFFBEA;
+  color: #606060; 
+  border-color: #FFC300; 
+}
+
+/* Estilo para a div que contém os checkboxes */
+#colunas-visiveis {
+  background-color: #f9f9f9; 
+  border: 1px solid #ccc; 
+  border-radius: 5px;
+  padding: 15px;
+  max-width: 100%; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+}
+
+#colunas-visiveis label {
+  display: flex; 
+  align-items: center; 
+  font-size: 14px;
+  color: #333; 
+  cursor: pointer;
+  margin: 0; 
+  width: calc(25% - 10px); 
+  box-sizing: border-box; 
+}
+
+#colunas-visiveis input[type="checkbox"] {
+  margin-right: 8px; 
+}
+
+/* Estilo para organizar os itens horizontalmente no div "eu-mandei-vc-deitar" */
+#eu-mandei-vc-deitar {
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+  padding: 10px; 
+  background-color: #f9f9f9; 
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+}
+
+#eu-mandei-vc-deitar label {
+  display: flex; 
+  align-items: center; 
+  font-size: 14px; 
+  color: #333; 
+  cursor: pointer; 
+  margin: 0; 
 }

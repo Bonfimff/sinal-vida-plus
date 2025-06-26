@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste - Produtos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #form-produtos-consulta {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      max-width: 600px;
+    }
+
+    #form-produtos-consulta div {
+      margin-bottom: 10px;
+    }
+
+    #form-produtos-consulta label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    #form-produtos-consulta input,
+    #form-produtos-consulta select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    #form-produtos-consulta button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #form-produtos-consulta button:hover {
+      background-color: #45a049;
+    }
+
+    .tabela-produtos {
+      margin-top: 20px;
+    }
+
+    .estilo-tabela {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .estilo-tabela th,
+    .estilo-tabela td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .estilo-tabela th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    .estilo-tabela tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .estilo-tabela tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .tabela-produtos div {
+      overflow-x: auto;
+      max-height: 400px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+
+    #colunas-visiveis {
+      margin: 10px 0;
+      display: none;
+    }
+
+    #colunas-visiveis label {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="consultas-produtos" class="tab-content">
+    <h2 class="aba-legenda">Produtos</h2>
+    <hr class="aba-linha">
+    <form id="form-produtos-consulta">
+      <div>
+        <label for="nome-produto-consulta">Nome do Produto</label>
+        <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
+      </div>
+      <div>
+        <label for="codigo-produto-consulta">Código</label>
+        <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
+      </div>
+      <div>
+        <label for="categoria-produto-consulta-legenda">Categoria</label>
+        <select id="categoria-produto-consulta">
+          <option value="">Selecione</option>
+          <option value="MATERIAL DE ESCRITÓRIO">MATERIAL DE ESCRITÓRIO</option>
+          <option value="EPI">EPI</option>
+          <option value="FERRAMENTA">FERRAMENTA</option>
+        </select>
+      </div>
+      <button type="submit">Buscar Produtos</button>
+    </form>
+
+    <!-- Botão para expandir/recolher opções -->
+    <button id="toggle-colunas">▼ Escolha as colunas a serem exibidas</button>
+    <div id="colunas-visiveis">
+      <label><input type="checkbox" value="id" checked> ID</label>
+      <label><input type="checkbox" value="nome-produto" checked> Nome do Produto</label>
+      <label><input type="checkbox" value="codigo" checked> Código</label>
+      <label><input type="checkbox" value="marca" checked> Marca</label>
+      <label><input type="checkbox" value="categoria" checked> Categoria</label>
+      <label><input type="checkbox" value="unidade-medida" checked> Unidade de Medida</label>
+      <label><input type="checkbox" value="numero-serie" checked> Número de Série</label>
+      <label><input type="checkbox" value="patrimonio" checked> Patrimônio</label>
+      <label><input type="checkbox" value="local" checked> Local</label>
+      <label><input type="checkbox" value="estoque" checked> Estoque</label>
+      <label><input type="checkbox" value="quantidade" checked> Quantidade</label>
+      <label><input type="checkbox" value="estoque-minimo" checked> Estoque Mínimo</label>
+      <label><input type="checkbox" value="custo" checked> Custo</label>
+      <label><input type="checkbox" value="data-compra" checked> Data de Compra</label>
+      <label><input type="checkbox" value="numero-nota" checked> Número da Nota</label>
+      <label><input type="checkbox" value="fornecedor" checked> Fornecedor</label>
+      <label><input type="checkbox" value="data-validade" checked> Data de Validade</label>
+      <label><input type="checkbox" value="termino-garantia" checked> Término da Garantia</label>
+      <label><input type="checkbox" value="outras-informacoes" checked> Outras Informações</label>
+    </div>
+
+    <!-- Tabela solicitada -->
+    <div class="tabela-produtos">
+      <div style="overflow-x: auto; max-height: 400px; border: 0px solid #040404; padding: 10px;">
+        <table class="estilo-tabela">
+          <thead>
+            <tr class="inline-style-881bd5">
+              <th data-coluna="id" class="inline-style-f91e21">ID</th>
+              <th data-coluna="nome-produto">Nome do Produto</th>
+              <th data-coluna="codigo">Código</th>
+              <th data-coluna="marca">Marca</th>
+              <th data-coluna="categoria">Categoria</th>
+              <th data-coluna="unidade-medida">Unidade de Medida</th>
+              <th data-coluna="numero-serie">Número de Série</th>
+              <th data-coluna="patrimonio">Patrimônio</th>
+              <th data-coluna="local">Local</th>
+              <th data-coluna="estoque">Estoque</th>
+              <th data-coluna="quantidade">Quantidade</th>
+              <th data-coluna="estoque-minimo">Estoque Mínimo</th>
+              <th data-coluna="custo">Custo</th>
+              <th data-coluna="data-compra">Data de Compra</th>
+              <th data-coluna="numero-nota">Número da Nota</th>
+              <th data-coluna="fornecedor">Fornecedor</th>
+              <th data-coluna="data-validade">Data de Validade</th>
+              <th data-coluna="termino-garantia">Término da Garantia</th>
+              <th data-coluna="outras-informacoes">Outras Informações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Linhas dinâmicas serão adicionadas aqui -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggleColunasBtn = document.getElementById("toggle-colunas");
+      const colunasVisiveisDiv = document.getElementById("colunas-visiveis");
+      const checkboxes = document.querySelectorAll("#colunas-visiveis input[type='checkbox']");
+      const tabela = document.querySelector(".estilo-tabela");
+
+      // Alternar visibilidade da lista de checkboxes
+      toggleColunasBtn.addEventListener("click", function () {
+        if (colunasVisiveisDiv.style.display === "none") {
+          colunasVisiveisDiv.style.display = "block";
+          toggleColunasBtn.textContent = "▲ Recolher opções";
+        } else {
+          colunasVisiveisDiv.style.display = "none";
+          toggleColunasBtn.textContent = "▼ Escolha as colunas a serem exibidas";
+        }
+      });
+
+      // Atualizar visibilidade das colunas
+      function atualizarColunas() {
+        checkboxes.forEach(checkbox => {
+          const th = tabela.querySelector(`thead th[data-coluna="${checkbox.value}"]`);
+          const tds = tabela.querySelectorAll(`tbody td[data-coluna="${checkbox.value}"]`);
+
+          if (checkbox.checked) {
+            if (th) th.style.display = ""; // Exibe o cabeçalho
+            tds.forEach(td => td.style.display = ""); // Exibe as células
+          } else {
+            if (th) th.style.display = "none"; // Oculta o cabeçalho
+            tds.forEach(td => td.style.display = "none"); // Oculta as células
+          }
+        });
+      }
+
+      // Adicionar evento aos checkboxes
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", atualizarColunas);
+      });
+
+      // Atualizar colunas ao carregar a página
+      atualizarColunas();
+    });
+  </script>
+</body>
+</html>
