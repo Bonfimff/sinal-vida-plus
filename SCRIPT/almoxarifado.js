@@ -790,8 +790,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const estoqueMinimo = document.getElementById("estoque-minimo").value;
     const numeroNota = document.getElementById("numero-nota").value;
     const fornecedor = document.getElementById("fornecedor").value;
-    const patrimonio = document.getElementById("patrimonio").value;
-    const localEstoque = document.getElementById("local-estoque").value;
+    const patrimonio = document.getElementById("patrimonio-cadastro").value;
+    const local_estoque = document.getElementById("local-estoque-cadastro").value;
+    const marca = document.getElementById("marca-cadastro").value;
+     
     let custo = document.getElementById("custo").value.trim();
 
     // Remove "R$", pontos e espaços, e troca vírgula por ponto
@@ -800,12 +802,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const dataCompra = document.getElementById("data-compra").value;
     const dataValidade = document.getElementById("data-validade").value;
     const terminoGarantia = document.getElementById("garantia").value;
-    const observacoes = document.getElementById("retirada-observacoes").value;
+    const outras_informacoes = document.getElementById("observacoes-cadastro").value;
 
     // Monta o objeto com os dados
     const produto = {
       nome_produto: nomeProduto,
       codigo: codigo,
+      marca: marca,
       categoria: categoria,
       quantidade: quantidade,
       numero_serie: numeroSerie,
@@ -814,12 +817,12 @@ document.addEventListener('DOMContentLoaded', function () {
       numero_nota: numeroNota,
       fornecedor: fornecedor,
       patrimonio: patrimonio,
-      local_estoque: localEstoque,
+      local_estoque: local_estoque,
       custo: custo,
       data_compra: dataCompra,
       data_validade: dataValidade,
       garantia: terminoGarantia,
-      observacoes: observacoes,
+      outras_informacoes: outras_informacoes,
     };
 
     try {

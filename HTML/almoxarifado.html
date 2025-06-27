@@ -746,7 +746,7 @@
     </div>
 
     <div style="margin-top: 10px;">
-      <button type="button" id="toggle-colunas">▼ Escolha as colunas a serem exibidas</button>
+      <button type="button" active id="toggle-colunas">▼ Escolha as colunas a serem exibidas</button>
       <button type="submit" id="btn-listarProdutos">Buscar Produtos</button>
     </div>
   </form>
@@ -933,10 +933,6 @@
               <input type="text" id="codigo" name="codigo" required />
             </div>
             <div>
-              <label for="nome-produto">NOME DO PRODUTO</label>
-              <input type="text" id="nome-produto" name="nome-produto" required />
-            </div>
-            <div>
               <label for="categoria">CATEGORIA</label>
               <select id="categoria" name="categoria" required>
                 <option value="">Selecione</option>
@@ -955,7 +951,7 @@
             </div>
 
             <label for="retirada-observacoes">OBSERVAÇÕES</label>
-              <textarea id="retirada-observacoes"  class=""></textarea>
+              <textarea id="observacoes-cadastro"  class="textarea-grande"></textarea>
             
 
           </div>
@@ -991,20 +987,25 @@
             </div>
             <div>
               <label for="patrimonio">PATRIMÔNIO</label>
-              <select id="patrimonio" name="patrimonio" required>
+              <select id="patrimonio-cadastro" name="patrimonio" required>
                 <option value="">Selecione</option>
-                <option value="Duque de caxias">Contrato 1</option>
-                <option value="Volta redonda">Contrato 2</option>
+                <option value="Duque de caxias">Contrato Duque de caxias</option>
+                <option value="Volta redonda">Contrato Volta redonda</option>
               </select>
             </div>
             <div>
-              <label for="local-estoque">LOCAL ESTOQUE</label>
-              <select id="local-estoque" name="local-estoque" required>
+              <label for="local-estoque-">LOCAL ESTOQUE</label>
+              <select id="local-estoque-cadastro" name="local-estoque" required>
                 <option value="">Selecione</option>
                 <option value="Almoxarifado">Almoxarifado</option>
                 <option value="Depósito Central">Estoque</option>
               </select>
             </div>
+            <div>
+              <label for="local-estoque-">MARCA</label>
+              <input type="text" id="marca-cadastro" name="custo" class="custo-input" required />
+            </div>
+
           </div>
 
           <!-- Coluna 3: Financeiro + Imagem -->
@@ -1012,6 +1013,10 @@
             <div class="image-preview-container">
               <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
               <input type="file" id="input-carregar-img-cadastro" accept=".xml" style="display: none;">
+            </div>
+            <div>
+              <label for="nome-produto">NOME DO PRODUTO</label>
+              <input type="text" id="nome-produto" name="nome-produto" required />
             </div>
             <div>
               <label for="custo">CUSTO</label>
@@ -1143,7 +1148,7 @@
   <!-- Painel notificação -->
 <div id="info-modal" class="modal" style="display: none;">
   <div class="modal-content">
-    <p>Versão de desenvolvimento: 26.06-v3</p>
+    <p>Versão de desenvolvimento: 23.06-v3</p>
     <button id="modal-ok-btn">OK</button>
   </div>
 </div>

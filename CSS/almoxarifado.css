@@ -91,6 +91,14 @@
   padding: 12px;
   color: #222;
 }
+
+.textarea-grande {
+  min-height: 170px; 
+  max-height: 100%;
+  resize: both;
+}
+
+
 .inline-style-940163 {
   background: #2d6a4f;
   color: #fff;

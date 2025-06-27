@@ -451,7 +451,8 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 @media (max-width: 768px) {
   .menu {
-    height: calc(115vh - 50px);
+    
+    height: calc(117vh - 50px);
   }
 }
 
@@ -531,7 +532,6 @@ button[type="submit"]:hover, .btn-primario:hover {
               0px -2px 4px rgba(255, 255, 255, 0.056); 
 }
 
-
 /*======================== Painel lateral direito=============================== */
 
 /* Painel lateral direito */
@@ -555,7 +555,7 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 @media (max-width: 768px) {
   .sidebar-right {
-    height: calc(115vh - 50px); 
+    height: calc(117vh - 50px); 
   }
 }
 
