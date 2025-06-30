@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const legendaPrincipal = document.getElementById('legenda-principal'); // Legenda principal
+  const legendaPrincipal = document.getElementById('legenda-principal'); 
 
   const gerenciamentoTab = document.querySelector('.tab-btn[data-tab="gerenciamento"]');
   const gerenciamentoContent = document.getElementById('gerenciamento');

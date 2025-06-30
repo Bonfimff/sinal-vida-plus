@@ -1,27 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   // Carregar e executar o main.js dinamicamente
-  const script = document.createElement('script');
-  script.src = 'geral.js';
-  script.onload = () => {
-    console.log('✅ .js foi executado com sucesso.');
-    const body = document.querySelector('body');
-    const message = document.createElement('div');
-    message.textContent = '.js foi executado com sucesso.';
-    message.style.position = 'fixed';
-    message.style.bottom = '10px';
-    message.style.right = '10px';
-    message.style.backgroundColor = '#4CAF50';
-    message.style.color = '#fff';
-    message.style.padding = '10px';
-    message.style.borderRadius = '5px';
-    message.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
-    body.appendChild(message);
 
-    setTimeout(() => {
-      message.remove(); 
-    }, 5000);
-  };
-  document.head.appendChild(script);
 
   // Código existente do almoxarifado.js
   const sidebarContent = document.getElementById('sidebar-content'); 
@@ -317,6 +296,637 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+//======================================================== Função para editar produto =============================================
+          
+const tabelaProdutos = document.getElementById('Lista-dos-produtos');
+
+tabelaProdutos.addEventListener('dblclick', function(event) {
+  const row = event.target.closest('tr');
+  
+  // Verifica se é uma linha do tbody (não do thead)
+  if (row && row.parentElement.tagName === 'TBODY') {
+    const cells = row.querySelectorAll('td');
+
+    if (cells.length > 0) {
+      const dadosProduto = {
+        id: cells[0]?.textContent || '',
+        nome: cells[1]?.textContent || '',
+        codigo: cells[2]?.textContent || ''
+      };
+
+      // Chama o modal com as opções
+      criarModalEscolhaAcao(dadosProduto, row, cells);
+    }
+  }
+});
+
+// Função para criar modal com opções de Editar e Excluir
+function criarModalEscolhaAcao(dados, row, cells) {
+  // Remove modal existente se houver
+  const modalExistente = document.getElementById('modal-escolha-acao');
+  if (modalExistente) {
+    modalExistente.remove();
+  }
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-escolha-acao';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    ">
+      <h3 style="margin-top: 0; color: #333; font-size: 24px; margin-bottom: 20px;">
+        🔧 Ações do Produto
+      </h3>
+      
+      <div style="margin-bottom: 25px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; text-align: left;">
+        <h4 style="margin: 0 0 15px 0; color: #495057; text-align: center;">📦 Informações do Produto</h4>
+        <p style="margin: 8px 0; color: #495057;"><strong>🆔 ID:</strong> ${dados.id}</p>
+        <p style="margin: 8px 0; color: #495057;"><strong>📝 Nome:</strong> ${dados.nome}</p>
+        <p style="margin: 8px 0; color: #495057;"><strong>🔢 Código:</strong> ${dados.codigo}</p>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <p style="font-size: 16px; color: #666; margin-bottom: 25px;">
+          O que você deseja fazer com este produto?
+        </p>
+      </div>
+      
+      <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <button id="btn-editar-produto" style="
+          background: linear-gradient(45deg, #007bff, #0056b3);
+          color: white;
+          border: none;
+          padding: 15px 25px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.3s;
+          box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        ">
+          ✏️ Editar Produto
+        </button>
+        
+        <button id="btn-excluir-produto" style="
+          background: linear-gradient(45deg, #dc3545, #bd2130);
+          color: white;
+          border: none;
+          padding: 15px 25px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.3s;
+          box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        ">
+          🗑️ Excluir Produto
+        </button>
+        
+        <button id="btn-cancelar-acao" style="
+          background: #6c757d;
+          color: white;
+          border: none;
+          padding: 15px 25px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 16px;
+          transition: all 0.3s;
+          box-shadow: 0 3px 10px rgba(108, 117, 125, 0.3);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        ">
+          ❌ Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Eventos dos botões
+  modal.querySelector('#btn-editar-produto').addEventListener('click', function() {
+    modal.remove();
+    editarProdutoComBusca(dados.id);
+  });
+
+  modal.querySelector('#btn-excluir-produto').addEventListener('click', function() {
+    modal.remove();
+    excluirProduto(row, cells);
+  });
+
+  modal.querySelector('#btn-cancelar-acao').addEventListener('click', function() {
+    modal.remove();
+  });
+
+  // Fecha o modal ao clicar fora dele
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  // Fecha o modal com a tecla ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('modal-escolha-acao')) {
+      modal.remove();
+    }
+  });
+
+  // Adiciona efeitos hover aos botões
+  const botoes = modal.querySelectorAll('button');
+  botoes.forEach(botao => {
+    botao.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-2px)';
+      this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+    });
+    
+    botao.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+      this.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.1)';
+    });
+  });
+
+  document.body.appendChild(modal);
+}
+
+// Função para editar produto (busca dados reais no backend)
+async function editarProdutoComBusca(produtoId) {
+  if (!produtoId) {
+    alert('ID do produto não encontrado.');
+    return;
+  }
+
+  try {
+    // Mostra loading
+    criarModalLoading('Carregando dados do produto...');
+
+    // Busca os dados do produto no backend
+    const response = await fetch(`https://api.exksvol.website/produtos/buscar/${produtoId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    // Remove modal de loading
+    removerModalLoading();
+
+    if (response.ok && data.status === 'ok') {
+      const produto = data.produto;
+      
+      // Preenche os campos do formulário com os dados do backend
+      preencherFormularioEdicao(produto);
+      
+      // Muda para a aba de cadastro
+      mudarParaAbaCadastro();
+      
+     // criarModalSucesso(`Produto "${produto.nome_produto}" carregado para edição!`);
+      
+    } else {
+      alert('Erro ao carregar produto: ' + data.mensagem);
+    }
+
+  } catch (error) {
+    removerModalLoading();
+    console.error('Erro ao buscar produto:', error);
+    alert('Erro ao conectar com o servidor. Verifique sua conexão.');
+  }
+}
+
+// Função para preencher o formulário com os dados do produto
+function preencherFormularioEdicao(produto) {
+  try {
+    //console.log('🔄 Iniciando preenchimento do formulário');
+    //console.log('📋 Dados completos do produto:', produto);
+
+    // Limpa o formulário primeiro
+    const form = document.getElementById('form-produtos');
+    if (form) {
+      form.reset();
+    }
+
+    // Preenche os campos com os dados do backend
+    const campos = [
+      { id: 'nome-produto', valor: produto.nome_produto },
+      { id: 'codigo', valor: produto.codigo },
+      { id: 'marca-cadastro', valor: produto.marca },
+      { id: 'categoria', valor: produto.categoria },
+      { id: 'quantidade', valor: produto.quantidade },
+      { id: 'numero-serie', valor: produto.numero_serie },
+      { id: 'unid-medida', valor: produto.unidade_medida },
+      { id: 'estoque-minimo', valor: produto.estoque_minimo },
+      { id: 'numero-nota', valor: produto.numero_nota },
+      { id: 'fornecedor', valor: produto.fornecedor },
+      { id: 'patrimonio-cadastro', valor: produto.patrimonio },
+      { id: 'local-estoque-cadastro', valor: produto.local },
+      { id: 'custo', valor: produto.custo },
+      { id: 'observacoes-cadastro', valor: produto.outras_informacoes }
+    ];
+
+    campos.forEach(campo => {
+      const elemento = document.getElementById(campo.id);
+      if (elemento) {
+        const valor = campo.valor != null ? String(campo.valor) : '';
+        elemento.value = valor;
+      }
+    });
+
+// Preencher os campos de data corretamente usando a função formatarDataParaInput
+const camposDataEspecificos = [
+  { id: 'data-compra', valor: produto.data_compra },
+  { id: 'data-validade', valor: produto.data_validade },
+  { id: 'garantia', valor: produto.termino_garantia }
+];
+
+camposDataEspecificos.forEach(campo => {
+  const elemento = document.getElementById(campo.id);
+  if (elemento) {
+    const dataFormatada = formatarDataParaInput(campo.valor);
+    elemento.value = dataFormatada;
+  }
+const valorOriginalCompra = produto.data_compra;
+const valorOriginalValidae = produto.data_validade;
+const valorOriginalGarantia= produto.termino_garantia;
+
+const dataObj = new Date(valorOriginalCompra);
+if (!isNaN(dataObj.getTime())) {
+  const ano = dataObj.getFullYear();
+  const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+  const dia = String(dataObj.getDate()+1 ).padStart(2, '0');
+
+  const dataFormatada = `${ano}-${mes}-${dia}`;
+  document.getElementById('data-compra').value = dataFormatada;
+}
+
+const dataObj2 = new Date(valorOriginalValidae);
+if (!isNaN(dataObj2.getTime())) {
+  const ano = dataObj2.getFullYear();
+  const mes = String(dataObj2.getMonth() + 1).padStart(2, '0');
+  const dia = String(dataObj2.getDate()+1 ).padStart(2, '0');
+
+  const dataFormatada = `${ano}-${mes}-${dia}`;
+  document.getElementById('data-validade').value = dataFormatada;
+}
+
+const dataObj3 = new Date(valorOriginalGarantia);
+if (!isNaN(dataObj3.getTime())) {
+  const ano = dataObj3.getFullYear();
+  const mes = String(dataObj3.getMonth() + 1).padStart(2, '0');
+  const dia = String(dataObj3.getDate()+1 ).padStart(2, '0');
+
+  const dataFormatada = `${ano}-${mes}-${dia}`;
+  document.getElementById('garantia').value = dataFormatada;
+}
+
+});
+
+
+
+
+    // Adiciona um campo oculto com o ID para identificar que é uma edição
+    let idField = document.getElementById('produto-id-edicao');
+    if (!idField) {
+      idField = document.createElement('input');
+      idField.type = 'hidden';
+      idField.id = 'produto-id-edicao';
+      idField.name = 'produto-id-edicao';
+      if (form) {
+        form.appendChild(idField);
+      }
+    }
+    idField.value = produto.id || '';
+
+    // Muda o texto do botão para indicar que é uma edição
+    const btnSalvar = document.getElementById('btn-novoProduto');
+    if (btnSalvar) {
+      btnSalvar.textContent = 'Atualizar Produto';
+      btnSalvar.style.backgroundColor = '#28a745';
+      btnSalvar.style.color = 'white';
+    }
+
+    // Resumo final
+    setTimeout(() => {
+      
+      camposDataEspecificos.forEach(campo => {
+        const elemento = document.getElementById(campo.id);
+        const valorFinal = elemento ? elemento.value : 'ELEMENTO NÃO ENCONTRADO';
+        console.log(`${campo.nome}: "${valorFinal}"`);
+      });
+     
+    }, 100);
+
+    console.log('✅ Formulário preenchido com sucesso!');
+
+  } catch (error) {
+    //console.error('❌ Erro ao preencher formulário:', error);
+    //alert('Erro ao preencher formulário. Alguns campos podem não ter sido preenchidos corretamente.');
+  }
+}
+
+
+
+
+// Função para mudar para a aba de cadastro
+function mudarParaAbaCadastro() {
+  const abaCadastro = document.getElementById('cadastro-produto');
+  const botaoCadastro = document.querySelector('.top-tab2[data-tab="cadastro-produto"]');
+  
+  if (abaCadastro && botaoCadastro) {
+    // Remove active de todas as abas
+    document.querySelectorAll('.tab-content').forEach(aba => aba.classList.remove('active'));
+    document.querySelectorAll('.top-tab2').forEach(btn => btn.classList.remove('active'));
+    
+    // Ativa a aba de cadastro
+    abaCadastro.classList.add('active');
+    botaoCadastro.classList.add('active');
+  }
+}
+
+// Função para criar modal de loading
+function criarModalLoading(mensagem) {
+  const modalExistente = document.getElementById('modal-loading');
+  if (modalExistente) {
+    modalExistente.remove();
+  }
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-loading';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    ">
+      <div style="
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      "></div>
+      <p style="margin: 0; color: #333; font-size: 16px;">${mensagem}</p>
+    </div>
+  `;
+
+  // Adiciona CSS da animação
+  if (!document.getElementById('loading-animation-css')) {
+    const style = document.createElement('style');
+    style.id = 'loading-animation-css';
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.body.appendChild(modal);
+}
+
+// Função para remover modal de loading
+function removerModalLoading() {
+  const modal = document.getElementById('modal-loading');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Função auxiliar para formatar data com debug completo
+
+// Substitua as linhas 844-849 por esta versão corrigida:
+function formatarDataParaInput(data) {
+  console.log('🔍 DEBUG formatarDataParaInput - Entrada:', {
+    valor: data,
+    tipo: typeof data,
+    ehNull: data === null,
+    ehUndefined: data === undefined
+  });
+
+  // Verifica se a data é null, undefined, string vazia ou "N/A"
+  if (!data || data === null || data === 'null' || data === 'N/A' || data === 'undefined') {
+    console.log('❌ Valor inválido detectado, retornando string vazia');
+    return '';
+  }
+
+  const dataStr = String(data).trim();
+ // console.log('📝 String convertida:', dataStr);
+
+  if (dataStr === '' || dataStr === 'null' || dataStr === 'undefined') {
+    console.log('❌ String vazia após trim, retornando string vazia');
+    return '';
+  }
+
+  try {
+    // 1. GMT/UTC - CORRIGIDO COM MÉTODOS UTC
+    if (dataStr.includes('GMT') || dataStr.includes('UTC')) {
+
+      
+      const dataObj = new Date(dataStr);
+
+      
+      if (!isNaN(dataObj.getTime())) {
+        // ✅ USAR MÉTODOS UTC PARA EVITAR PROBLEMAS DE TIMEZONE
+        const ano = dataObj.getUTCFullYear();
+        const mes = String(dataObj.getUTCMonth() + 1).padStart(2, '0');
+        const dia = String(dataObj.getUTCDate()).padStart(2, '0');
+        const resultado = `${ano}-${mes}-${dia}`;
+        
+        
+        return resultado;
+      } else {
+        console.error('❌ Data GMT inválida');
+      }
+    }
+
+    // Resto do código permanece igual...
+    // 2. datetime.date()
+    if (dataStr.includes('datetime.date(')) {
+      console.log('🐍 Formato datetime.date detectado');
+      const match = dataStr.match(/datetime\.date\((\d{4}),\s*(\d{1,2}),\s*(\d{1,2})\)/);
+      if (match) {
+        const [, ano, mes, dia] = match;
+        const resultado = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        console.log('✅ datetime.date convertido para:', resultado);
+        return resultado;
+      }
+    }
+
+    // 3. yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+      console.log('📅 Formato yyyy-mm-dd detectado e válido:', dataStr);
+      return dataStr;
+    }
+
+    // 4. dd/mm/yyyy
+    if (dataStr.includes('/')) {
+      console.log('📆 Formato dd/mm/yyyy detectado');
+      const partes = dataStr.split('/');
+      if (partes.length === 3) {
+        const [dia, mes, ano] = partes;
+        if (!isNaN(dia) && !isNaN(mes) && !isNaN(ano)) {
+          const resultado = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+          console.log('✅ dd/mm/yyyy convertido para:', resultado);
+          return resultado;
+        }
+      }
+    }
+
+    // 5. ISO (com T)
+    if (dataStr.includes('T')) {
+      console.log('🌐 Formato ISO detectado');
+      const dataObj = new Date(dataStr);
+      if (!isNaN(dataObj.getTime())) {
+        const ano = dataObj.getUTCFullYear();
+        const mes = String(dataObj.getUTCMonth() + 1).padStart(2, '0');
+        const dia = String(dataObj.getUTCDate()).padStart(2, '0');
+        const resultado = `${ano}-${mes}-${dia}`;
+        console.log('✅ ISO convertido para:', resultado);
+        return resultado;
+      }
+    }
+
+    // 6. Fallback para new Date
+    console.log('🔄 Tentando criar Date diretamente');
+    const dataObj = new Date(dataStr);
+    if (!isNaN(dataObj.getTime())) {
+      const ano = dataObj.getUTCFullYear();
+      const mes = String(dataObj.getUTCMonth() + 1).padStart(2, '0');
+      const dia = String(dataObj.getUTCDate()).padStart(2, '0');
+      const resultado = `${ano}-${mes}-${dia}`;
+      console.log('✅ Date direto convertido para:', resultado);
+      return resultado;
+    }
+
+  } catch (error) {
+    console.error(`❌ Erro ao processar data "${dataStr}":`, error);
+  }
+
+  console.warn(`⚠️ Formato de data não reconhecido: "${dataStr}"`);
+  return '';
+}
+//======================================================== Função para excluir produto =============================================
+
+
+
+// Função para excluir produto - CORRIGIDA
+async function excluirProduto(row, cells) {
+  // Extrai o ID corretamente da primeira célula
+  const produtoId = cells[0]?.textContent?.trim();
+  const produtoNome = cells[1]?.textContent?.trim();
+  
+  console.log('🗑️ Dados para exclusão:', {
+    id: produtoId,
+    nome: produtoNome,
+    row: row
+  });
+
+  // Valida se o ID foi extraído corretamente
+  if (!produtoId || produtoId === '' || isNaN(produtoId)) {
+    alert('❌ Erro: ID do produto não encontrado ou inválido.');
+    console.error('ID inválido:', produtoId);
+    return;
+  }
+  
+  const dadosProduto = {
+    id: produtoId,
+    nome: produtoNome || 'Nome não encontrado'
+  };
+  
+  // Confirma a exclusão
+  const confirmar = confirm(`⚠️ CONFIRMAÇÃO FINAL!\n\nTem certeza que deseja EXCLUIR o produto?\n\nID: ${dadosProduto.id}\nNome: ${dadosProduto.nome}\n\nEsta ação não pode ser desfeita!`);
+  
+  if (confirmar) {
+    try {
+      console.log('🔄 Iniciando exclusão do produto ID:', dadosProduto.id);
+      criarModalLoading('Excluindo produto...');
+
+      // Fazer requisição para excluir no backend - USANDO APENAS O ID
+      const response = await fetch(`https://api.exksvol.website/produtos/excluir/${dadosProduto.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('📡 Resposta da API:', response);
+      const data = await response.json();
+      console.log('📋 Dados da resposta:', data);
+      
+      removerModalLoading();
+
+      if (response.ok && data.status === 'ok') {
+        console.log('✅ Produto excluído com sucesso');
+        
+        // Remove a linha da tabela
+        row.remove();
+        
+        // Mostra mensagem de sucesso
+       // criarModalSucesso(`Produto "${dadosProduto.nome}" foi excluído com sucesso!`);
+        
+      } else {
+        console.error('❌ Erro na exclusão:', data);
+        alert('Erro ao excluir produto: ' + (data.mensagem || 'Erro desconhecido'));
+      }
+
+    } catch (error) {
+      removerModalLoading();
+      console.error('❌ Erro de conexão:', error);
+      alert('Erro ao conectar com o servidor. Verifique sua conexão.');
+    }
+  } else {
+    console.log('❌ Exclusão cancelada pelo usuário');
+  }
+}
+
+//==================================================================================================================================
 
   // Função para alternar entre abas
   function alternarAba(event) {
@@ -777,79 +1387,133 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${ano}-${mes}-${dia}`;
   }
 
-  document.getElementById("btn-novoProduto").addEventListener("click", async function (event) {
-    event.preventDefault(); // Impede o envio padrão do formulário
+ // Substitua o evento do botão (linhas 1185-1230) por esta versão:
+document.getElementById("btn-novoProduto").addEventListener("click", async function (event) {
+  event.preventDefault();
 
-    // Captura os valores dos campos
-    const nomeProduto = document.getElementById("nome-produto").value;
-    const codigo = document.getElementById("codigo").value;
-    const categoria = document.getElementById("categoria").value;
-    const quantidade = document.getElementById("quantidade").value;
-    const numeroSerie = document.getElementById("numero-serie").value;
-    const unidadeMedida = document.getElementById("unid-medida").value;
-    const estoqueMinimo = document.getElementById("estoque-minimo").value;
-    const numeroNota = document.getElementById("numero-nota").value;
-    const fornecedor = document.getElementById("fornecedor").value;
-    const patrimonio = document.getElementById("patrimonio-cadastro").value;
-    const local_estoque = document.getElementById("local-estoque-cadastro").value;
-    const marca = document.getElementById("marca-cadastro").value;
-     
-    let custo = document.getElementById("custo").value.trim();
+  // Verifica se é uma edição (campo oculto com ID existe)
+  const produtoIdEdicao = document.getElementById('produto-id-edicao')?.value;
+  const ehEdicao = produtoIdEdicao && produtoIdEdicao.trim() !== '';
 
-    // Remove "R$", pontos e espaços, e troca vírgula por ponto
-    custo = custo.replace(/[R$\s]/g, "").replace(".", "").replace(",", ".");
+  console.log('🔍 Modo detectado:', ehEdicao ? 'EDIÇÃO' : 'CRIAÇÃO');
+  if (ehEdicao) {
+    console.log('📝 ID do produto para editar:', produtoIdEdicao);
+  }
 
-    const dataCompra = document.getElementById("data-compra").value;
-    const dataValidade = document.getElementById("data-validade").value;
-    const terminoGarantia = document.getElementById("garantia").value;
-    const outras_informacoes = document.getElementById("observacoes-cadastro").value;
+  // Captura os valores dos campos
+  const nomeProduto = document.getElementById("nome-produto").value;
+  const codigo = document.getElementById("codigo").value;
+  const categoria = document.getElementById("categoria").value;
+  const quantidade = document.getElementById("quantidade").value;
+  const numeroSerie = document.getElementById("numero-serie").value;
+  const unidadeMedida = document.getElementById("unid-medida").value;
+  const estoqueMinimo = document.getElementById("estoque-minimo").value;
+  const numeroNota = document.getElementById("numero-nota").value;
+  const fornecedor = document.getElementById("fornecedor").value;
+  const patrimonio = document.getElementById("patrimonio-cadastro").value;
+  const local_estoque = document.getElementById("local-estoque-cadastro").value;
+  const marca = document.getElementById("marca-cadastro").value;
+   
+  let custo = document.getElementById("custo").value.trim();
+  custo = custo.replace(/[R$\s]/g, "").replace(".", "").replace(",", ".");
 
-    // Monta o objeto com os dados
-    const produto = {
-      nome_produto: nomeProduto,
-      codigo: codigo,
-      marca: marca,
-      categoria: categoria,
-      quantidade: quantidade,
-      numero_serie: numeroSerie,
-      unid_medida: unidadeMedida,
-      estoque_minimo: estoqueMinimo,
-      numero_nota: numeroNota,
-      fornecedor: fornecedor,
-      patrimonio: patrimonio,
-      local_estoque: local_estoque,
-      custo: custo,
-      data_compra: dataCompra,
-      data_validade: dataValidade,
-      garantia: terminoGarantia,
-      outras_informacoes: outras_informacoes,
-    };
+  const dataCompra = document.getElementById("data-compra").value;
+  const dataValidade = document.getElementById("data-validade").value;
+  const terminoGarantia = document.getElementById("garantia").value;
+  const outras_informacoes = document.getElementById("observacoes-cadastro").value;
 
-    try {
-      // Envia os dados para o backend
-      const response = await fetch("https://api.exksvol.website/produtos/salvar", {
-        method: "POST",
+  // Monta o objeto com os dados
+  const produto = {
+    nome_produto: nomeProduto,
+    codigo: codigo,
+    marca: marca,
+    categoria: categoria,
+    quantidade: quantidade,
+    numero_serie: numeroSerie,
+    unid_medida: unidadeMedida,
+    estoque_minimo: estoqueMinimo,
+    numero_nota: numeroNota,
+    fornecedor: fornecedor,
+    patrimonio: patrimonio,
+    local_estoque: local_estoque,
+    custo: custo,
+    data_compra: dataCompra,
+    data_validade: dataValidade,
+    garantia: terminoGarantia,
+    outras_informacoes: outras_informacoes,
+  };
+
+  try {
+    let response;
+    let mensagemSucesso;
+
+    if (ehEdicao) {
+      // ===== MODO EDIÇÃO =====
+      console.log('🔄 Enviando atualização do produto...');
+      
+      // Adiciona o ID do produto ao objeto
+      produto.id = produtoIdEdicao;
+      
+      response = await fetch(`https://api.exksvol.website/produtos/atualizar/${produtoIdEdicao}`, {
+        method: "PUT", // ✅ PUT para atualizar
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"), // Token de autenticação
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(produto),
       });
-
-      const data = await response.json();
-
-      if (response.ok && data.status === "ok") {
-        alert("Produto salvo com sucesso!");
-        // Limpa os campos do formulário
-        document.getElementById("form-produtos").reset();
-      } else {
-        alert("Erro ao salvar produto: " + data.mensagem);
-      }
-    } catch (error) {
-      console.error("Erro ao conectar ao servidor:", error);
-      alert("Erro ao salvar produto. Verifique o console para mais detalhes.");
+      
+      mensagemSucesso = "Produto atualizado com sucesso!";
+      
+    } else {
+      // ===== MODO CRIAÇÃO =====
+      console.log('🔄 Enviando criação de novo produto...');
+      
+      response = await fetch("https://api.exksvol.website/produtos/salvar", {
+        method: "POST", // ✅ POST para criar
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify(produto),
+      });
+      
+      mensagemSucesso = "Produto salvo com sucesso!";
     }
-  });
+
+    const data = await response.json();
+
+    if (response.ok && data.status === "ok") {
+      alert(mensagemSucesso);
+      
+      // Limpa os campos do formulário
+      document.getElementById("form-produtos").reset();
+      
+      // Remove o campo de edição e restaura o botão
+      const campoEdicao = document.getElementById('produto-id-edicao');
+      if (campoEdicao) {
+        campoEdicao.remove();
+      }
+      
+      // Restaura o botão para o estado original
+      const btnSalvar = document.getElementById('btn-novoProduto');
+      if (btnSalvar) {
+        btnSalvar.textContent = 'Salvar Produto';
+        btnSalvar.style.backgroundColor = '';
+        btnSalvar.style.color = '';
+      }
+      
+      console.log('✅ Operação concluída com sucesso!');
+      
+    } else {
+      alert(`Erro ao ${ehEdicao ? 'atualizar' : 'salvar'} produto: ` + data.mensagem);
+    }
+    
+  } catch (error) {
+    console.error("Erro ao conectar ao servidor:", error);
+    alert(`Erro ao ${ehEdicao ? 'atualizar' : 'salvar'} produto. Verifique o console para mais detalhes.`);
+  }
+});
 
   const previewImg = document.getElementById('preview');
   const inputImagem = document.getElementById('input-carregar-img-cadastro'); // ID corrigido
