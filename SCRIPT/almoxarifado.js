@@ -1,3 +1,158 @@
+// Exibe a div de busca de kits apenas quando selecionado "kits" no filtro geral
+document.addEventListener('DOMContentLoaded', function() {
+  const select = document.getElementById('tipo-busca');
+  const divKits = document.getElementById('busca-kits');
+  if (!select || !divKits) return;
+  function mostrarDivKits() {
+    if (select.value === 'kits') {
+      divKits.style.display = 'block';
+    } else {
+      divKits.style.display = 'none';
+    }
+  }
+  select.addEventListener('change', mostrarDivKits);
+  mostrarDivKits();
+});
+document.getElementById('btn-baixar-tabela')?.addEventListener('click', function() {
+  console.log('[DEBUG] Botão "Baixar Tabela" clicado!');
+});
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Exportação de Tabela de Produtos
+// Exporta a tabela de produtos para um arquivo Excel (.xlsx) usando SheetJS, aplicando estilos e layout.
+//======================================================================================================
+function exportarTabelaProdutosParaExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert('A biblioteca de exportação XLSX não foi carregada.');
+    return;
+  }
+  const tabela = document.getElementById('Lista-dos-produtos');
+  if (!tabela) {
+    alert('Tabela de produtos não encontrada!');
+    return;
+  }
+  // Coleta os cabeçalhos visíveis
+  const ths = tabela.querySelectorAll('thead th');
+  const headers = Array.from(ths).filter(th => th.offsetParent !== null).map(th => th.textContent.trim());
+  // Coleta as linhas visíveis do tbody
+  const trs = tabela.querySelectorAll('tbody tr');
+  const data = [];
+  trs.forEach(tr => {
+    if (tr.offsetParent === null) return;
+    const row = [];
+    Array.from(tr.children).forEach(td => {
+      if (td.offsetParent !== null) {
+        row.push(td.textContent.trim());
+      }
+    });
+    if (row.length > 0) data.push(row);
+  });
+
+
+  const aoa = [];
+  aoa.push([]); // Linha 1 vazia
+  aoa.push(['', ...headers]); // Linha 2: cabeçalho começa em B2
+  data.forEach(row => aoa.push(['', ...row]));
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // Estilização do cabeçalho (linha 2, colunas B em diante)
+  const colCount = headers.length;
+  // Cabeçalho: linha 2 (índice 1)
+  for (let c = 1; c <= colCount; ++c) {
+    const cell = ws[XLSX.utils.encode_cell({r:1, c:c})];
+    if (cell) {
+      cell.s = {
+        fill: { patternType: 'solid', fgColor: { rgb: '4D4D4D' } },
+        font: { name: 'Calibri', sz: 14, bold: true, color: { rgb: 'FFFF00' } },
+        alignment: { horizontal: 'center', vertical: 'center' },
+        border: {
+          top:    { style: 'thin', color: { rgb: '888888' } },
+          bottom: { style: 'thin', color: { rgb: '888888' } },
+          left:   { style: 'thin', color: { rgb: '888888' } },
+          right:  { style: 'thin', color: { rgb: '888888' } }
+        }
+      };
+    }
+  }
+  // Conteúdo: linhas 3+ (índice 2 em diante)
+  for (let r = 2; r < aoa.length; ++r) {
+    for (let c = 1; c <= colCount; ++c) {
+      const cell = ws[XLSX.utils.encode_cell({r:r, c:c})];
+      if (cell) {
+        cell.s = {
+          font: { name: 'Calibri', sz: 12, bold: false, color: { rgb: '000000' } },
+          alignment: { horizontal: 'left', vertical: 'center' },
+          border: {
+            top:    { style: 'thin', color: { rgb: 'BBBBBB' } },
+            bottom: { style: 'thin', color: { rgb: 'BBBBBB' } },
+            left:   { style: 'thin', color: { rgb: 'BBBBBB' } },
+            right:  { style: 'thin', color: { rgb: 'BBBBBB' } }
+          }
+        };
+      }
+    }
+  }
+
+  // Ajuste automático de largura das colunas (simula autoFit)
+  ws['!cols'] = [{ wch: 2 }]; // Coluna A vazia
+  for (let c = 0; c < colCount; ++c) {
+    let maxLen = headers[c].length;
+    for (let r = 0; r < data.length; ++r) {
+      const val = data[r][c] ? String(data[r][c]) : '';
+      if (val.length > maxLen) maxLen = val.length;
+    }
+    // Ajuste: +2 para espaçamento extra
+    ws['!cols'].push({ wch: maxLen + 2 });
+  }
+
+
+  for (let c = 1; c <= colCount; ++c) {
+    // Topo do cabeçalho
+    const cell = ws[XLSX.utils.encode_cell({r:1, c:c})];
+    if (cell && cell.s && cell.s.border) {
+      cell.s.border.top = { style: 'medium', color: { rgb: '000000' } };
+    }
+    // Base da última linha
+    const lastCell = ws[XLSX.utils.encode_cell({r:aoa.length-1, c:c})];
+    if (lastCell && lastCell.s && lastCell.s.border) {
+      lastCell.s.border.bottom = { style: 'medium', color: { rgb: '000000' } };
+    }
+  }
+
+  // Garante que a tabela comece em B2
+  ws['!ref'] = XLSX.utils.encode_range({ s: { r:1, c:1 }, e: { r: aoa.length-1, c: colCount } });
+
+  // Cria e salva o arquivo
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+  XLSX.writeFile(wb, 'produtos_almoxarifado.xlsx');
+}
+
+// Substitui o evento do botão para exportar a tabela
+document.getElementById('btn-baixar-tabela')?.addEventListener('click', function() {
+  exportarTabelaProdutosParaExcel();
+});
+// Exibe ou oculta os elementos da "aba produtos" conforme o tipo de busca selecionado
+document.addEventListener('DOMContentLoaded', function() {
+  var selectTipoBusca = document.getElementById('tipo-busca');
+  var blocoProdutos = document.getElementById('produtos-bloco-busca');
+  var tabelaProdutos = document.getElementById('produtos-tabela-bloco');
+  function atualizarVisibilidadeProdutos() {
+    if (selectTipoBusca && blocoProdutos && tabelaProdutos) {
+      if (selectTipoBusca.value === 'produtos') {
+        blocoProdutos.style.display = 'flex';
+        tabelaProdutos.style.display = '';
+      } else {
+        blocoProdutos.style.display = 'none';
+        tabelaProdutos.style.display = 'none';
+      }
+    }
+  }
+  if (selectTipoBusca) {
+    selectTipoBusca.addEventListener('change', atualizarVisibilidadeProdutos);
+    atualizarVisibilidadeProdutos();
+  }
+});
 document.addEventListener('DOMContentLoaded', function () {
   // Carregar e executar o main.js dinamicamente
 
@@ -8,7 +163,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const tabs = document.querySelectorAll('.tab-btn'); 
   const tabContents = document.querySelectorAll('.tab-content'); 
 
-  // Função para atualizar o preview no painel lateral
+  
+
+  //======================================================================================================
+  // FUNÇÃO AUXILIAR: Atualizar Preview no Painel Lateral
+  // Atualiza o preview do cupom no painel lateral com os itens de retirada selecionados.
+  //======================================================================================================
   function atualizarPreviewCupom() {
     const itensRetirada = document.querySelectorAll('#itens-retirada tr');
 
@@ -59,7 +219,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Função para gerar o HTML do preview
+  //======================================================================================================
+  // FUNÇÃO AUXILIAR: Gerar HTML do Preview
+  // Gera o HTML do preview do cupom a partir dos campos e itens informados.
+  //======================================================================================================
   function gerarHtmlPreviewCupom(campos, itensHtml) {
     return `
       <div style="margin-bottom: 16px;">
@@ -105,7 +268,10 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
 
-  // Função para renderizar o conteúdo padrão na barra lateral
+  //======================================================================================================
+  // FUNÇÃO AUXILIAR: Renderizar Conteúdo Padrão na Barra Lateral
+  // Renderiza o conteúdo padrão na barra lateral do sistema.
+  //======================================================================================================
   function renderSidebar() {
     if (sidebarContent) {
       sidebarContent.innerHTML = `
@@ -258,8 +424,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Função para verificar se a coluna está visível
             function colunaVisivel(coluna) {
-              const checkbox = document.querySelector(`#colunas-visiveis input[type="checkbox"][value="${coluna}"]`);
-              return checkbox && checkbox.checked;
+              // Usa o grupo correto de checkboxes conforme a aba ativa
+              const grupo = getGrupoColunasAtivo();
+              if (!grupo.checkboxes || !grupo.checkboxes.length) return true; // fallback: exibe tudo
+              const checkbox = Array.from(grupo.checkboxes).find(cb => cb.value === coluna);
+              return checkbox ? checkbox.checked : true;
             }
 
             // Adiciona as células à linha somente se a coluna correspondente estiver visível
@@ -296,7 +465,11 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
-//======================================================== Função para editar produto =============================================
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Edição de Produto
+// Esta função trata o evento de duplo clique na tabela de produtos, abrindo o modal de edição
+// e preenchendo os dados do produto selecionado para edição ou exclusão.
+//======================================================================================================
           
 const tabelaProdutos = document.getElementById('Lista-dos-produtos');
 
@@ -320,7 +493,10 @@ tabelaProdutos.addEventListener('dblclick', function(event) {
   }
 });
 
-// Função para criar modal com opções de Editar e Excluir
+//======================================================================================================
+// FUNÇÃO AUXILIAR: Criar Modal de Escolha de Ação
+// Cria e exibe um modal com as opções de Editar e Excluir para o produto selecionado.
+//======================================================================================================
 function criarModalEscolhaAcao(dados, row, cells) {
   // Remove modal existente se houver
   const modalExistente = document.getElementById('modal-escolha-acao');
@@ -474,7 +650,10 @@ function criarModalEscolhaAcao(dados, row, cells) {
   document.body.appendChild(modal);
 }
 
-// Função para editar produto (busca dados reais no backend)
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Edição de Produto (com busca no backend)
+// Busca os dados reais do produto no backend e preenche o formulário de edição.
+//======================================================================================================
 async function editarProdutoComBusca(produtoId) {
   if (!produtoId) {
     alert('ID do produto não encontrado.');
@@ -521,14 +700,15 @@ async function editarProdutoComBusca(produtoId) {
   }
 }
 
-// Função para preencher o formulário com os dados do produto
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Preenchimento do Formulário de Edição
+// Preenche o formulário de edição de produto com os dados fornecidos.
+//======================================================================================================
 function preencherFormularioEdicao(produto) {
   try {
-    //console.log('🔄 Iniciando preenchimento do formulário');
-    //console.log('📋 Dados completos do produto:', produto);
-
     // Limpa o formulário primeiro
-    const form = document.getElementById('form-produtos');
+    const formRetirada = document.getElementById('form-retirada');
+    if (formRetirada) formRetirada.reset();
     if (form) {
       form.reset();
     }
@@ -646,15 +826,16 @@ if (!isNaN(dataObj3.getTime())) {
     console.log('✅ Formulário preenchido com sucesso!');
 
   } catch (error) {
-    //console.error('❌ Erro ao preencher formulário:', error);
-    //alert('Erro ao preencher formulário. Alguns campos podem não ter sido preenchidos corretamente.');
   }
 }
 
 
 
 
-// Função para mudar para a aba de cadastro
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Mudança para Aba de Cadastro
+// Alterna a interface para a aba de cadastro de produtos.
+//======================================================================================================
 function mudarParaAbaCadastro() {
   const abaCadastro = document.getElementById('cadastro-produto');
   const botaoCadastro = document.querySelector('.top-tab2[data-tab="cadastro-produto"]');
@@ -670,7 +851,10 @@ function mudarParaAbaCadastro() {
   }
 }
 
-// Função para criar modal de loading
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Criação de Modal de Loading
+// Cria e exibe um modal de carregamento com mensagem personalizada.
+//======================================================================================================
 function criarModalLoading(mensagem) {
   const modalExistente = document.getElementById('modal-loading');
   if (modalExistente) {
@@ -730,7 +914,10 @@ function criarModalLoading(mensagem) {
   document.body.appendChild(modal);
 }
 
-// Função para remover modal de loading
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Remoção de Modal de Loading
+// Remove o modal de carregamento da tela.
+//======================================================================================================
 function removerModalLoading() {
   const modal = document.getElementById('modal-loading');
   if (modal) {
@@ -738,28 +925,22 @@ function removerModalLoading() {
   }
 }
 
-// Função auxiliar para formatar data com debug completo
+//======================================================================================================
+// FUNÇÃO AUXILIAR: Formatação de Data para Input
+// Converte datas em diferentes formatos para o padrão yyyy-mm-dd aceito por inputs.
+//======================================================================================================
 
 // Substitua as linhas 844-849 por esta versão corrigida:
 function formatarDataParaInput(data) {
-  console.log('🔍 DEBUG formatarDataParaInput - Entrada:', {
-    valor: data,
-    tipo: typeof data,
-    ehNull: data === null,
-    ehUndefined: data === undefined
-  });
 
   // Verifica se a data é null, undefined, string vazia ou "N/A"
   if (!data || data === null || data === 'null' || data === 'N/A' || data === 'undefined') {
-    console.log('❌ Valor inválido detectado, retornando string vazia');
     return '';
   }
 
   const dataStr = String(data).trim();
- // console.log('📝 String convertida:', dataStr);
 
   if (dataStr === '' || dataStr === 'null' || dataStr === 'undefined') {
-    console.log('❌ String vazia após trim, retornando string vazia');
     return '';
   }
 
@@ -772,7 +953,7 @@ function formatarDataParaInput(data) {
 
       
       if (!isNaN(dataObj.getTime())) {
-        // ✅ USAR MÉTODOS UTC PARA EVITAR PROBLEMAS DE TIMEZONE
+        //  USAR MÉTODOS UTC PARA EVITAR PROBLEMAS DE TIMEZONE
         const ano = dataObj.getUTCFullYear();
         const mes = String(dataObj.getUTCMonth() + 1).padStart(2, '0');
         const dia = String(dataObj.getUTCDate()).padStart(2, '0');
@@ -788,31 +969,26 @@ function formatarDataParaInput(data) {
     // Resto do código permanece igual...
     // 2. datetime.date()
     if (dataStr.includes('datetime.date(')) {
-      console.log('🐍 Formato datetime.date detectado');
       const match = dataStr.match(/datetime\.date\((\d{4}),\s*(\d{1,2}),\s*(\d{1,2})\)/);
       if (match) {
         const [, ano, mes, dia] = match;
         const resultado = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        console.log('✅ datetime.date convertido para:', resultado);
         return resultado;
       }
     }
 
     // 3. yyyy-mm-dd
     if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
-      console.log('📅 Formato yyyy-mm-dd detectado e válido:', dataStr);
       return dataStr;
     }
 
     // 4. dd/mm/yyyy
     if (dataStr.includes('/')) {
-      console.log('📆 Formato dd/mm/yyyy detectado');
       const partes = dataStr.split('/');
       if (partes.length === 3) {
         const [dia, mes, ano] = partes;
         if (!isNaN(dia) && !isNaN(mes) && !isNaN(ano)) {
           const resultado = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-          console.log('✅ dd/mm/yyyy convertido para:', resultado);
           return resultado;
         }
       }
@@ -820,27 +996,23 @@ function formatarDataParaInput(data) {
 
     // 5. ISO (com T)
     if (dataStr.includes('T')) {
-      console.log('🌐 Formato ISO detectado');
       const dataObj = new Date(dataStr);
       if (!isNaN(dataObj.getTime())) {
         const ano = dataObj.getUTCFullYear();
         const mes = String(dataObj.getUTCMonth() + 1).padStart(2, '0');
         const dia = String(dataObj.getUTCDate()).padStart(2, '0');
         const resultado = `${ano}-${mes}-${dia}`;
-        console.log('✅ ISO convertido para:', resultado);
         return resultado;
       }
     }
 
     // 6. Fallback para new Date
-    console.log('🔄 Tentando criar Date diretamente');
     const dataObj = new Date(dataStr);
     if (!isNaN(dataObj.getTime())) {
       const ano = dataObj.getUTCFullYear();
       const mes = String(dataObj.getUTCMonth() + 1).padStart(2, '0');
       const dia = String(dataObj.getUTCDate()).padStart(2, '0');
       const resultado = `${ano}-${mes}-${dia}`;
-      console.log('✅ Date direto convertido para:', resultado);
       return resultado;
     }
 
@@ -851,11 +1023,19 @@ function formatarDataParaInput(data) {
   console.warn(`⚠️ Formato de data não reconhecido: "${dataStr}"`);
   return '';
 }
-//======================================================== Função para excluir produto =============================================
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Exclusão de Produto
+// Esta função trata a exclusão de um produto selecionado na tabela, realizando a confirmação,
+// chamada à API e remoção da linha correspondente em caso de sucesso.
+//======================================================================================================
 
 
 
-// Função para excluir produto - CORRIGIDA
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Exclusão de Produto
+// Esta função trata a exclusão de um produto selecionado na tabela, realizando a confirmação,
+// chamada à API e remoção da linha correspondente em caso de sucesso.
+//======================================================================================================
 async function excluirProduto(row, cells) {
   // Extrai o ID corretamente da primeira célula
   const produtoId = cells[0]?.textContent?.trim();
@@ -925,6 +1105,97 @@ async function excluirProduto(row, cells) {
     console.log('❌ Exclusão cancelada pelo usuário');
   }
 }
+//==================================================================================================================================
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Envio de Retirada para o Banco de Dados
+// Envia todos os itens da tabela de retiradas para o backend, realizando as validações necessárias.
+//======================================================================================================
+async function enviarRetirada() {
+  try {
+    // Coletar dados básicos da retirada
+    const dadosRetirada = {
+      data: document.getElementById('retirada-data').value,
+      requisitante: document.getElementById('retirada-requisitante').value,
+      responsavel: document.getElementById('retirada-responsavel').value,
+      local_destino: document.getElementById('retirada-local').value === 'Outro' 
+        ? document.getElementById('retirada-outro-local').value 
+        : document.getElementById('retirada-local').value,
+      finalidade: document.getElementById('retirada-finalidade').value,
+      observacoes: document.getElementById('retirada-observacoes').value,
+      itens: []
+    };
+
+    // Validar campos obrigatórios
+    if (!dadosRetirada.data || !dadosRetirada.requisitante || !dadosRetirada.responsavel || 
+        !dadosRetirada.local_destino || !dadosRetirada.finalidade) {
+      alert('Preencha todos os campos obrigatórios antes de enviar a retirada.');
+      return;
+    }
+
+    // Coletar itens da tabela de retirada
+    const linhasItens = document.querySelectorAll('#itens-retirada tr');
+    
+    if (linhasItens.length === 0) {
+      alert('Adicione pelo menos um item à retirada.');
+      return;
+    }
+
+    linhasItens.forEach(linha => {
+      const celulas = linha.cells;
+      dadosRetirada.itens.push({
+        produto: celulas[0].textContent.trim(),
+        quantidade: celulas[1].textContent.trim(),
+        local_destino: celulas[2].textContent.trim(),
+        finalidade: celulas[3].textContent.trim(),
+        produto_id: celulas[4].dataset.id || null
+      });
+    });
+
+    // Enviar para o backend
+    criarModalLoading('Enviando retirada...');
+    
+    const response = await fetch('https://api.exksvol.website/retiradas/salvar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+      body: JSON.stringify(dadosRetirada)
+    });
+
+    const data = await response.json();
+    removerModalLoading();
+
+    if (response.ok && data.status === 'ok') {
+      alert('Retirada registrada com sucesso! ID: ' + data.id_retirada);
+      // Limpar formulário após sucesso
+      document.getElementById('form-retirada').reset();
+      document.getElementById('itens-retirada').innerHTML = '';
+      // Gerar novo ID de retirada e preencher o campo
+      setTimeout(() => {
+        // Gera novo ID manualmente e preenche o campo
+        const campoId = document.getElementById('retirada-id');
+        if (campoId && typeof gerarIdRetirada8Digitos === 'function') {
+          const novoId = gerarIdRetirada8Digitos();
+          campoId.value = novoId;
+          // Atualiza variável global se necessário
+          if (typeof idRetiradaGerado !== 'undefined') {
+            idRetiradaGerado = novoId;
+          }
+        }
+      }, 100);
+      atualizarPreviewCupom();
+    } else {
+      alert('Erro ao registrar retirada: ' + (data.mensagem || 'Erro desconhecido'));
+    }
+
+  } catch (error) {
+    removerModalLoading();
+    console.error('Erro ao enviar retirada:', error);
+    alert('Erro ao conectar com o servidor. Verifique sua conexão.');
+  }
+}
+
 
 //==================================================================================================================================
 
@@ -1137,34 +1408,66 @@ async function excluirProduto(row, cells) {
   const botaoRetiradas3 = document.getElementById('btn-retirada3');
   const botaoRetiradas4 = document.getElementById('btn-retirada4');
   const botaoRetiradas5 = document.getElementById('btn-retirada5');
-  if (botaoRetiradas1||botaoRetiradas2||botaoRetiradas3||botaoRetiradas4||botaoRetiradas5) {
 
-    botaoRetiradas1.addEventListener('click', function () {
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-      abaRetiradas.classList.add('active');
-      });
- 
-      botaoRetiradas2.addEventListener('click', function () {
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-      abaRetiradas.classList.add('active');
-    }); 
-  
-    botaoRetiradas3.addEventListener('click', function () {
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-      abaRetiradas.classList.add('active');
-    });
-
-    botaoRetiradas4.addEventListener('click', function () {
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-      abaRetiradas.classList.add('active');
-    });
-
-    botaoRetiradas5.addEventListener('click', function () {
-      todasAbas.forEach(aba => aba.classList.remove('active'));
-     abaRetiradas.classList.add('active');
-    });
-
+  function abrirAbaRetiradaComId() {
+    todasAbas.forEach(aba => aba.classList.remove('active'));
+    abaRetiradas.classList.add('active');
+    // Gera e preenche o campo de ID ao abrir a aba
+    if (typeof carregarIdRetiradaAoIniciar === 'function') {
+      carregarIdRetiradaAoIniciar();
+    }
+    // Preenche o campo responsável com o nome do usuário (se disponível)
+    const campoResponsavel = document.getElementById('retirada-responsavel');
+    let nomeUsuario = '';
+    try {
+      // Tenta pegar o objeto completo do localStorage
+      let usuario = localStorage.getItem('usuario');
+      if (usuario) {
+        // Se for um JSON válido, extrai o username ou nome
+        try {
+          const obj = JSON.parse(usuario);
+          if (obj && obj.username) {
+            nomeUsuario = obj.username;
+          } else if (obj && obj.nome) {
+            nomeUsuario = obj.nome;
+          } else {
+            nomeUsuario = usuario;
+          }
+        } catch (e) {
+          // Se não for JSON, usa direto
+          nomeUsuario = usuario;
+        }
+      } else {
+        // Fallback para outros campos
+        nomeUsuario = localStorage.getItem('usuario_nome') || localStorage.getItem('username') || '';
+      }
+    } catch (e) {
+      nomeUsuario = '';
+    }
+    if (campoResponsavel && nomeUsuario) {
+      campoResponsavel.value = nomeUsuario;
+    }
+    // Preenche a data com a data/hora atual e permite edição
+    const campoData = document.getElementById('retirada-data');
+    if (campoData) {
+      const agora = new Date();
+      const ano = agora.getFullYear();
+      const mes = String(agora.getMonth() + 1).padStart(2, '0');
+      const dia = String(agora.getDate()).padStart(2, '0');
+      const horas = String(agora.getHours()).padStart(2, '0');
+      const minutos = String(agora.getMinutes()).padStart(2, '0');
+      campoData.value = `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+      campoData.readOnly = false;
+      campoData.removeAttribute('readonly');
+      campoData.removeAttribute('disabled');
+    }
   }
+
+  if (botaoRetiradas1) botaoRetiradas1.addEventListener('click', abrirAbaRetiradaComId);
+  if (botaoRetiradas2) botaoRetiradas2.addEventListener('click', abrirAbaRetiradaComId);
+  if (botaoRetiradas3) botaoRetiradas3.addEventListener('click', abrirAbaRetiradaComId);
+  if (botaoRetiradas4) botaoRetiradas4.addEventListener('click', abrirAbaRetiradaComId);
+  if (botaoRetiradas5) botaoRetiradas5.addEventListener('click', abrirAbaRetiradaComId);
 
 
    
@@ -1329,57 +1632,27 @@ async function excluirProduto(row, cells) {
     const ano = data.getFullYear();
     return `${dia}/${mes}/${ano}`;
   }
-  // Evento para editar produtos na tabela
-  document.querySelector("#tabelaProdutos").addEventListener("click", function (event) {
-    if (event.target.classList.contains("btn-editar")) {
-      const row = event.target.closest("tr"); // Obtém a linha correspondente
+// Evento para editar produtos na tabela (botão editar)
+document.querySelector("#tabelaProdutos").addEventListener("click", function (event) {
+  if (event.target.classList.contains("btn-editar")) {
+    const row = event.target.closest("tr");
+    const ths = Array.from(document.querySelectorAll("#tabelaProdutos thead th"));
+    const getColIndex = (label) => ths.findIndex(th => th.textContent.trim().toLowerCase().includes(label));
+    const idxNome = getColIndex("nome");
+    // const idxCodigo = getColIndex("código");
+    const nomeProduto = idxNome >= 0 ? row.cells[idxNome].textContent.trim() : "";
+    if (nomeProduto && nomeProduto !== "N/A") document.getElementById("nome-produto").value = nomeProduto;
+    document.getElementById("codigo").value = "";
 
-      // Captura os valores das células da linha
-      const nomeProduto = row.cells[1].textContent.trim();
-      let codigo = row.cells[2].textContent.trim(); // Captura o código
+  }
+});
 
-      // Remove os zeros à esquerda do código
-      codigo = codigo.replace(/^0+/, ''); 
+// Evento para seleção simples de produto na tabela (clique simples)
+document.querySelector("#Lista-dos-produtos").addEventListener("click", function (event) {
+  const row = event.target.closest("tr");
+  if (!row || row.parentElement.tagName !== 'TBODY') return;
 
-      const unidMedida = row.cells[4]?.textContent.trim() || "N/A"; 
-      const quantidadeRaw = row.cells[5]?.textContent.trim() || "N/A"; 
-      const custo = row.cells[6]?.textContent.trim() || "N/A";
-      const dataCompra = row.cells[7]?.textContent.trim() || "N/A";
-      const numeroNota = row.cells[8]?.textContent.trim() || "N/A";
-      const fornecedor = row.cells[9]?.textContent.trim() || "N/A";
-
-      // Remove formatações da quantidade, se necessário
-      const quantidade = quantidadeRaw.replace(/\./g, '').replace(',', '.'); // Converte para formato numérico
-
-      // Preenche os campos do formulário, ignorando valores "N/A"
-      if (nomeProduto !== "N/A") document.getElementById("nome-produto").value = nomeProduto;
-      if (codigo !== "N/A") document.getElementById("codigo").value = codigo;
-      if (quantidade !== "N/A") document.getElementById("quantidade").value = quantidade;
-      if (custo !== "N/A") document.getElementById("custo").value = custo;
-
-      // Preenche o campo de data (DATA DA COMPRA)
-      if (dataCompra !== "N/A") {
-        const dataFormatada = formatarDataParaInput(dataCompra); // Converte para o formato yyyy-MM-dd
-        document.getElementById("data-compra").value = dataFormatada;
-      }
-
-      // Seleciona o fornecedor no campo de seleção
-      const fornecedorSelect = document.getElementById("fornecedor");
-      if (fornecedor !== "N/A") {
-        const option = Array.from(fornecedorSelect.options).find(opt => opt.textContent.trim() === fornecedor);
-        if (option) fornecedorSelect.value = option.value;
-      }
-
-      if (numeroNota !== "N/A") document.getElementById("numero-nota").value = numeroNota;
-
-      // Seleciona a unidade de medida no campo <select>
-      const selectUnidadeMedida = document.getElementById("unid-medida");
-      if (selectUnidadeMedida && unidMedida !== "N/A") {
-        const option = Array.from(selectUnidadeMedida.options).find(opt => opt.textContent.trim() === unidMedida);
-        if (option) selectUnidadeMedida.value = option.value;
-      }
-    }
-  });
+});
 
   // Função para converter a data no formato dd/MM/yyyy para yyyy-MM-dd
   function formatarDataParaInput(data) {
@@ -1677,41 +1950,128 @@ formOutros.addEventListener("submit", function (event) {
   camposDinamicos.innerHTML = "";
 });
 
-  const toggleColunasBtn = document.getElementById("toggle-colunas");
-  const colunasVisiveisDiv = document.getElementById("colunas-visiveis");
-  const checkboxes = document.querySelectorAll("#colunas-visiveis input[type='checkbox']");
-  const tabela = document.getElementById("Lista-dos-produtos");
-
-  // Alternar visibilidade da lista de checkboxes
-  toggleColunasBtn.addEventListener("click", function () {
-    if (colunasVisiveisDiv.style.display === "none") {
-      colunasVisiveisDiv.style.display = "block";
-      toggleColunasBtn.textContent = "▲ Recolher opções";
-    } else {
-      colunasVisiveisDiv.style.display = "none";
-      toggleColunasBtn.textContent = "▼ Escolha as colunas a serem exibidas";
+  // Função utilitária para obter o grupo correto de checkboxes conforme a aba ativa
+  function getGrupoColunasAtivo() {
+    // Verifica se a aba Busca está ativa
+    const buscaAba = document.getElementById('busca');
+    const produtosAba = document.getElementById('consultas-produtos');
+    if (buscaAba && buscaAba.classList.contains('active')) {
+      return {
+        toggleBtn: document.querySelector('#busca #toggle-colunas'),
+        colunasDiv: document.getElementById('colunas-visiveis-busca'),
+        checkboxes: document.querySelectorAll('#colunas-visiveis-busca input[type="checkbox"]')
+      };
+    } else if (produtosAba && produtosAba.classList.contains('active')) {
+      return {
+        toggleBtn: document.querySelector('#consultas-produtos #toggle-colunas'),
+        colunasDiv: document.getElementById('colunas-visiveis-produtos'),
+        checkboxes: document.querySelectorAll('#colunas-visiveis-produtos input[type="checkbox"]')
+      };
     }
-  });
+    // fallback: retorna nulls
+    return { toggleBtn: null, colunasDiv: null, checkboxes: [] };
+  }
 
-  // Atualizar visibilidade das colunas
-  function atualizarColunas() {
-    checkboxes.forEach(checkbox => {
-      const th = tabela.querySelector(`thead th[data-coluna="${checkbox.value}"]`);
-      const tds = tabela.querySelectorAll(`tbody td[data-coluna="${checkbox.value}"]`);
+  // Inicialização dinâmica conforme a aba ativa
+  function inicializarColunasVisiveis() {
+    const grupo = getGrupoColunasAtivo();
+    if (!grupo.toggleBtn || !grupo.colunasDiv) return;
+    grupo.colunasDiv.style.display = "none";
+    grupo.toggleBtn.textContent = "▼ Escolha as colunas a serem exibidas";
 
-      if (checkbox.checked) {
-        if (th) th.style.display = ""; 
-        tds.forEach(td => td.style.display = ""); 
+    grupo.toggleBtn.addEventListener("click", function () {
+      const displayAtual = window.getComputedStyle(grupo.colunasDiv).display;
+      if (displayAtual === "none") {
+        grupo.colunasDiv.style.display = "block";
+        grupo.toggleBtn.textContent = "▲ Recolher opções";
       } else {
-        if (th) th.style.display = "none"; 
-        tds.forEach(td => td.style.display = "none"); 
+        grupo.colunasDiv.style.display = "none";
+        grupo.toggleBtn.textContent = "▼ Escolha as colunas a serem exibidas";
       }
     });
   }
 
-  // Adicionar evento aos checkboxes
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener("change", atualizarColunas);
+  // Chama ao carregar a página e ao trocar de aba
+  inicializarColunasVisiveis();
+  // Se você já tem um listener de troca de abas, chame inicializarColunasVisiveis() dentro dele também
+
+  // (Removido: código antigo que causava erro ao acessar colunasVisiveisDiv/toggleColunasBtn)
+
+  // Atualizar visibilidade das colunas
+  function atualizarColunas() {
+    const tabela = document.getElementById('Lista-dos-produtos');
+    const thead = tabela ? tabela.querySelector('thead') : null;
+    const tbody = tabela ? tabela.querySelector('tbody') : null;
+    const grupo = getGrupoColunasAtivo();
+    const checkboxes = grupo.checkboxes;
+    if (!tabela || !thead || !tbody || !checkboxes.length) return;
+
+
+    // Mapeia quais colunas devem estar visíveis (case-insensitive e trim)
+    const colunasVisiveis = {};
+    checkboxes.forEach(checkbox => {
+      const valor = (checkbox.value || '').trim().toLowerCase();
+      colunasVisiveis[valor] = checkbox.checked;
+    });
+
+    // Atualiza visibilidade dos <th> e <td> de cada coluna
+    let algumaColunaVisivel = false;
+    // Garante que todos os <th> de qualquer <tr> do thead sejam alterados corretamente
+    const ths = thead.querySelectorAll('th[data-coluna]');
+    ths.forEach((th) => {
+      const coluna = (th.getAttribute('data-coluna') || '').trim().toLowerCase();
+      const visivel = !!colunasVisiveis[coluna];
+      th.style.display = visivel ? '' : 'none';
+      if (visivel) algumaColunaVisivel = true;
+      // Todas as células dessa coluna
+      tbody.querySelectorAll('td[data-coluna]').forEach(td => {
+        const tdCol = (td.getAttribute('data-coluna') || '').trim().toLowerCase();
+        if (tdCol === coluna) {
+          td.style.display = visivel ? '' : 'none';
+        }
+      });
+    });
+
+    // Exibe ou oculta o thead e tbody (estrutura da tabela) junto com as colunas
+    thead.style.display = algumaColunaVisivel ? '' : 'none';
+    tbody.style.display = algumaColunaVisivel ? '' : 'none';
+    tabela.style.display = algumaColunaVisivel ? '' : 'none';
+
+    // Exibe ou oculta a aba da tabela se existir
+    const abaTabela = document.getElementById('aba-tabela-produtos') || document.querySelector('.tab-content.tabela-produtos');
+    if (abaTabela) abaTabela.style.display = algumaColunaVisivel ? '' : 'none';
+  }
+
+  // Função para adicionar listeners aos checkboxes do grupo ativo
+  function adicionarListenersCheckboxes() {
+    const grupo = getGrupoColunasAtivo();
+    const tabela = document.getElementById('Lista-dos-produtos');
+    grupo.checkboxes.forEach(checkbox => {
+      checkbox.addEventListener("change", function() {
+        atualizarColunas();
+        if (tabela && tabela.style.display === "none") {
+          const abaTabela = document.getElementById('aba-tabela-produtos') || document.querySelector('.tab-content.tabela-produtos');
+          if (abaTabela) abaTabela.style.display = 'none';
+        } else {
+          const abaTabela = document.getElementById('aba-tabela-produtos') || document.querySelector('.tab-content.tabela-produtos');
+          if (abaTabela) abaTabela.style.display = '';
+        }
+      });
+    });
+  }
+
+  // Adiciona listeners ao carregar a página
+  adicionarListenersCheckboxes();
+
+  // Adiciona listeners ao trocar de aba (reexecuta para o grupo correto)
+  document.querySelectorAll('.tab-btn, .top-tab, .top-tab2').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTimeout(() => {
+        inicializarColunasVisiveis();
+        adicionarListenersCheckboxes();
+        atualizarColunas();
+      }, 100);
+    });
   });
 
   // Atualizar colunas ao carregar a página
@@ -1734,6 +2094,869 @@ formOutros.addEventListener("submit", function (event) {
 
     tabelaBody.appendChild(novaLinha);
   }
+  //=========================================================  =============================================
+
+  // CONFIGURAÇÃO DOS CAMPOS
+  const camposRetirada = [
+    'retirada-data',
+    'retirada-requisitante', 
+    'retirada-responsavel',
+    'retirada-local',
+    'retirada-finalidade',
+    'retirada-observacoes'
+  ];
+
+  // REFERÊNCIAS AOS ELEMENTOS
+  let btnFinalizarRetirada = null;
+  let tabelaItensRetirada = null;
+  let btnAcrescentarItemRetirada = null;
+  let campoIdRetirada = null;
+  let idRetiradaGerado = null;
+  let abaRetirada = null;
+
+  // FUNÇÃO PARA ENCONTRAR ELEMENTOS
+  function encontrarElementosRetirada() {
+    btnFinalizarRetirada = document.getElementById('btn-enviar-retirada');
+    btnAcrescentarItemRetirada = document.getElementById('btn-acrescentar-item');
+    campoIdRetirada = document.getElementById('retirada-id');
+    abaRetirada = document.getElementById('retiradas') || document.querySelector('[id*="retirada"]');
+    
+    tabelaItensRetirada = document.getElementById('itens-retirada') || 
+                         document.querySelector('#tabela-retiradas tbody') ||
+                         document.querySelector('.tabela-produtos tbody');
+
+    return !!btnFinalizarRetirada;
+  }
+
+  // FUNÇÃO PARA GERAR ID ÚNICO DA RETIRADA (8 DÍGITOS)
+  function gerarIdRetirada8Digitos() {
+    try {
+      const agora = new Date();
+      const timestamp = agora.getTime().toString(36).slice(-4);
+      const random = Math.random().toString(36).substr(2, 4);
+      return `${timestamp}${random}`.substr(0, 8).toUpperCase();
+    } catch (error) {
+      console.error('Erro ao gerar ID:', error);
+      return `RET${Date.now().toString().slice(-8)}`;
+    }
+  }
+
+  // FUNÇÃO PARA OBTER DATA ATUAL
+  function obterDataAtualRetirada() {
+    return new Date().toISOString().slice(0, 16);
+  }
+
+  // FUNÇÃO PARA PREENCHER APENAS A DATA
+  function preencherDataRetirada() {
+    try {
+      const campoData = document.getElementById('retirada-data');
+      if (campoData && !campoData.value) {
+        campoData.value = obterDataAtualRetirada();
+      }
+    } catch (error) {
+      console.error('Erro ao preencher data:', error);
+    }
+  }
+
+  // FUNÇÃO PARA VALIDAR CAMPOS OBRIGATÓRIOS
+  function validarCamposRetirada() {
+    const camposObrigatorios = [
+      { id: 'retirada-requisitante', nome: 'Requisitante' },
+      { id: 'retirada-responsavel', nome: 'Responsável' },
+      { id: 'retirada-local', nome: 'Local de Destino' },
+      { id: 'retirada-finalidade', nome: 'Finalidade' }
+    ];
+
+    const camposVazios = [];
+    
+    camposObrigatorios.forEach(campo => {
+      const elemento = document.getElementById(campo.id);
+      if (!elemento || !elemento.value.trim()) {
+        camposVazios.push(campo.nome);
+        if (elemento) elemento.style.borderColor = '#dc3545';
+      } else {
+        elemento.style.borderColor = '#28a745';
+      }
+    });
+
+    setTimeout(() => {
+      camposObrigatorios.forEach(campo => {
+        const elemento = document.getElementById(campo.id);
+        if (elemento) elemento.style.borderColor = '';
+      });
+    }, 3000);
+
+    return camposVazios;
+  }
+
+  // FUNÇÃO PARA COLETAR DADOS DA RETIRADA
+  function coletarDadosRetirada() {
+    const dados = {};
+    
+    camposRetirada.forEach(campoId => {
+      const elemento = document.getElementById(campoId);
+      if (elemento) {
+        let valor = elemento.value.trim();
+        
+        if (campoId === 'retirada-local') {
+          if (valor === 'Outro' || valor === 'outro') {
+            const outroLocal = document.getElementById('retirada-outro-local');
+            if (outroLocal && outroLocal.value.trim()) {
+              valor = outroLocal.value.trim();
+            } else {
+              valor = 'Outro (não especificado)';
+            }
+          }
+        }
+        
+        const nomeCampo = campoId.replace('retirada-', '');
+        dados[nomeCampo] = valor || '';
+      }
+    });
+
+    return dados;
+  }
+
+  // FUNÇÃO PARA COLETAR ITENS DA TABELA DE RETIRADA
+  function coletarItensRetirada() {
+    const dadosFormulario = coletarDadosRetirada();
+    const destinoFormulario = dadosFormulario.local || '';
+    
+    if (!tabelaItensRetirada) {
+      console.warn('Tabela de itens não encontrada');
+      return [];
+    }
+
+    const linhas = tabelaItensRetirada.querySelectorAll('tr');
+    const itens = [];
+
+    linhas.forEach((linha, index) => {
+      const celulas = linha.querySelectorAll('td');
+      if (celulas.length >= 5) {
+        const produto = celulas[0]?.textContent?.trim() || '';
+        const quantidade = celulas[1]?.textContent?.trim() || '1';
+        const destinoTabela = celulas[2]?.textContent?.trim() || '';
+        const finalidadeTabela = celulas[3]?.textContent?.trim() || '';
+
+        if (produto && produto !== '' && produto !== '-' && produto !== 'N/A') {
+          const destinoFinal = destinoTabela && destinoTabela !== '' ? destinoTabela : destinoFormulario;
+          
+          itens.push({
+            produto: produto,
+            quantidade: quantidade,
+            destino: destinoFinal || 'Não especificado',
+            finalidade: finalidadeTabela || dadosFormulario.finalidade || 'Não especificada'
+          });
+        }
+      }
+    });
+
+    return itens;
+  }
+
+  // FUNÇÃO PARA CONSULTAR ESTOQUE
+  async function consultarEstoqueProduto(nomeProduto) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://api.exksvol.website/produtos/estoque', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ produto: nomeProduto })
+      });
+      if (response.ok) {
+        const resultado = await response.json();
+        return resultado.quantidade !== undefined ? parseInt(resultado.quantidade, 10) : null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Erro ao consultar estoque:', error);
+      return null;
+    }
+  }
+
+  // FUNÇÃO PRINCIPAL PARA FINALIZAR RETIRADA
+  async function finalizarRetiradaAdaptada(event) {
+    try {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      if (btnFinalizarRetirada) {
+        btnFinalizarRetirada.disabled = true;
+        btnFinalizarRetirada.innerHTML = '⏳ Processando...';
+      }
+
+      preencherDataRetirada();
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const camposVazios = validarCamposRetirada();
+      if (camposVazios.length > 0) {
+        alert(`Preencha os campos obrigatórios:\n\n${camposVazios.map(c => `• ${c}`).join('\n')}`);
+        reabilitarBotaoRetirada();
+        return false;
+      }
+
+      const itens = coletarItensRetirada();
+      if (itens.length === 0) {
+        alert('Adicione pelo menos um item antes de finalizar.');
+        reabilitarBotaoRetirada();
+        return false;
+      }
+
+      // Verifica estoque de cada item
+      for (let i = 0; i < itens.length; i++) {
+        const item = itens[i];
+        const estoqueAtual = await consultarEstoqueProduto(item.produto);
+        const quantidadeSolicitada = parseInt(item.quantidade, 10) || 0;
+        if (estoqueAtual !== null && estoqueAtual < quantidadeSolicitada) {
+          alert(`O item "${item.produto}" só tem ${estoqueAtual} em estoque. Não é possível retirar ${quantidadeSolicitada}.`);
+          reabilitarBotaoRetirada();
+          return false;
+        }
+      }
+
+      const dadosBase = coletarDadosRetirada();
+      const idRetiradaUnico = obterIdRetiradaAdaptada();
+      mostrarLoadingRetirada();
+
+      const resultados = [];
+      for (let i = 0; i < itens.length; i++) {
+        const item = itens[i];
+        const dadosItem = {
+          id_retirada: idRetiradaUnico,
+          ...dadosBase,
+          produto: item.produto,
+          quantidade: item.quantidade,
+          local: item.destino || dadosBase.local,
+          finalidade: item.finalidade || dadosBase.finalidade
+        };
+        
+        const sucesso = await salvarItemAPIRetirada(dadosItem, i + 1, itens.length);
+        resultados.push({
+          produto: item.produto,
+          quantidade: item.quantidade,
+          id_retirada: idRetiradaUnico,
+          sucesso: sucesso
+          
+        });
+        await new Promise(resolve => setTimeout(resolve, 300));
+              esconderLoadingRetirada();
+      reabilitarBotaoRetirada();
+      }
+
+      processarResultadosRetirada(resultados, idRetiradaUnico);
+      return false;
+
+    } catch (error) {
+      console.error('Erro:', error);
+
+     // alert('Erro ao processar. Tente novamente.');
+      return false;
+    }
+  }
+
+  // FUNÇÕES AUXILIARES PARA RETIRADA
+  function mostrarLoadingRetirada() {
+    // Implementação do loading
+  }
+
+  function esconderLoadingRetirada() {
+    // Implementação para esconder loading
+  }
+
+  function reabilitarBotaoRetirada() {
+    if (btnFinalizarRetirada) {
+      btnFinalizarRetirada.disabled = false;
+      btnFinalizarRetirada.innerHTML = 'Finalizar Retirada';
+    }
+  }
+
+  async function salvarItemAPIRetirada(dadosItem, itemAtual, totalItens) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('Token não encontrado');
+        return false;
+      }
+
+      const response = await fetch('https://api.exksvol.website/retiradas/salvar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(dadosItem)
+      });
+
+      if (response.ok) {
+        const resultado = await response.json();
+        if (resultado.status === 'ok') {
+          return {
+            sucesso: true,
+            id: resultado.retirada?.id_retirada || dadosItem.id_retirada,
+            dados: resultado
+          };
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro na API:', error);
+      return false;
+    }
+  }
+
+  function processarResultadosRetirada(resultados, idRetiradaUnico) {
+    const sucessos = resultados.filter(r => r.sucesso);
+    const falhas = resultados.filter(r => !r.sucesso);
+    
+    esconderLoadingRetirada();
+    
+    if (falhas.length === 0) {
+      alert(
+        `Retirada processada com sucesso!\n\n` +
+        `ID da Retirada: ${idRetiradaUnico}\n` +
+        `Total de itens: ${sucessos.length}`
+      );
+      // Limpa o formulário após sucesso
+      //document.getElementById('form-retirada').reset();
+      document.getElementById('itens-retirada').innerHTML = '';
+      // Limpa também o campo requisitante
+      const campoRequisitante = document.getElementById('retirada-requisitante');
+      if (campoRequisitante) campoRequisitante.value = '';
+      atualizarPreviewCupom();
+      // Gera novo ID de retirada e preenche o campo
+      setTimeout(() => {
+        const campoId = document.getElementById('retirada-id');
+        if (campoId && typeof gerarIdRetirada8Digitos === 'function') {
+          const novoId = gerarIdRetirada8Digitos();
+          campoId.value = novoId;
+          if (typeof idRetiradaGerado !== 'undefined') {
+            idRetiradaGerado = novoId;
+          }
+        }
+      }, 100);
+    } else {
+      alert(
+        `Processamento parcial!\n\n` +
+        `Itens processados: ${sucessos.length}\n` +
+        `Itens com erro: ${falhas.length}\n\n` +
+        `Os itens com erro serão sincronizados quando houver conexão.`
+      );
+    }
+  }
+
+  //  FUNÇÃO PARA OBTER ID DA RETIRADA
+  function obterIdRetiradaAdaptada() {
+    if (idRetiradaGerado) {
+      return idRetiradaGerado;
+    }
+    return carregarIdRetiradaAoIniciar();
+  }
+
+  //  FUNÇÃO PARA CARREGAR ID NA INICIALIZAÇÃO
+  function carregarIdRetiradaAoIniciar() {
+    if (campoIdRetirada && campoIdRetirada.value.trim()) {
+      idRetiradaGerado = campoIdRetirada.value.trim();
+      return idRetiradaGerado;
+    }
+    
+    idRetiradaGerado = gerarIdRetirada8Digitos();
+    
+    if (campoIdRetirada) {
+      campoIdRetirada.value = idRetiradaGerado;
+      campoIdRetirada.style.backgroundColor = '#e8f5e8';
+      campoIdRetirada.style.fontWeight = 'bold';
+      campoIdRetirada.readOnly = true;
+    }
+    
+    return idRetiradaGerado;
+  }
+
+  //  INICIALIZAÇÃO DA RETIRADA
+  function inicializarRetirada() {
+    if (!encontrarElementosRetirada()) {
+      console.warn('Elementos essenciais não encontrados');
+      return;
+    }
+
+    if (btnFinalizarRetirada) {
+      btnFinalizarRetirada.addEventListener('click', finalizarRetiradaAdaptada);
+    }
+    
+    // Carrega ID imediatamente se a aba estiver visível
+    setTimeout(() => {
+      if (campoIdRetirada && campoIdRetirada.offsetParent !== null) {
+        carregarIdRetiradaAoIniciar();
+      }
+    }, 500);
+    
+    // Preenche data inicial
+    setTimeout(preencherDataRetirada, 1000);
+  }
+
+  // Inicializa o sistema de retirada
+  inicializarRetirada();
+
+  // Tenta novamente após 3 segundos se não encontrou elementos
+  setTimeout(() => {
+    if (!btnFinalizarRetirada) {
+      inicializarRetirada();
+    }
+  }, 3000);
 
   
+  //======================================================================================================
+
+
+async function buscarDevolucoesPorId() {
+  const idInput = document.getElementById('devolucao-id'); // usa o id correto!
+  const tabela = document.getElementById('tabela-devolucoes');
+  if (!idInput || !tabela) return;
+
+  const idRetirada = idInput.value.trim();
+  if (!idRetirada) {
+    alert('Digite o código da retirada para buscar.');
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ id_retirada: idRetirada })
+    });
+
+    if (!response.ok) {
+      alert('Erro ao buscar devoluções.');
+      return;
+    }
+
+    const data = await response.json();
+    // Ajuste aqui conforme o retorno real do backend:
+    const devolucoes = Array.isArray(data.devolucoes) ? data.devolucoes : [];
+
+    // Limpa a tabela (mantendo apenas o cabeçalho)
+    const tbody = tabela.tBodies[0] || tabela.createTBody();
+    tbody.innerHTML = '';
+
+    if (devolucoes.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 7; // número de colunas da sua tabela
+      td.textContent = 'Nenhum registro encontrado para este código de retirada.';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+      return;
+    }
+
+    devolucoes.forEach(item => {
+      const tr = document.createElement('tr');
+      // Adapte os campos conforme o retorno do backend
+      const tdId = document.createElement('td');
+      const tdProduto = document.createElement('td');
+      const tdQuantidade = document.createElement('td');
+      const tdRequisitante = document.createElement('td');
+      const tdResponsavel = document.createElement('td');
+      const tdObservacao = document.createElement('td');
+      const tdData = document.createElement('td');
+      tdId.textContent = item.id_retirada || idRetirada;
+      tdProduto.textContent = item.produto || '';
+      tdQuantidade.textContent = item.quantidade || '';
+      tdRequisitante.textContent = item.requisitante || '';
+      tdResponsavel.textContent = item.responsavel || '';
+      tdObservacao.textContent = item.observacao || '';
+      tdData.textContent = item.data ? formatarDataCurta(item.data) : '';
+      tr.appendChild(tdId);
+      tr.appendChild(tdProduto);
+      tr.appendChild(tdQuantidade);
+      tr.appendChild(tdRequisitante);
+      tr.appendChild(tdResponsavel);
+      tr.appendChild(tdObservacao);
+      tr.appendChild(tdData);
+      tbody.appendChild(tr);
+    });
+  } catch (error) {
+    alert('Erro ao buscar devoluções.');
+  }
+}
+
+// 1. Adicionar item na tabela localmente, validando se o produto pertence à retirada
+document.getElementById('btn-adicionar-item-devolucao')?.addEventListener('click', async function () {
+  const idRetirada = document.getElementById('devolucao-id')?.value.trim();
+  const produto = document.getElementById('devolucao-produto')?.value.trim();
+  const quantidade = document.getElementById('devolucao-quantidade')?.value.trim();
+  const requisitante = document.getElementById('devolucao-requisitante')?.value.trim();
+  const responsavel = document.getElementById('devolucao-responsavel')?.value.trim();
+  const observacao = document.getElementById('devolucao-observacao')?.value.trim();
+  const data = new Date().toISOString();
+
+  if (!idRetirada || !produto || !quantidade) {
+    alert('Preencha o ID da retirada, produto e quantidade.');
+    return;
+  }
+
+  // Busca os itens da retirada no backend para validar o produto
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ id_retirada: idRetirada })
+    });
+    if (!response.ok) {
+      alert('Erro ao validar retirada.');
+      return;
+    }
+    const dataRetorno = await response.json();
+    const itensRetirada = Array.isArray(dataRetorno.devolucoes) ? dataRetorno.devolucoes : [];
+    const itemRetirada = itensRetirada.find(item => item.produto === produto);
+    if (!itemRetirada) {
+      alert(`O item "${produto}" não existe na retirada ${idRetirada}.`);
+      return;
+    }
+  } catch (error) {
+    alert('Erro ao validar retirada.');
+    return;
+  }
+
+  const tabela = document.getElementById('tabela-devolucoes');
+  const tbody = tabela.tBodies[0] || tabela.createTBody();
+  // Verifica se já existe uma linha com o mesmo produto
+  let linhaExistente = null;
+  for (let linha of tbody.rows) {
+    if (linha.cells[1] && linha.cells[1].textContent === produto) {
+      linhaExistente = linha;
+      break;
+    }
+  }
+  if (linhaExistente) {
+    // Soma a quantidade
+    const quantidadeAtual = parseInt(linhaExistente.cells[2].textContent, 10) || 0;
+    const novaQuantidade = quantidadeAtual + (parseInt(quantidade, 10) || 0);
+    linhaExistente.cells[2].textContent = novaQuantidade;
+    // Atualiza outros campos se desejar (opcional)
+    linhaExistente.cells[3].textContent = requisitante;
+    linhaExistente.cells[4].textContent = responsavel;
+    linhaExistente.cells[5].textContent = observacao;
+    linhaExistente.cells[6].textContent = formatarDataCurta(data);
+  } else {
+    // Cria nova linha normalmente
+    const tr = document.createElement('tr');
+    [idRetirada, produto, quantidade, requisitante, responsavel, observacao, formatarDataCurta(data)].forEach(valor => {
+      const td = document.createElement('td');
+      td.textContent = valor;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+});
+
+// 2. Registrar devolução com validação
+document.getElementById('btn-registro-devolucao')?.addEventListener('click', async function (e) {
+  e.preventDefault();
+
+  const idRetirada = document.getElementById('devolucao-id')?.value.trim();
+  if (!idRetirada) {
+    alert('Informe o ID da retirada.');
+    return;
+  }
+
+  // Coleta os itens da tabela de devoluções
+  const tabela = document.getElementById('tabela-devolucoes');
+  const linhas = tabela.tBodies[0]?.rows || [];
+  if (linhas.length === 0) {
+    alert('Adicione pelo menos um item para devolução.');
+    return;
+  }
+
+  // Busca os itens da retirada no backend
+  const token = localStorage.getItem('token');
+  const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({ id_retirada: idRetirada })
+  });
+
+  if (!response.ok) {
+    alert('Erro ao validar retirada.');
+    return;
+  }
+
+  const dataRetorno = await response.json();
+  const itensRetirada = Array.isArray(dataRetorno.devolucoes) ? dataRetorno.devolucoes : [];
+
+  // Validação dos itens
+  for (let linha of linhas) {
+    const produto = linha.cells[1].textContent;
+    const quantidadeDevolucao = parseInt(linha.cells[2].textContent, 10);
+
+    const itemRetirada = itensRetirada.find(item => item.produto === produto);
+    if (!itemRetirada) {
+      alert(`O item "${produto}" não existe na retirada ${idRetirada}.`);
+      return;
+    }
+    const quantidadeRetirada = parseInt(itemRetirada.quantidade, 10);
+    if (quantidadeDevolucao > quantidadeRetirada) {
+      alert(`A quantidade devolvida do item "${produto}" (${quantidadeDevolucao}) é maior que a retirada (${quantidadeRetirada}).`);
+      return;
+    }
+  }
+
+  // Se passou por todas as validações, pode registrar a devolução no backend
+  // Monta os dados para envio
+  const itens = [];
+  for (let linha of linhas) {
+    itens.push({
+      produto: linha.cells[1].textContent,
+      quantidade: parseInt(linha.cells[2].textContent, 10),
+      requisitante: linha.cells[3].textContent,
+      responsavel: linha.cells[4].textContent,
+      observacao: linha.cells[5].textContent,
+      data: linha.cells[6].textContent // já formatada
+    });
+  }
+  const responsavel = document.getElementById('devolucao-responsavel')?.value.trim() || '';
+  const observacao = document.getElementById('devolucao-observacao')?.value.trim() || '';
+  const requisitante = document.getElementById('devolucao-requisitante')?.value.trim() || '';
+  const data = new Date().toISOString();
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('https://api.exksvol.website/devolucao/salvar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        id_retirada: idRetirada,
+        itens,
+        responsavel,
+        observacao,
+        requisitante,
+        data
+      })
+    });
+    if (response.ok) {
+      alert('Devolução registrada com sucesso!');
+      // Limpa a tabela e campos, se desejar
+      if (tabela.tBodies[0]) tabela.tBodies[0].innerHTML = '';
+    } else {
+      alert('Erro ao registrar devolução.');
+    }
+  } catch (error) {
+    alert('Erro ao registrar devolução.');
+  }
+});
+
+// Função auxiliar para formatar a data (ex: 2025-07-02 para 02/07/2025)
+function formatarDataCurta(dataISO) {
+  if (!dataISO) return '';
+  const d = new Date(dataISO);
+  if (isNaN(d.getTime())) return dataISO;
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const ano = d.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+}
+
+// Adicione o evento ao botão de busca
+document.getElementById('btn-buscar-devolucao')?.addEventListener('click', buscarDevolucoesPorId);
+
+// Verificação ao perder o foco do campo de código de retirada
+document.getElementById('devolucao-id')?.addEventListener('blur', async function () {
+  const idInput = document.getElementById('devolucao-id');
+  const campoRequisitante = document.getElementById('devolucao-requisitante');
+  if (!idInput || !campoRequisitante) return;
+  const idRetirada = idInput.value.trim();
+  if (!idRetirada) return;
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ id_retirada: idRetirada })
+    });
+    if (!response.ok) {
+      campoRequisitante.value = '';
+      return;
+    }
+    const data = await response.json();
+    const devolucoes = Array.isArray(data.devolucoes) ? data.devolucoes : [];
+    if (devolucoes.length > 0 && devolucoes[0].requisitante) {
+      campoRequisitante.value = devolucoes[0].requisitante;
+    } else {
+      campoRequisitante.value = '';
+    }
+  } catch (error) {
+    campoRequisitante.value = '';
+  }
+});
+
+
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Inicialização dos Eventos de Kit
+// Adiciona item do formulário de kit na tabela de kits e salva todos os itens no backend.
+//======================================================================================================
+document.addEventListener('DOMContentLoaded', function () {
+  // Evento para salvar todos os itens do kit na tabela do backend
+  const btnSalvarKit = document.getElementById('btn-salvar-kit');
+  if (btnSalvarKit) {
+    btnSalvarKit.addEventListener('click', async function (e) {
+      e.preventDefault();
+      try {
+        const tabelaKit = document.getElementById('tabela-kit');
+        if (!tabelaKit) {
+          alert('Tabela de kits não encontrada!');
+          return;
+        }
+        const tbody = tabelaKit.tBodies[0];
+        if (!tbody || tbody.rows.length === 0) {
+          alert('Adicione pelo menos um item ao kit antes de salvar!');
+          return;
+        }
+        // Monta array de objetos
+        const kits = [];
+        for (let i = 0; i < tbody.rows.length; i++) {
+          const row = tbody.rows[i];
+          const cells = row.cells;
+          kits.push({
+            nome_do_kit: cells[0].textContent.trim(),
+            produto: cells[1].textContent.trim(),
+            quantidade: cells[2].textContent.trim(),
+            categoria: cells[3].textContent.trim(),
+            observacao: cells[4].textContent.trim()
+          });
+        }
+        // Envia para o backend
+        const token = localStorage.getItem('token');
+        const response = await fetch('https://api.exksvol.website/kits/salvar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ kits })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'ok') {
+            alert('Kits salvos com sucesso!');
+            // Limpa a tabela após salvar
+            tbody.innerHTML = '';
+            // Limpa todos os campos do formulário do kit
+            const nomeKitInput = document.getElementById('nome-do-kit');
+            const produtoInput = document.getElementById('nome-produto-kit');
+            const quantidadeInput = document.getElementById('quantidade-kit');
+            const categoriaInput = document.getElementById('categoria-kit');
+            const observacaoInput = document.getElementById('observacao-kit');
+            if (nomeKitInput) nomeKitInput.value = '';
+            if (produtoInput) produtoInput.value = '';
+            if (quantidadeInput) quantidadeInput.value = '';
+            if (categoriaInput) categoriaInput.value = '';
+            if (observacaoInput) observacaoInput.value = '';
+            // Volta a imagem para o padrão
+            const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
+            if (imgKit) {
+              imgKit.src = '../IMG/Sem imagem.png';
+              imgKit.alt = 'Imagem do Produto';
+              imgKit.style.cursor = 'default';
+              imgKit.title = 'Clique para selecionar uma imagem';
+              imgKit.onclick = null;
+            }
+          } else {
+            alert('Erro ao salvar kits: ' + (data.mensagem || 'Erro desconhecido.'));
+          }
+        } else {
+          alert('Erro ao salvar kits: ' + response.status + ' ' + response.statusText);
+        }
+      } catch (err) {
+        alert('Erro ao salvar kits: ' + err.message);
+        console.error(err);
+      }
+    });
+  }
+  // ...imagem do produto não será mais carregada automaticamente...
+  const btnAdicionar = document.getElementById('btn-adicionar-item-kit');
+  if (!btnAdicionar) return;
+  btnAdicionar.addEventListener('click', function (e) {
+    e.preventDefault();
+    try {
+      // Captura os campos
+      const nomeKitInput = document.getElementById('nome-do-kit');
+      const produtoInput = document.getElementById('nome-produto-kit');
+      const quantidadeInput = document.getElementById('quantidade-kit');
+      const categoriaInput = document.getElementById('categoria-kit');
+      const observacaoInput = document.getElementById('observacao-kit');
+
+      if (!nomeKitInput || !produtoInput || !quantidadeInput || !categoriaInput || !observacaoInput) {
+        alert('Erro interno: campo não encontrado no formulário.');
+        return;
+      }
+
+      const nomeKit = nomeKitInput.value.trim();
+      const produto = produtoInput.value.trim();
+      const quantidade = quantidadeInput.value.trim();
+      const categoria = categoriaInput.value.trim();
+      const observacao = observacaoInput.value.trim();
+
+      // Validação simples
+      if (!nomeKit || !produto || !quantidade || !categoria) {
+        alert('Preencha todos os campos obrigatórios do kit!');
+        return;
+      }
+
+      // Monta a linha
+      const tabelaKit = document.getElementById('tabela-kit');
+      if (!tabelaKit) {
+        alert('Tabela de kits não encontrada!');
+        return;
+      }
+      const tbody = tabelaKit.tBodies[0] || tabelaKit.createTBody();
+      const novaLinha = tbody.insertRow();
+      novaLinha.insertCell().textContent = nomeKit;
+      novaLinha.insertCell().textContent = produto;
+      novaLinha.insertCell().textContent = quantidade;
+      novaLinha.insertCell().textContent = categoria;
+      novaLinha.insertCell().textContent = observacao;
+
+      // Limpa os campos Produto e Quantidade
+      produtoInput.value = '';
+      quantidadeInput.value = '';
+      // Volta a imagem para o padrão
+      const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
+      if (imgKit) {
+        imgKit.src = '../IMG/Sem imagem.png';
+        imgKit.alt = 'Imagem do Produto';
+        imgKit.style.cursor = 'default';
+        imgKit.title = 'Clique para selecionar uma imagem';
+        imgKit.onclick = null;
+      }
+    } catch (err) {
+      alert('Erro ao adicionar item: ' + err.message);
+      console.error(err);
+    }
+  });
+});
+
+
+// =================================== FINAL DO SCRIPT =====================================
+
+
 });

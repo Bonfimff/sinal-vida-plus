@@ -555,49 +555,85 @@
 }
 
 /* Estilo para a div que contém os checkboxes */
-#colunas-visiveis {
-  background-color: #f9f9f9; 
-  border: 1px solid #ccc; 
+
+/* ====== NOVO ESTILO PARA CHECKBOXES DE COLUNAS ====== */
+#colunas-visiveis,
+#colunas-visiveis-busca,
+#colunas-visiveis-produtos {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  padding: 15px;
-  max-width: 100%; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 10px; 
+  padding: 15px 10px 10px 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+  margin-bottom: 10px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  flex-grow: 1;
+  box-sizing: border-box;
 }
 
-#colunas-visiveis label {
-  display: flex; 
-  align-items: center; 
+#eu-mandei-vc-deitar,
+#eu-mandei-vc-deitar-busca,
+#eu-mandei-vc-deitar-produtos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px 16px;
+  padding: 0;
+  background: none;
+  border: none;
+}
+/* Responsividade para o container dos checkboxes e grid interno */
+@media (max-width: 900px) {
+  #colunas-visiveis,
+  #colunas-visiveis-busca,
+  #colunas-visiveis-produtos {
+    max-width: 100%;
+    min-width: 0;
+  }
+  #eu-mandei-vc-deitar,
+  #eu-mandei-vc-deitar-busca,
+  #eu-mandei-vc-deitar-produtos {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+#colunas-visiveis label,
+#colunas-visiveis-busca label,
+#colunas-visiveis-produtos label,
+#eu-mandei-vc-deitar label,
+#eu-mandei-vc-deitar-busca label,
+#eu-mandei-vc-deitar-produtos label {
+  display: flex;
+  align-items: center;
   font-size: 14px;
-  color: #333; 
+  color: #333;
   cursor: pointer;
-  margin: 0; 
-  width: calc(25% - 10px); 
-  box-sizing: border-box; 
+  margin: 0;
+  padding: 2px 4px;
+  background: none;
+  border-radius: 3px;
+  transition: background 0.2s;
+  white-space: nowrap;
 }
 
-#colunas-visiveis input[type="checkbox"] {
-  margin-right: 8px; 
+#colunas-visiveis input[type="checkbox"],
+#colunas-visiveis-busca input[type="checkbox"],
+#colunas-visiveis-produtos input[type="checkbox"] {
+  margin-right: 7px;
 }
 
-/* Estilo para organizar os itens horizontalmente no div "eu-mandei-vc-deitar" */
-#eu-mandei-vc-deitar {
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 10px; 
-  padding: 10px; 
-  background-color: #f9f9f9; 
-  border: 1px solid #ccc; 
-  border-radius: 5px; 
-}
-
-#eu-mandei-vc-deitar label {
-  display: flex; 
-  align-items: center; 
-  font-size: 14px; 
-  color: #333; 
-  cursor: pointer; 
-  margin: 0; 
+/* Cabeçalho fixo para os nomes das colunas */
+.colunas-header {
+  display: grid;
+  grid-template-columns: repeat(19, minmax(120px, 1fr));
+  gap: 8px 16px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #222;
+  margin-bottom: 8px;
+  padding-left: 2px;
+  padding-right: 2px;
 }

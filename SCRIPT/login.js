@@ -1,17 +1,28 @@
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Inicialização da Tela de Login
+// Configura eventos e funcionalidades da tela de login ao carregar a página.
+//======================================================================================================
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('login-form');
   const errorEl = document.getElementById('login-error');
   const togglePwd = document.getElementById('toggle-password');
   const pwdInput = document.getElementById('password');
 
-  // Alternar visibilidade da senha
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Alternar Visibilidade da Senha
+  // Alterna o tipo do campo de senha entre texto e senha, permitindo ao usuário visualizar ou ocultar a senha digitada.
+  //======================================================================================================
   togglePwd.addEventListener('click', () => {
     const type = pwdInput.type === 'password' ? 'text' : 'password';
     pwdInput.type = type;
     togglePwd.style.color = type === 'text' ? '#FFCB1F' : '#888';
   });
 
-  // Enviar formulário
+
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Enviar Formulário de Login
+  // Realiza a autenticação do usuário, envia os dados para o servidor e trata o retorno do login.
+  //======================================================================================================
   form.addEventListener('submit', async e => {
     e.preventDefault();
     errorEl.style.display = 'none';

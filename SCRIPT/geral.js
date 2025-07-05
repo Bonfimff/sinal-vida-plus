@@ -1,3 +1,7 @@
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Inicialização do Sistema
+// Inicializa o sistema ao carregar a página, configurando módulos, autenticação, eventos de interface e responsividade.
+//======================================================================================================
 document.addEventListener('DOMContentLoaded', async function () {
   const moduleTabs = document.querySelectorAll('.top-tab');
   const modules = {
@@ -31,7 +35,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
-  //  FUNÇÃO PARA CALCULAR TEMPO RESTANTE DO TOKEN
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Calcular Tempo Restante do Token
+  // Calcula o tempo restante até a expiração do token JWT do usuário.
+  //======================================================================================================
   function calcularTempoRestanteToken() {
     try {
       if (!token) return 'Token não encontrado';
@@ -68,7 +75,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
-  //  FUNÇÃO PARA VERIFICAR SE O TOKEN ESTÁ EXPIRADO
+
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Verificar Token Expirado
+  // Verifica se o token JWT está expirado e executa ações de segurança caso necessário.
+  //======================================================================================================
   function verificarTokenExpirado() {
     try {
       if (!token) {
@@ -116,7 +127,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
-  // FUNÇÃO PARA LIMPAR STORAGE E REDIRECIONAR PARA LOGIN
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Limpar Storage e Redirecionar para Login
+  // Limpa o localStorage e redireciona o usuário para a tela de login.
+  //======================================================================================================
   function limparStorageERedirecionarLogin() {
     
     
@@ -135,7 +149,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     window.location.href = '../index.html';
   }
 
-  //  FUNÇÃO PARA MOSTRAR AVISO DE TOKEN PRÓXIMO AO VENCIMENTO
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Mostrar Aviso de Token Próximo ao Vencimento
+  // Exibe um banner de aviso quando o token está próximo do vencimento.
+  // @param {number} tempoRestante - Tempo restante em segundos para expiração do token.
+  //======================================================================================================
   function mostrarAvisoTokenProximoVencimento(tempoRestante) {
     // Remove aviso existente se houver
     const avisoExistente = document.getElementById('token-warning-banner');
@@ -233,7 +251,11 @@ document.addEventListener('DOMContentLoaded', async function () {
       });
   };
 
-  //  CRIAR MODAL DE PERFIL DO USUÁRIO
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Criar Modal de Perfil do Usuário
+  // Cria e exibe o modal de perfil do usuário com informações e opções de sessão.
+  // @returns {HTMLElement} Elemento do modal criado.
+  //======================================================================================================
   function criarModalPerfil() {
     // Verifica token antes de mostrar modal
     if (verificarTokenExpirado()) {
@@ -556,7 +578,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     return modal;
   }
 
-  //  FUNÇÃO PARA MOSTRAR O MODAL (modificada)
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Mostrar Modal de Perfil
+  // Exibe o modal de perfil do usuário e inicia o contador regressivo do token.
+  //======================================================================================================
   function mostrarModalPerfil() {
     // Verifica token antes de mostrar modal
     if (verificarTokenExpirado()) {
@@ -580,14 +605,17 @@ document.addEventListener('DOMContentLoaded', async function () {
           
           setTimeout(() => {
             alert('Seu token expirou. Você será redirecionado para fazer login novamente.');
-            limparStorageERedirecionarLogin(); //  USA NOVA FUNÇÃO
+            limparStorageERedirecionarLogin(); 
           }, 2000);
         }
       }, 1000); // Atualiza a cada segundo
     }
   }
 
-  //  FUNÇÃO PARA CARREGAR IMAGEM DO STORAGE OU SERVIDOR
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Carregar Imagem do Usuário
+  // Carrega a imagem do usuário do localStorage ou do servidor e aplica no ícone do usuário.
+  //======================================================================================================
   async function carregarImagemUsuario(userId) {
     try {
       //  PRIMEIRO: Verifica se já tem a imagem no localStorage
@@ -792,21 +820,39 @@ document.addEventListener('DOMContentLoaded', async function () {
       optionsContainer.style.display === 'none' ? 'flex' : 'none';
   });
 
+
   openLeftPanelButton.addEventListener('click', () => {
     sidebarLeft.style.display = sidebarLeft.style.display === 'block' ? 'none' : 'block';
-    sidebarRight.style.display = 'none'; 
-    optionsContainer.style.display = 'none'; 
+    sidebarRight.style.display = 'none';
+    optionsContainer.style.display = 'none';
   });
 
   openRightPanelButton.addEventListener('click', () => {
     sidebarRight.style.display = sidebarRight.style.display === 'block' ? 'none' : 'block';
-    sidebarLeft.style.display = 'none'; 
-    optionsContainer.style.display = 'none'; 
+    sidebarLeft.style.display = 'none';
+    optionsContainer.style.display = 'none';
   });
 
-  // ============================
-  // BOTÃO E LISTA DE MÓDULOS
-  // ============================
+  // Fecha painéis laterais ao clicar fora deles
+  document.addEventListener('mousedown', function (e) {
+    // Se o painel esquerdo estiver aberto e o clique for fora dele e fora do botão toggle
+    if (sidebarLeft.style.display === 'block' && !sidebarLeft.contains(e.target) && e.target !== toggleButton && !optionsContainer.contains(e.target)) {
+      sidebarLeft.style.display = 'none';
+    }
+    // Se o painel direito estiver aberto e o clique for fora dele e fora do botão toggle
+    if (sidebarRight && sidebarRight.style.display === 'block' && !sidebarRight.contains(e.target) && e.target !== toggleButton && !optionsContainer.contains(e.target)) {
+      sidebarRight.style.display = 'none';
+    }
+    // Fecha o menu de opções se clicar fora dele e do botão toggle
+    if (optionsContainer.style.display === 'flex' && !optionsContainer.contains(e.target) && e.target !== toggleButton) {
+      optionsContainer.style.display = 'none';
+    }
+  });
+
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Botão e Lista de Módulos
+  // Cria o botão "Outros" e a lista de módulos disponíveis para navegação rápida.
+  //======================================================================================================
   const moduleSelector = document.createElement('button');
   const moduleList = document.createElement('div');
 
@@ -871,9 +917,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   });
 
-  // ============================
-  // RESPONSIVIDADE
-  // ============================
+  //======================================================================================================
+  // FUNÇÃO PRINCIPAL: Adaptar Layout para Responsividade
+  // Ajusta o layout da página para responsividade conforme a largura da tela.
+  //======================================================================================================
   function adaptPageStyle() {
     const width = window.innerWidth;
 
@@ -900,6 +947,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   adaptPageStyle();
 });
 
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Inicializar Lista de Módulos no Menu Lateral
+// Inicializa a lista de módulos no menu lateral ao carregar a página.
+//======================================================================================================
 document.addEventListener('DOMContentLoaded', function () {
   const menu = document.querySelector('.menu');
   const moduleSelector = document.createElement('button');
@@ -943,6 +994,10 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Configurar Modal de Informações
+// Configura o modal de informações (Info) e seus eventos ao carregar a página.
+//======================================================================================================
 document.addEventListener('DOMContentLoaded', function () {
   const infoButton = document.getElementById('btn-info'); // Botão "Info"
   const modal = document.getElementById('info-modal'); // Painel flutuante
@@ -966,6 +1021,10 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Ajustar Zoom da Página
+// Ajusta o zoom da página conforme a largura da tela para melhor visualização em dispositivos móveis.
+//======================================================================================================
 document.addEventListener('DOMContentLoaded', function () {
   function ajustarZoom() {
     const larguraTela = window.innerWidth;
