@@ -422,33 +422,34 @@ button[type="submit"]:hover, .btn-primario:hover {
 
 /* Ajuste para telas pequenas */
 @media (max-width: 768px) {
-  .top-bar {
-    justify-content: flex-start;
-    padding: 0 10px;
+  body {
+    font-size: 14px; /* Ajuste proporcional para evitar zoom */
   }
 
-  #user-photo {
-    display: inline-block;
-  }
-
-  #logged-user {
-    display: inline-block;
-  }
-
-  #active-module {
-    display: inline-block;
-  }
-
-  #module-selector {
-    display: inline-block;
-  }
-
-  .top-tab {
-    display: none;
+  .inline-style-056c46 {
+    flex-direction: column;
+    gap: 12px;
   }
 
   .content {
     padding: 10px;
+  }
+
+  .menu {
+    width: 100%;
+    height: auto;
+    border-right: none;
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .tabela-produtos th, .tabela-produtos td {
+    font-size: 0.85em;
+    padding: 6px;
   }
 }
 
