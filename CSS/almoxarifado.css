@@ -517,16 +517,16 @@
 /* Estilo para telas pequenas */
 @media (max-width: 768px) {
   .entrada-header {
-    align-items: flex-start; 
+    align-items: flex-start;
     flex-direction: column; 
   }
 
   .opcoes-abas {
    
-    margin-top: 20px; 
+    margin-top: 20px;
     align-items: flex-start;
-    width: 100%; 
-    gap: 1px; 
+    width: 100%;
+    gap: 1px;
     margin-top: 5px;
   }
 
@@ -542,6 +542,7 @@
   .inline-style-5139a9 {
     max-width: 100%;
     padding: 16px;
+    margin: 10px 0;
   }
 
   .tabela-produtos th, .tabela-produtos td {
@@ -553,161 +554,122 @@
     max-width: 200px;
     margin: 0 auto;
   }
-}
 
-/* Estilo para o botão de alternar colunas */
-#toggle-colunas {
-  background-color: #ffffff; 
-  color: #000000; 
-  border: 2px solid #FFD700; 
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease; 
-  margin-bottom: 10px;
-}
+  /* ========== NOVAS CORREÇÕES ========== */
 
+  /* Formulários responsivos */
+  .inline-style-f12ec8 {
+    flex-direction: column;
+    gap: 15px;
+  }
 
+  .form-coluna {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
 
-#toggle-colunas:hover {
-  background-color: #FFFBEA;
-  color: #606060; 
-  border-color: #FFC300; 
-}
+  .inline-style-06ede4 {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 15px;
+  }
 
-/* Estilo para a div que contém os checkboxes */
+  /* Painéis responsivos */
+  .inline-style-40a339,
+  .inline-style-5d47ce {
+    padding: 15px !important;
+    margin: 15px 0 !important;
+    min-width: 100% !important;
+  }
 
-/* ====== NOVO ESTILO PARA CHECKBOXES DE COLUNAS ====== */
-#colunas-visiveis,
-#colunas-visiveis-busca,
-#colunas-visiveis-produtos {
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 15px 10px 10px 10px;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
-  margin-bottom: 10px;
-  overflow-x: auto;
-  flex-shrink: 0;
-  flex-grow: 1;
-  box-sizing: border-box;
-}
+  /* Tabelas com scroll horizontal */
+  .tabela-produtos-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
 
-#eu-mandei-vc-deitar,
-#eu-mandei-vc-deitar-busca,
-#eu-mandei-vc-deitar-produtos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px 16px;
-  padding: 0;
-  background: none;
-  border: none;
-}
-/* Responsividade para o container dos checkboxes e grid interno */
-@media (max-width: 900px) {
+  .tabela-produtos {
+    min-width: 800px; /* Força scroll horizontal se necessário */
+  }
+
+  /* Botões responsivos */
+  .top-tab2 {
+    padding: 8px 12px;
+    font-size: 12px;
+    flex: 1;
+    text-align: center;
+    min-width: calc(50% - 5px);
+  }
+
+  .acao-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    margin: 5px 3px;
+  }
+
+  /* Checkboxes responsivos */
   #colunas-visiveis,
   #colunas-visiveis-busca,
   #colunas-visiveis-produtos {
-    max-width: 100%;
-    min-width: 0;
+    padding: 10px;
+    font-size: 12px;
   }
+
   #eu-mandei-vc-deitar,
   #eu-mandei-vc-deitar-busca,
   #eu-mandei-vc-deitar-produtos {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* Modal responsivo */
+  .modal-content {
+    width: 90% !important;
+    max-width: 300px;
+    padding: 15px;
   }
 }
 
-#colunas-visiveis label,
-#colunas-visiveis-busca label,
-#colunas-visiveis-produtos label,
-#eu-mandei-vc-deitar label,
-#eu-mandei-vc-deitar-busca label,
-#eu-mandei-vc-deitar-produtos label {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-  margin: 0;
-  padding: 2px 4px;
-  background: none;
-  border-radius: 3px;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-#colunas-visiveis input[type="checkbox"],
-#colunas-visiveis-busca input[type="checkbox"],
-#colunas-visiveis-produtos input[type="checkbox"] {
-  margin-right: 7px;
-}
-
-/* Cabeçalho fixo para os nomes das colunas */
-.colunas-header {
-  display: grid;
-  grid-template-columns: repeat(19, minmax(120px, 1fr));
-  gap: 8px 16px;
-  font-weight: bold;
-  font-size: 13px;
-  color: #222;
-  margin-bottom: 8px;
-  padding-left: 2px;
-  padding-right: 2px;
-}
-
-/* Ajustes para o painel lateral e componentes em telas pequenas */
-@media (max-width: 768px) {
-  .menu {
-    position: relative;
-    top: 0;
+/* Para telas muito pequenas (menos de 480px) */
+@media (max-width: 480px) {
+  .opcoes-abas {
+    flex-direction: column;
     width: 100%;
-    height: auto;
-    border-right: none;
-    z-index: 1000;
-    margin-top: 10px;
   }
 
-  .menu button {
-    font-size: 0.9rem;
-    padding: 10px;
+  .top-tab2 {
+    width: 100%;
+    margin: 2px 0;
   }
 
+  .inline-style-40a339,
+  .inline-style-5d47ce {
+    padding: 12px !important;
+  }
+
+  .aba-legenda {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+
+  /* Botões em coluna */
   .menu-bottom {
     flex-direction: column;
     gap: 10px;
     padding: 10px;
   }
 
-  .sidebar-right {
-    position: relative;
+  .menu-icon-btn {
     width: 100%;
-    height: auto;
-    border-left: none;
-    padding: 10px;
-    box-shadow: none;
+    max-width: none;
   }
 
-  .sidebar-right .logo {
-    max-width: 150px;
-    margin: 0 auto;
-  }
-
-  .sidebar-right ul li {
-    font-size: 0.85rem;
-    padding: 8px;
-  }
-
-  .content {
-    padding: 10px;
-  }
-
-  .tabela-produtos th, .tabela-produtos td {
-    font-size: 0.8rem;
-    padding: 5px;
+  .menu-icon-btn img {
+    max-width: 40px;
+    max-height: 40px;
   }
 }
