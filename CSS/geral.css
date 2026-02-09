@@ -451,6 +451,20 @@ button[type="submit"]:hover, .btn-primario:hover {
     font-size: 0.85em;
     padding: 6px;
   }
+
+  .btn-primario, .btn-secundario {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .aba-legenda {
+    font-size: 1.5rem;
+  }
+
+  form input, form select {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
 }
 
 /* Ocultar o módulo ativo para telas maiores */
