@@ -1,17 +1,185 @@
-// Exibe a div de busca de kits apenas quando selecionado "kits" no filtro geral
-document.addEventListener('DOMContentLoaded', function() {
-  const select = document.getElementById('tipo-busca');
-  const divKits = document.getElementById('busca-kits');
-  if (!select || !divKits) return;
-  function mostrarDivKits() {
-    if (select.value === 'kits') {
-      divKits.style.display = 'block';
+// Função para atualizar o cabeçalho e colunas da tabela conforme seleção do campo "Buscar em:"
+  function atualizarTabelaPorContextoBusca() {
+    // Função agora não faz mais nada para o contexto "kits".
+    // Toda a exibição de kits é feita exclusivamente pela tabela de kits.
+    // Se necessário, pode-se restaurar o cabeçalho padrão da tabela de produtos aqui para outros contextos.
+    const selectBusca = document.getElementById('contexto-busca') || document.getElementById('buscar-em');
+    if (!selectBusca) return;
+    const valor = selectBusca.value?.toLowerCase?.() || '';
+    if (valor === 'kits' || valor.includes('kit')) {
+      // Não faz nada: exibição de kits é exclusiva da tabela de kits
+      return;
+    }
+    // Aqui pode-se restaurar o cabeçalho padrão da tabela de produtos, se necessário
+  }
+
+  // Adiciona listener ao select de contexto de busca
+  document.getElementById('contexto-busca')?.addEventListener('change', atualizarTabelaPorContextoBusca);
+  document.getElementById('buscar-em')?.addEventListener('change', atualizarTabelaPorContextoBusca);
+
+  // Chama ao carregar a página para garantir consistência
+  atualizarTabelaPorContextoBusca();
+// ======================================================================================================
+// FUNÇÃO: Carregar Datalist de IDs de Retirada para o input de devolução
+// Preenche automaticamente o datalist do input devolucao-id com os IDs vindos do backend
+// ======================================================================================================
+function carregarDatalistRetiradas() {
+  // Garante que a função só rode se o input existir
+  const inputDevolucao = document.getElementById('devolucao-id');
+  if (!inputDevolucao) return;
+
+  // Cria o datalist se não existir
+  let datalist = document.getElementById('lista-retiradas');
+  if (!datalist) {
+    datalist = document.createElement('datalist');
+    datalist.id = 'lista-retiradas';
+    document.body.appendChild(datalist);
+  }
+  inputDevolucao.setAttribute('list', 'lista-retiradas');
+
+  // Limpa opções antigas
+  datalist.innerHTML = '';
+
+  // Busca os IDs de retirada do backend
+  fetch(apiUrl('retiradas/ids'), {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  })
+    .then(resp => resp.json())
+    .then(data => {
+      if (data && Array.isArray(data.ids)) {
+        data.ids.forEach(id => {
+          const opt = document.createElement('option');
+          opt.value = id;
+          datalist.appendChild(opt);
+        });
+      } else {
+        // Feedback visual em caso de erro
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Erro ao carregar IDs';
+        datalist.appendChild(opt);
+      }
+    })
+    .catch(() => {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Erro ao conectar ao servidor';
+      datalist.appendChild(opt);
+    });
+}
+
+// ================= DATALIST DE RETIRADAS =====================
+// Função para carregar os IDs de retirada e preencher o datalist
+async function carregarDatalistRetiradas() {
+  const inputDevolucao = document.getElementById('devolucao-id');
+  if (!inputDevolucao) return; // Só executa se o input existir
+
+  // Cria o datalist se não existir
+  let datalist = document.getElementById('lista-retiradas');
+  if (!datalist) {
+    datalist = document.createElement('datalist');
+    datalist.id = 'lista-retiradas';
+    document.body.appendChild(datalist);
+  }
+  inputDevolucao.setAttribute('list', 'lista-retiradas');
+
+  // Busca os IDs de retirada do backend
+  try {
+    const resp = await fetch(apiUrl('retiradas/ids'), {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    });
+    const data = await resp.json();
+    if (resp.ok && Array.isArray(data.ids)) {
+      datalist.innerHTML = '';
+      data.ids.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        datalist.appendChild(opt);
+      });
     } else {
-      divKits.style.display = 'none';
+      datalist.innerHTML = '';
+    }
+  } catch (e) {
+    datalist.innerHTML = '';
+  }
+}
+
+// Chama a função ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+  carregarDatalistRetiradas();
+});
+
+// Lógica para exibir o form de busca de kits quando "kits" for selecionado em "Buscar em:"
+document.addEventListener('DOMContentLoaded', function() {
+  const selectBusca = document.getElementById('tipo-busca');
+  const formKits = document.getElementById('form-busca-kits');
+  const blocoProdutos = document.getElementById('produtos-bloco-busca');
+  // MANTÉM APENAS A LÓGICA DE BUSCA DE KITS
+  function alternarFormBuscaKits() {
+    if (!selectBusca || !formKits || !blocoProdutos) return;
+    const tabelaKits = document.getElementById('tabela-kits-lista');
+    if (selectBusca.value === 'kits') {
+      blocoProdutos.style.display = 'block';
+      formKits.style.display = 'block';
+      // Lógica para busca de kits
+      const inputKitBusca = document.getElementById('nome-kit-busca');
+      if (inputKitBusca && tabelaKits) {
+        inputKitBusca.onchange = async function() {
+          const nomeKit = this.value.trim();
+          const tbodyKits = tabelaKits.querySelector('tbody');
+          tabelaKits.style.display = '';
+          if (!nomeKit) {
+            tbodyKits.innerHTML = '';
+            return;
+          }
+          try {
+            const tunnelUrl = window.TUNNEL_KITS_API_URL || 'http://localhost:5000/kits/itens';
+            const resp = await fetch(tunnelUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              },
+              body: JSON.stringify({ nome_do_kit: nomeKit })
+            });
+            const data = await resp.json();
+            tbodyKits.innerHTML = '';
+            if (resp.ok && data.status === 'ok' && Array.isArray(data.itens)) {
+              for (const item of data.itens) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td data-coluna="nome-do-kit">${nomeKit}</td>
+                  <td data-coluna="produto">${item.produto || ''}</td>
+                  <td data-coluna="quantidade">${item.quantidade || ''}</td>
+                  <td data-coluna="categoria">${item.categoria || ''}</td>
+                  <td data-coluna="observacao">${item.observacao || ''}</td>
+                  <td data-coluna="imagens">${item.imagem_base64 ? `<img src='data:image/png;base64,${item.imagem_base64}' style='max-width:60px;max-height:60px;object-fit:contain;display:block;margin:auto;cursor:pointer;' />` : ''}</td>
+                `;
+                tbodyKits.appendChild(row);
+              }
+            } else {
+              tbodyKits.innerHTML = '<tr><td colspan="6">Nenhum item encontrado para este kit.</td></tr>';
+            }
+          } catch (e) {
+            tbodyKits.innerHTML = '<tr><td colspan="6">Erro ao buscar itens do kit.</td></tr>';
+          }
+        };
+      }
+    } else {
+      formKits.style.display = 'none';
+      blocoProdutos.style.display = 'none';
     }
   }
-  select.addEventListener('change', mostrarDivKits);
-  mostrarDivKits();
+  if (selectBusca) {
+    selectBusca.addEventListener('change', alternarFormBuscaKits);
+    alternarFormBuscaKits();
+  }
 });
 document.getElementById('btn-baixar-tabela')?.addEventListener('click', function() {
   console.log('[DEBUG] Botão "Baixar Tabela" clicado!');
@@ -154,7 +322,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 document.addEventListener('DOMContentLoaded', function () {
-  // Carregar e executar o main.js dinamicamente
+  // Carrega o datalist de IDs de retirada para o input de devolução
+  carregarDatalistRetiradas();
+  // Definir a URL base do túnel para todas as requisições de API
+  if (!window.TUNNEL_API_URL) {
+    window.TUNNEL_API_URL = 'https://api.exksvol.website/';
+  }
+  // Função auxiliar para montar URLs de API
+  function apiUrl(path) {
+    let base = window.TUNNEL_API_URL;
+    if (!base.endsWith('/')) base += '/';
+    if (path.startsWith('/')) path = path.slice(1);
+    return base + path;
+  }
 
 
   // Código existente do almoxarifado.js
@@ -384,84 +564,77 @@ document.addEventListener('DOMContentLoaded', function () {
   // Atualiza o preview ao carregar a página
   atualizarPreviewCupom();
 
-  const formProdutosConsulta = document.getElementById('form-produtos-consulta');
+  // Lógica unificada de busca para o formulário principal
+  const formBusca = document.getElementById('form-busca');
+  if (formBusca) {
+    formBusca.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const tipoBusca = document.getElementById('tipo-busca').value;
+      // Campos fixos de produto
+      const nomeProduto = document.getElementById('nome-produto-consulta').value.trim();
+      const codigoProduto = document.getElementById('codigo-produto-consulta').value.trim();
+      const categoriaProduto = document.getElementById('categoria-produto-consulta').value;
 
-  if (formProdutosConsulta) {
-    formProdutosConsulta.addEventListener('submit', async function (event) {
-      event.preventDefault(); // Impede o envio padrão do formulário
-
-      // Captura os valores dos campos
-      const nomeProduto = document.getElementById("nome-produto-consulta").value.trim();
-      const codigoProduto = document.getElementById("codigo-produto-consulta").value.trim();
-      const categoriaProduto = document.getElementById("categoria-produto-consulta").value;
-
-      try {
-        // Envia a requisição ao backend
-        const response = await fetch("https://api.exksvol.website/produtos/consultar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("token"), // Token de autenticação
-          },
-          body: JSON.stringify({
-            nome_produto_consulta: nomeProduto,
-            codigo_produto_consulta: codigoProduto,
-            categoria_produto_consulta: categoriaProduto,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.status === "ok") {
-          const tabelaProdutos = document.querySelector(".tabela-produtos tbody");
-
-          // Limpa a tabela antes de adicionar os novos dados
-          tabelaProdutos.innerHTML = "";
-
-          // Adiciona os produtos retornados à tabela
-          data.produtos.forEach(produto => {
-            const row = document.createElement("tr");
-
-            // Função para verificar se a coluna está visível
-            function colunaVisivel(coluna) {
-              // Usa o grupo correto de checkboxes conforme a aba ativa
-              const grupo = getGrupoColunasAtivo();
-              if (!grupo.checkboxes || !grupo.checkboxes.length) return true; // fallback: exibe tudo
-              const checkbox = Array.from(grupo.checkboxes).find(cb => cb.value === coluna);
-              return checkbox ? checkbox.checked : true;
-            }
-
-            // Adiciona as células à linha somente se a coluna correspondente estiver visível
-            if (colunaVisivel("id")) row.innerHTML += `<td data-coluna="id">${produto.id}</td>`;
-            if (colunaVisivel("nome-produto")) row.innerHTML += `<td data-coluna="nome-produto">${produto.nome_produto}</td>`;
-            if (colunaVisivel("codigo")) row.innerHTML += `<td data-coluna="codigo">${produto.codigo || ""}</td>`;
-            if (colunaVisivel("marca")) row.innerHTML += `<td data-coluna="marca">${produto.marca || ""}</td>`;
-            if (colunaVisivel("categoria")) row.innerHTML += `<td data-coluna="categoria">${produto.categoria || ""}</td>`;
-            if (colunaVisivel("unidade-medida")) row.innerHTML += `<td data-coluna="unidade-medida">${produto.unidade_medida || ""}</td>`;
-            if (colunaVisivel("numero-serie")) row.innerHTML += `<td data-coluna="numero-serie">${produto.numero_serie || ""}</td>`;
-            if (colunaVisivel("patrimonio")) row.innerHTML += `<td data-coluna="patrimonio">${produto.patrimonio || ""}</td>`;
-            if (colunaVisivel("local")) row.innerHTML += `<td data-coluna="local">${produto.local || ""}</td>`;
-            if (colunaVisivel("estoque")) row.innerHTML += `<td data-coluna="estoque">${produto.estoque || ""}</td>`;
-            if (colunaVisivel("quantidade")) row.innerHTML += `<td data-coluna="quantidade">${produto.quantidade || ""}</td>`;
-            if (colunaVisivel("estoque-minimo")) row.innerHTML += `<td data-coluna="estoque-minimo">${produto.estoque_minimo || ""}</td>`;
-            if (colunaVisivel("custo")) row.innerHTML += `<td data-coluna="custo">${produto.custo || ""}</td>`;
-            if (colunaVisivel("data-compra")) row.innerHTML += `<td data-coluna="data-compra">${produto.data_compra || ""}</td>`;
-            if (colunaVisivel("numero-nota")) row.innerHTML += `<td data-coluna="numero-nota">${produto.numero_nota || ""}</td>`;
-            if (colunaVisivel("fornecedor")) row.innerHTML += `<td data-coluna="fornecedor">${produto.fornecedor || ""}</td>`;
-            if (colunaVisivel("data-validade")) row.innerHTML += `<td data-coluna="data-validade">${produto.data_validade || ""}</td>`;
-            if (colunaVisivel("termino-garantia")) row.innerHTML += `<td data-coluna="termino-garantia">${produto.termino_garantia || ""}</td>`;
-            if (colunaVisivel("outras-informacoes")) row.innerHTML += `<td data-coluna="outras-informacoes">${produto.outras_informacoes || ""}</td>`;
-
-            // Adiciona a linha à tabela
-            const tabelaProdutos = document.querySelector("#Lista-dos-produtos tbody");
-            tabelaProdutos.appendChild(row);
+      if (tipoBusca === 'produtos') {
+        try {
+          const response = await fetch(apiUrl('produtos/consultar'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('token'),
+            },
+            body: JSON.stringify({
+              nome_produto_consulta: nomeProduto,
+              codigo_produto_consulta: codigoProduto,
+              categoria_produto_consulta: categoriaProduto,
+            }),
           });
-        } else {
-          alert("Erro ao buscar produtos: " + data.mensagem);
+          const data = await response.json();
+          if (response.ok && data.status === 'ok') {
+            const tabelaProdutos = document.querySelector('#Lista-dos-produtos tbody');
+            tabelaProdutos.innerHTML = '';
+            data.produtos.forEach(produto => {
+              const row = document.createElement('tr');
+              function colunaVisivel(coluna) {
+                const grupo = getGrupoColunasAtivo();
+                if (!grupo.checkboxes || !grupo.checkboxes.length) return true;
+                const checkbox = Array.from(grupo.checkboxes).find(cb => cb.value === coluna);
+                return checkbox ? checkbox.checked : true;
+              }
+              if (colunaVisivel('id')) row.innerHTML += `<td data-coluna="id">${produto.id}</td>`;
+              if (colunaVisivel('nome-produto')) row.innerHTML += `<td data-coluna="nome-produto">${produto.nome_produto}</td>`;
+              if (colunaVisivel('codigo')) row.innerHTML += `<td data-coluna="codigo">${produto.codigo || ''}</td>`;
+              if (colunaVisivel('marca')) row.innerHTML += `<td data-coluna="marca">${produto.marca || ''}</td>`;
+              if (colunaVisivel('categoria')) row.innerHTML += `<td data-coluna="categoria">${produto.categoria || ''}</td>`;
+              if (colunaVisivel('unidade-medida')) row.innerHTML += `<td data-coluna="unidade-medida">${produto.unidade_medida || ''}</td>`;
+              if (colunaVisivel('numero-serie')) row.innerHTML += `<td data-coluna="numero-serie">${produto.numero_serie || ''}</td>`;
+              if (colunaVisivel('patrimonio')) row.innerHTML += `<td data-coluna="patrimonio">${produto.patrimonio || ''}</td>`;
+              if (colunaVisivel('local')) row.innerHTML += `<td data-coluna="local">${produto.local || ''}</td>`;
+              if (colunaVisivel('estoque')) row.innerHTML += `<td data-coluna="estoque">${produto.estoque || ''}</td>`;
+              if (colunaVisivel('quantidade')) row.innerHTML += `<td data-coluna="quantidade">${produto.quantidade || ''}</td>`;
+              if (colunaVisivel('estoque-minimo')) row.innerHTML += `<td data-coluna="estoque-minimo">${produto.estoque_minimo || ''}</td>`;
+              if (colunaVisivel('custo')) row.innerHTML += `<td data-coluna="custo">${produto.custo || ''}</td>`;
+              if (colunaVisivel('data-compra')) row.innerHTML += `<td data-coluna="data-compra">${produto.data_compra || ''}</td>`;
+              if (colunaVisivel('numero-nota')) row.innerHTML += `<td data-coluna="numero-nota">${produto.numero_nota || ''}</td>`;
+              if (colunaVisivel('fornecedor')) row.innerHTML += `<td data-coluna="fornecedor">${produto.fornecedor || ''}</td>`;
+              if (colunaVisivel('data-validade')) row.innerHTML += `<td data-coluna="data-validade">${produto.data_validade || ''}</td>`;
+              if (colunaVisivel('termino-garantia')) row.innerHTML += `<td data-coluna="termino-garantia">${produto.termino_garantia || ''}</td>`;
+              if (colunaVisivel('outras-informacoes')) row.innerHTML += `<td data-coluna="outras-informacoes">${produto.outras_informacoes || ''}</td>`;
+              tabelaProdutos.appendChild(row);
+            });
+            // Exibe a tabela de produtos
+            document.getElementById('produtos-tabela-bloco').style.display = '';
+          } else {
+            alert('Erro ao buscar produtos: ' + data.mensagem);
+          }
+        } catch (error) {
+          console.error('Erro ao conectar ao servidor:', error);
+          alert('Erro ao buscar produtos. Verifique o console para mais detalhes.');
         }
-      } catch (error) {
-        console.error("Erro ao conectar ao servidor:", error);
-        alert("Erro ao buscar produtos. Verifique o console para mais detalhes.");
+      } else {
+        // Lógica para outros tipos de busca (exemplo: mostrar mensagem)
+        document.getElementById('produtos-tabela-bloco').style.display = 'none';
+        document.getElementById('resultado-busca').innerHTML = `<div style="margin-top:20px;color:#888;">Busca para o contexto <b>${tipoBusca}</b> ainda não implementada.</div>`;
       }
     });
   }
@@ -665,7 +838,7 @@ async function editarProdutoComBusca(produtoId) {
     criarModalLoading('Carregando dados do produto...');
 
     // Busca os dados do produto no backend
-    const response = await fetch(`https://api.exksvol.website/produtos/buscar/${produtoId}`, {
+    const response = await fetch(apiUrl(`produtos/buscar/${produtoId}`), {
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -1028,14 +1201,6 @@ function formatarDataParaInput(data) {
 // Esta função trata a exclusão de um produto selecionado na tabela, realizando a confirmação,
 // chamada à API e remoção da linha correspondente em caso de sucesso.
 //======================================================================================================
-
-
-
-//======================================================================================================
-// FUNÇÃO PRINCIPAL: Exclusão de Produto
-// Esta função trata a exclusão de um produto selecionado na tabela, realizando a confirmação,
-// chamada à API e remoção da linha correspondente em caso de sucesso.
-//======================================================================================================
 async function excluirProduto(row, cells) {
   // Extrai o ID corretamente da primeira célula
   const produtoId = cells[0]?.textContent?.trim();
@@ -1068,7 +1233,7 @@ async function excluirProduto(row, cells) {
       criarModalLoading('Excluindo produto...');
 
       // Fazer requisição para excluir no backend - USANDO APENAS O ID
-      const response = await fetch(`https://api.exksvol.website/produtos/excluir/${dadosProduto.id}`, {
+      const response = await fetch(apiUrl(`produtos/excluir/${dadosProduto.id}`), {
         method: 'DELETE',
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -1154,7 +1319,7 @@ async function enviarRetirada() {
     // Enviar para o backend
     criarModalLoading('Enviando retirada...');
     
-    const response = await fetch('https://api.exksvol.website/retiradas/salvar', {
+    const response = await fetch(apiUrl('retiradas/salvar'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1263,9 +1428,7 @@ async function enviarRetirada() {
 
   const todasAbas = document.querySelectorAll('.tab-content'); 
   const todosBotoes = document.querySelectorAll('.top-tab2'); 
-
-
- 
+  
   todosBotoes.forEach(botao => botao.classList.remove('active'));
 
    // ------------ evento abertura aba Entrada ------------
@@ -1329,6 +1492,36 @@ async function enviarRetirada() {
       abaTransferencia.classList.add('active');
     });
 
+  }
+
+    // ------------ evento abertura aba Kits ------------
+  const abaKits = document.getElementById('consultas-kits');
+  const botaoKits1 = document.getElementById('btn-kits1');
+  const botaoKits2 = document.getElementById('btn-kits2');
+  const botaoKits3 = document.getElementById('btn-kits3');
+  const botaoKits4 = document.getElementById('btn-kits4');
+  const botaoKits5 = document.getElementById('btn-kits5');
+  if (botaoKits1 || botaoKits2 || botaoKits3 || botaoKits4 || botaoKits5) {
+    if (botaoKits1) botaoKits1.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      if (abaKits) abaKits.classList.add('active');
+    });
+    if (botaoKits2) botaoKits2.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      if (abaKits) abaKits.classList.add('active');
+    });
+    if (botaoKits3) botaoKits3.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      if (abaKits) abaKits.classList.add('active');
+    });
+    if (botaoKits4) botaoKits4.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      if (abaKits) abaKits.classList.add('active');
+    });
+    if (botaoKits5) botaoKits5.addEventListener('click', function () {
+      todasAbas.forEach(aba => aba.classList.remove('active'));
+      if (abaKits) abaKits.classList.add('active');
+    });
   }
    
    // ------------ evento abertura aba baixa ------------
@@ -2004,9 +2197,10 @@ formOutros.addEventListener("submit", function (event) {
     const tbody = tabela ? tabela.querySelector('tbody') : null;
     const grupo = getGrupoColunasAtivo();
     const checkboxes = grupo.checkboxes;
-    if (!tabela || !thead || !tbody || !checkboxes.length) return;
+    if (!tabela || !thead || !tbody) return;
 
-
+    // Sempre exibe as colunas conforme a checagem dos checkboxes, independente do contexto
+    if (!checkboxes.length) return;
     // Mapeia quais colunas devem estar visíveis (case-insensitive e trim)
     const colunasVisiveis = {};
     checkboxes.forEach(checkbox => {
@@ -2018,17 +2212,15 @@ formOutros.addEventListener("submit", function (event) {
     let algumaColunaVisivel = false;
     // Garante que todos os <th> de qualquer <tr> do thead sejam alterados corretamente
     const ths = thead.querySelectorAll('th[data-coluna]');
-    ths.forEach((th) => {
+    ths.forEach((th, idx) => {
       const coluna = (th.getAttribute('data-coluna') || '').trim().toLowerCase();
       const visivel = !!colunasVisiveis[coluna];
       th.style.display = visivel ? '' : 'none';
       if (visivel) algumaColunaVisivel = true;
       // Todas as células dessa coluna
-      tbody.querySelectorAll('td[data-coluna]').forEach(td => {
-        const tdCol = (td.getAttribute('data-coluna') || '').trim().toLowerCase();
-        if (tdCol === coluna) {
-          td.style.display = visivel ? '' : 'none';
-        }
+      Array.from(tbody.rows).forEach(row => {
+        const td = row.cells[idx];
+        if (td) td.style.display = visivel ? '' : 'none';
       });
     });
 
@@ -2231,7 +2423,7 @@ formOutros.addEventListener("submit", function (event) {
     const itens = [];
 
     linhas.forEach((linha, index) => {
-      const celulas = linha.querySelectorAll('td');
+      const celulas = linha.cells;
       if (celulas.length >= 5) {
         const produto = celulas[0]?.textContent?.trim() || '';
         const quantidade = celulas[1]?.textContent?.trim() || '1';
@@ -2430,15 +2622,18 @@ formOutros.addEventListener("submit", function (event) {
       atualizarPreviewCupom();
       // Gera novo ID de retirada e preenche o campo
       setTimeout(() => {
+        // Gera novo ID manualmente e preenche o campo
         const campoId = document.getElementById('retirada-id');
         if (campoId && typeof gerarIdRetirada8Digitos === 'function') {
           const novoId = gerarIdRetirada8Digitos();
           campoId.value = novoId;
+          // Atualiza variável global se necessário
           if (typeof idRetiradaGerado !== 'undefined') {
             idRetiradaGerado = novoId;
           }
         }
       }, 100);
+      atualizarPreviewCupom();
     } else {
       alert(
         `Processamento parcial!\n\n` +
@@ -2898,47 +3093,77 @@ document.addEventListener('DOMContentLoaded', function () {
   btnAdicionar.addEventListener('click', function (e) {
     e.preventDefault();
     try {
-      // Captura os campos
-      const nomeKitInput = document.getElementById('nome-do-kit');
-      const produtoInput = document.getElementById('nome-produto-kit');
-      const quantidadeInput = document.getElementById('quantidade-kit');
-      const categoriaInput = document.getElementById('categoria-kit');
-      const observacaoInput = document.getElementById('observacao-kit');
+      // Lógica dinâmica para adaptação dos campos do formulário de kit
+      const camposKit = [
+        { id: 'nome-do-kit', obrigatorio: true },
+        { id: 'nome-produto-kit', obrigatorio: true },
+        { id: 'quantidade-kit', obrigatorio: true },
+        { id: 'categoria-kit', obrigatorio: true },
+        { id: 'observacao-kit', obrigatorio: false }
+      ];
 
-      if (!nomeKitInput || !produtoInput || !quantidadeInput || !categoriaInput || !observacaoInput) {
-        alert('Erro interno: campo não encontrado no formulário.');
-        return;
-      }
+      let camposInvalidos = [];
+      let valoresCampos = {};
+      camposKit.forEach(campo => {
+        const el = document.getElementById(campo.id);
+        if (!el) {
+          camposInvalidos.push(campo.id);
+        } else {
+          valoresCampos[campo.id] = el.value.trim();
+          if (campo.obrigatorio && !el.value.trim()) {
+            camposInvalidos.push(campo.id);
+            el.style.borderColor = '#dc3545';
+          } else if (el) {
+            el.style.borderColor = '';
+          }
+        }
+      });
 
-      const nomeKit = nomeKitInput.value.trim();
-      const produto = produtoInput.value.trim();
-      const quantidade = quantidadeInput.value.trim();
-      const categoria = categoriaInput.value.trim();
-      const observacao = observacaoInput.value.trim();
-
-      // Validação simples
-      if (!nomeKit || !produto || !quantidade || !categoria) {
+      if (camposInvalidos.length > 0) {
         alert('Preencha todos os campos obrigatórios do kit!');
         return;
       }
 
-      // Monta a linha
-      const tabelaKit = document.getElementById('tabela-kit');
-      if (!tabelaKit) {
-        alert('Tabela de kits não encontrada!');
+      // Adiciona o item na nova tabela dedicada de exibição dos kits
+      const tabelaKitsLista = document.getElementById('tabela-kits-lista');
+      if (!tabelaKitsLista) {
+        alert('Tabela de exibição de kits não encontrada!');
         return;
       }
-      const tbody = tabelaKit.tBodies[0] || tabelaKit.createTBody();
-      const novaLinha = tbody.insertRow();
-      novaLinha.insertCell().textContent = nomeKit;
-      novaLinha.insertCell().textContent = produto;
-      novaLinha.insertCell().textContent = quantidade;
-      novaLinha.insertCell().textContent = categoria;
-      novaLinha.insertCell().textContent = observacao;
+      // Garante que o tbody existe
+      let tbodyKits = tabelaKitsLista.querySelector('tbody');
+      if (!tbodyKits) {
+        tbodyKits = document.createElement('tbody');
+        tabelaKitsLista.appendChild(tbodyKits);
+      }
+      // Cria a linha e adiciona as células com o atributo data-coluna correto
+      const novaLinhaKits = document.createElement('tr');
+      const colunas = [
+        { id: 'nome-do-kit', valor: valoresCampos['nome-do-kit'] },
+        { id: 'produto', valor: valoresCampos['nome-produto-kit'] },
+        { id: 'quantidade', valor: valoresCampos['quantidade-kit'] },
+        { id: 'categoria', valor: valoresCampos['categoria-kit'] },
+        { id: 'observacao', valor: valoresCampos['observacao-kit'] },
+        { id: 'imagens', valor: '' }
+      ];
+      colunas.forEach(col => {
+        const td = document.createElement('td');
+        td.setAttribute('data-coluna', col.id);
+        td.textContent = col.valor;
+        novaLinhaKits.appendChild(td);
+      });
+      tbodyKits.appendChild(novaLinhaKits);
+
+      // Atualiza colunas se função existir
+      if (typeof atualizarColunasKits === 'function') {
+        atualizarColunasKits();
+      }
 
       // Limpa os campos Produto e Quantidade
-      produtoInput.value = '';
-      quantidadeInput.value = '';
+      const produtoInput = document.getElementById('nome-produto-kit');
+      const quantidadeInput = document.getElementById('quantidade-kit');
+      if (produtoInput) produtoInput.value = '';
+      if (quantidadeInput) quantidadeInput.value = '';
       // Volta a imagem para o padrão
       const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
       if (imgKit) {
@@ -2950,13 +3175,184 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch (err) {
       alert('Erro ao adicionar item: ' + err.message);
-      console.error(err);
+      console.error('[KITS] Erro ao adicionar item:', err);
     }
   });
+// Exibe componentes proprietários dos kits ao selecionar "kits" no campo de busca
+document.addEventListener('DOMContentLoaded', function () {
+  const campoBuscarEm = document.querySelector('#busca select[name="buscar-em"], #busca #buscar-em');
+  const divKits = document.getElementById('consultas-kits');
+  if (campoBuscarEm && divKits) {
+    campoBuscarEm.addEventListener('change', function () {
+      if (campoBuscarEm.value === 'kits') {
+        divKits.style.display = '';
+        // Se quiser esconder outros componentes, faça aqui
+      } else {
+        divKits.style.display = 'none';
+      }
+    });
+  }
+});
 });
 
+// ===================== CONTROLE DE TABELA DE KITS =====================
+
+// IDs das colunas possíveis para kits
+const colunasKits = [
+  { id: 'nome-do-kit', label: 'Nome do Kit' },
+  { id: 'produto', label: 'Produto' },
+  { id: 'quantidade', label: 'Quantidade' },
+  { id: 'categoria', label: 'Categoria' },
+  { id: 'observacao', label: 'Observação' },
+  { id: 'imagens', label: 'Imagens' }
+];
+
+// Função para montar o seletor de colunas dos kits
+function montarColunasKitsSelector() {
+  const container = document.getElementById('colunas-visiveis-kits');
+  if (!container) return;
+  container.innerHTML = '';
+  colunasKits.forEach(col => {
+    const label = document.createElement('label');
+    label.style.marginRight = '12px';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = col.id;
+    checkbox.checked = true;
+    checkbox.addEventListener('change', atualizarColunasKits);
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + col.label));
+    container.appendChild(label);
+  });
+}
+
+// Função para atualizar a visibilidade das colunas da tabela de kits
+function atualizarColunasKits() {
+  const tabela = document.getElementById('tabela-kits-lista');
+  if (!tabela) return;
+  const thead = tabela.querySelector('thead');
+  const tbody = tabela.querySelector('tbody');
+  const checkboxes = document.querySelectorAll('#colunas-visiveis-kits input[type="checkbox"]');
+  if (!thead || !tbody) return;
+
+  // Mapeia colunas visíveis
+  const colunasVisiveis = {};
+  checkboxes.forEach(cb => {
+    colunasVisiveis[cb.value] = cb.checked;
+  });
+
+  // Atualiza <th>
+  const ths = thead.querySelectorAll('th[data-coluna]');
+  ths.forEach((th, idx) => {
+    const coluna = th.getAttribute('data-coluna');
+    const visivel = !!colunasVisiveis[coluna];
+    th.style.display = visivel ? '' : 'none';
+    // Atualiza todas as linhas do tbody
+    Array.from(tbody.rows).forEach(row => {
+      const td = row.cells[idx];
+      if (td) td.style.display = visivel ? '' : 'none';
+    });
+  });
+}
+
+
+// Chame isso ao carregar a aba de kits:
+document.addEventListener('DOMContentLoaded', function () {
+  montarColunasKitsSelector();
+  atualizarColunasKits();
+
+  // Lógica robusta para adicionar item ao kit (sem interferência de outros elementos)
+  // Lógica robusta e isolada para adicionar item ao kit e controle de colunas
+  const btnAdicionar = document.getElementById('btn-adicionar-item-kit');
+  if (btnAdicionar) {
+    btnAdicionar.type = 'button';
+    // Remove todos os event listeners antigos (substitui o nó)
+    const btnClone = btnAdicionar.cloneNode(true);
+    btnAdicionar.parentNode.replaceChild(btnClone, btnAdicionar);
+    btnClone.type = 'button';
+    btnClone.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        // Validação dos campos do formulário do kit
+        const camposKit = [
+          { id: 'nome-do-kit', obrigatorio: true },
+          { id: 'nome-produto-kit', obrigatorio: true },
+          { id: 'quantidade-kit', obrigatorio: true },
+          { id: 'categoria-kit', obrigatorio: true },
+          { id: 'observacao-kit', obrigatorio: false }
+        ];
+        let camposInvalidos = [];
+        let valoresCampos = {};
+        camposKit.forEach(campo => {
+          const el = document.getElementById(campo.id);
+          if (!el) {
+            camposInvalidos.push(campo.id);
+          } else {
+            valoresCampos[campo.id] = el.value.trim();
+            if (campo.obrigatorio && !el.value.trim()) {
+              camposInvalidos.push(campo.id);
+              el.style.borderColor = '#dc3545';
+            } else if (el) {
+              el.style.borderColor = '';
+            }
+          }
+        });
+        if (camposInvalidos.length > 0) {
+          alert('Preencha todos os campos obrigatórios do kit!');
+          return;
+        }
+
+        // Adiciona o item na tabela de cadastro de kits
+        const tabelaKitsCadastro = document.getElementById('tabela-kits-lista-cadastro');
+        if (!tabelaKitsCadastro) {
+          alert('Tabela de cadastro de kits não encontrada!');
+          return;
+        }
+        let tbodyKits = tabelaKitsCadastro.querySelector('tbody');
+        if (!tbodyKits) {
+          tbodyKits = document.createElement('tbody');
+          tabelaKitsCadastro.appendChild(tbodyKits);
+        }
+        // Cria a linha e adiciona as células
+        const novaLinhaKits = document.createElement('tr');
+        const colunas = [
+          { id: 'nome-do-kit', valor: valoresCampos['nome-do-kit'] },
+          { id: 'produto', valor: valoresCampos['nome-produto-kit'] },
+          { id: 'quantidade', valor: valoresCampos['quantidade-kit'] },
+          { id: 'categoria', valor: valoresCampos['categoria-kit'] },
+          { id: 'observacao', valor: valoresCampos['observacao-kit'] },
+          { id: 'imagens', valor: '' }
+        ];
+        colunas.forEach(col => {
+          const td = document.createElement('td');
+          td.setAttribute('data-coluna', col.id);
+          td.textContent = col.valor;
+          novaLinhaKits.appendChild(td);
+        });
+        tbodyKits.appendChild(novaLinhaKits);
+
+        // Limpa campos e imagem
+        ['nome-produto-kit', 'quantidade-kit'].forEach(id => {
+          const input = document.getElementById(id);
+          if (input) input.value = '';
+        });
+        const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
+        if (imgKit) {
+          imgKit.src = '../IMG/Sem imagem.png';
+          imgKit.alt = 'Imagem do Produto';
+          imgKit.style.cursor = 'default';
+          imgKit.title = 'Clique para selecionar uma imagem';
+          imgKit.onclick = null;
+        }
+      } catch (err) {
+        alert('Erro ao adicionar item ao kit: ' + (err && err.message ? err.message : err));
+        console.error('[KITS] Erro ao adicionar item:', err);
+      }
+    });
+  }
+});
 
 // =================================== FINAL DO SCRIPT =====================================
-
 
 });
