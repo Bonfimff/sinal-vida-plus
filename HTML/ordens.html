@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -9,108 +9,607 @@
   <title>Ordens de Serviço</title>
 </head>
 <body>
-  <!-- Top Bar -->
+
+  <!-- Menu lateral -->
+  <div class="menu">
+    <button class="tab-btn active" data-tab="gerenciamento">Gerenciamento</button>
+    <button class="tab-btn" data-tab="bases">Bases</button>
+    <button class="tab-btn" data-tab="contratos">Contratos</button>
+    <button class="tab-btn" data-tab="abertura">Nova O.S.</button>
+    <button class="tab-btn" data-tab="busca">Busca</button>
+    <div class="menu-bottom">
+      <button class="menu-icon-btn" id="btn-config">
+        <img src="../IMG/configuracoes.png" alt="Configurações">
+      </button>
+      <button class="menu-icon-btn" id="btn-info">
+        <img src="../IMG/info.png" alt="Informações">
+      </button>
+      <button class="menu-icon-btn" id="btn-logout">
+        <img src="../IMG/sair.png" alt="Sair">
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra superior -->
   <div class="top-bar">
     <div class="top-bar-left">
       <span class="account-info">
         <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
         <span id="logged-user"></span>
-        <span id="modulo-ativo">O.S</span>
+        <span id="modulo-ativo">O.S.</span>
       </span>
-      
     </div>
     <div class="top-bar-right">
       <button class="top-tab" id="almoxarifado-tab">Almoxarifado</button>
       <button class="top-tab" id="frota-tab">Frota</button>
       <button class="top-tab active" id="ordens-tab">Ordens de Serviço</button>
-      <button class="top-tab" id="nobreaks-tab">Nobreaks</button> 
+      <button class="top-tab" id="nobreaks-tab">Nobreaks</button>
     </div>
   </div>
 
-  <!-- Menu lateral Ordens de Serviço -->
-  <div class="menu">
-    <button class="tab-btn active" data-tab="gerenciamento">Gerenciamento</button>
-    <button class="tab-btn" data-tab="abertas">Ordens Abertas</button>
-    <button class="tab-btn" data-tab="andamento">Em Andamento</button>
-    <button class="tab-btn" data-tab="finalizadas">Finalizadas</button>
-    <button class="tab-btn" data-tab="relatorios">Relatórios</button>
-    <div class="menu-bottom">
-      <button class="menu-icon-btn" id="btn-config">
-        <img src="../IMG/configuracoes.png">
-      </button>
-      <button class="menu-icon-btn" id="btn-info">
-        <img src="../IMG/info.png">
-      </button>
-      <button class="menu-icon-btn" id="btn-logout">
-        <img src="../IMG/sair.png">
-      </button>
-    </div>
-  </div>
-
-
-  <!-- Conteúdo principal Ordens de Serviço -->
+  <!-- Conteúdo principal -->
   <div class="content">
-    <!-- Conteúdo das abas -->
+
+    <!-- ===== ABA: GERENCIAMENTO ===== -->
     <div id="gerenciamento" class="tab-content active">
       <h2 class="aba-legenda">Gerenciamento</h2>
       <hr class="aba-linha">
-      <div>
-        <!-- Conteúdo específico da aba Gerenciamento -->
-        <p>Conteúdo da aba Gerenciamento.</p>
-      </div>
-    </div>
-    <div id="abertas" class="tab-content">
-      <h2 class="aba-legenda">Ordens Abertas</h2>
-      <hr class="aba-linha">
-      <div>
-        <!-- Conteúdo específico da aba Ordens Abertas -->
-        <p>Conteúdo da aba Ordens Abertas.</p>
-      </div>
-    </div>
-    <div id="andamento" class="tab-content">
-      <h2 class="aba-legenda"></h2>
-      <hr class="aba-linha">
-      <div>
-        <!-- Conteúdo específico da aba Em Andamento -->
-        <p>Conteúdo da aba Em Andamento.</p>
-      </div>
-    </div>
-    <div id="finalizadas" class="tab-content">
-      <h2 class="aba-legenda">Finalizadas</h2>
-      <hr class="aba-linha">
-      <div>
-        <!-- Conteúdo específico da aba Finalizadas -->
-        <p>Conteúdo da aba Finalizadas.</p>
-      </div>
-    </div>
-    <div id="relatorios" class="tab-content">
-      <h2 class="aba-legenda">Relatórios</h2>
-      <hr class="aba-linha">
-      <div>
-        <!-- Conteúdo específico da aba Relatórios -->
-        <p>Conteúdo da aba Relatórios.</p>
-      </div>
-    </div>
-  </div>
 
-  <!-- Sidebar direita Ordens de Serviço -->
+      <!-- Cards de totalizadores -->
+      <div class="os-cards">
+        <div class="os-card os-card-abertas">
+          <span class="os-card-numero" id="total-abertas">0</span>
+          <span class="os-card-label">Abertas</span>
+        </div>
+        <div class="os-card os-card-andamento">
+          <span class="os-card-numero" id="total-andamento">0</span>
+          <span class="os-card-label">Em Andamento</span>
+        </div>
+        <div class="os-card os-card-finalizadas">
+          <span class="os-card-numero" id="total-finalizadas">0</span>
+          <span class="os-card-label">Finalizadas</span>
+        </div>
+        <div class="os-card os-card-canceladas">
+          <span class="os-card-numero" id="total-canceladas">0</span>
+          <span class="os-card-label">Canceladas</span>
+        </div>
+      </div>
+
+      <!-- Ordens recentes -->
+      <h3 style="margin-top:28px; margin-bottom:8px; font-size:15px; color:#292929;">Ordens Recentes</h3>
+      <div class="tabela-produtos">
+        <table id="tabela-ordens-recentes" class="estilo-tabela">
+          <thead>
+            <tr>
+              <th>Nº O.S.</th>
+              <th>Data Abertura</th>
+              <th>Solicitante</th>
+              <th>Tipo</th>
+              <th>Prioridade</th>
+              <th>Técnico</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ABA: BASES ===== -->
+    <div id="bases" class="tab-content">
+      <h2 class="aba-legenda">Cadastro de Bases</h2>
+      <hr class="aba-linha">
+
+      <form id="form-bases" autocomplete="off">
+        <div class="os-form-grid bases-form-grid">
+          <div class="os-form-item">
+            <label for="base-id">ID da base <span class="obrigatorio">*</span></label>
+            <input type="text" id="base-id" placeholder="Ex.: BASE-001" required>
+          </div>
+
+          <div class="os-form-item">
+            <label for="base-contrato-nome">Nome do contrato</label>
+            <input type="text" id="base-contrato-nome" placeholder="Nome do contrato">
+          </div>
+
+          <div class="os-form-item">
+            <label for="base-link-localizacao">Link de localização <span class="obrigatorio">*</span></label>
+            <input type="url" id="base-link-localizacao" placeholder="https://maps.google.com/..." required>
+          </div>
+
+          <div class="os-form-item">
+            <label for="base-endereco">Endereço <span class="obrigatorio">*</span></label>
+            <input type="text" id="base-endereco" placeholder="Rua, número, bairro" required>
+          </div>
+
+          <div class="os-form-item">
+            <label for="base-complemento">Complemento</label>
+            <input type="text" id="base-complemento" placeholder="Apto, bloco, ponto de referência">
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <label for="base-obs">Observações</label>
+            <textarea id="base-obs" rows="3" placeholder="Observações adicionais sobre a base..."></textarea>
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <label for="base-material-nome">Materiais instalados no local</label>
+            <div class="bases-material-input-row">
+              <input type="text" id="base-material-nome" list="base-material-sugestoes" placeholder="Selecione material..." autocomplete="off">
+              <input type="number" id="base-material-qtd" min="1" placeholder="Qtd">
+              <input type="text" id="base-material-unidade" placeholder="Unidade">
+              <button type="button" id="btn-adicionar-base-material" class="btn-primario btn-sm">Adicionar</button>
+            </div>
+            <datalist id="base-material-sugestoes"></datalist>
+            <div id="base-materiais-lista" class="base-materiais-lista"></div>
+          </div>
+
+          <div class="os-form-item os-form-full bases-upload-box">
+            <div class="bases-preview-grid">
+              <div class="bases-preview-panel">
+                <div class="bases-preview-header">
+                  <div>
+                    <h4>Visualização de fotos</h4>
+                    <small>Selecione uma ou mais fotos da base.</small>
+                  </div>
+                  <div class="bases-photo-selector">
+                    <input type="file" id="base-fotos" multiple accept="image/*">
+                  </div>
+                </div>
+                <div id="base-fotos-preview" class="base-files-preview">Nenhuma foto adicionada.</div>
+              </div>
+              <div class="bases-preview-panel">
+                <div class="bases-preview-header">
+                  <div>
+                    <h4>Visualização de documentos</h4>
+                    <small>Selecione um ou mais documentos.</small>
+                  </div>
+                  <div class="bases-photo-selector bases-doc-selector">
+                    <input type="file" id="base-documentos" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                  </div>
+                </div>
+                <div id="base-docs-preview" class="base-files-preview">Nenhum documento adicionado.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <div class="bases-actions">
+              <button type="submit" class="btn-primario">Salvar Base</button>
+              <button type="button" class="btn-secundario" id="btn-limpar-bases">Limpar</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== ABA: CONTRATOS ===== -->
+    <div id="contratos" class="tab-content">
+      <h2 class="aba-legenda">Contratos</h2>
+      <hr class="aba-linha">
+
+      <form id="form-contratos" autocomplete="off">
+        <div class="os-form-grid bases-form-grid">
+          <div class="os-form-item">
+            <label for="contrato-nome">Nome do contrato</label>
+            <input type="text" id="contrato-nome" placeholder="Nome do contrato" />
+          </div>
+
+          <div class="os-form-item">
+            <label for="contrato-cnpj">CNPJ</label>
+            <input type="text" id="contrato-cnpj" placeholder="00.000.000/0000-00" />
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <label for="contrato-especificacoes">Especificações</label>
+            <textarea id="contrato-especificacoes" rows="4" placeholder="Descreva as especificações do contrato..."></textarea>
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <label for="contrato-permissao-nome">Permissões de acesso</label>
+            <div class="bases-material-input-row">
+              <input type="text" id="contrato-permissao-nome" list="contrato-permissoes-sugestoes" placeholder="Selecione um login..." autocomplete="off">
+              <button type="button" id="btn-adicionar-contrato-permissao" class="btn-primario btn-sm">Adicionar</button>
+            </div>
+            <datalist id="contrato-permissoes-sugestoes"></datalist>
+            <div id="contrato-permissoes-lista" class="base-materiais-lista"></div>
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <div class="bases-actions">
+              <button type="submit" class="btn-primario">Salvar Contrato</button>
+              <button type="button" class="btn-secundario" id="btn-limpar-contrato">Limpar</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== ABA: NOVA O.S. ===== -->
+    <div id="abertura" class="tab-content">
+      <h2 class="aba-legenda">Nova Ordem de Serviço</h2>
+      <hr class="aba-linha">
+
+      <form id="form-os" autocomplete="off">
+        <div class="os-form-grid">
+
+          <!-- Solicitante -->
+          <div class="os-form-item">
+            <label for="os-solicitante">Solicitante <span class="obrigatorio">*</span></label>
+            <input type="text" id="os-solicitante" placeholder="Nome do solicitante" required />
+          </div>
+
+          <!-- Tipo de serviço -->
+          <div class="os-form-item">
+            <label for="os-tipo">Tipo de Serviço <span class="obrigatorio">*</span></label>
+            <select id="os-tipo" required>
+              <option value="">Selecione...</option>
+              <option value="Elétrica">Elétrica</option>
+              <option value="Hidráulica">Hidráulica</option>
+              <option value="TI">TI</option>
+              <option value="Civil">Civil</option>
+              <option value="Mecânica">Mecânica</option>
+              <option value="Limpeza">Limpeza</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+
+          <!-- Prioridade -->
+          <div class="os-form-item">
+            <label for="os-prioridade">Prioridade</label>
+            <select id="os-prioridade">
+              <option value="Baixa">Baixa</option>
+              <option value="Média" selected>Média</option>
+              <option value="Alta">Alta</option>
+              <option value="Urgente">Urgente</option>
+            </select>
+          </div>
+
+          <!-- Descrição (full width) -->
+          <div class="os-form-item os-form-full">
+            <label for="os-descricao">Descrição do Serviço <span class="obrigatorio">*</span></label>
+            <textarea id="os-descricao" rows="4" placeholder="Descreva o serviço a ser realizado..." required></textarea>
+          </div>
+        </div>
+
+        <div id="os-pontos-mapa-container" class="pontos-mapa-unico" style="display:none;">
+          <iframe id="os-pontos-mapa" class="ponto-mapa-preview" frameborder="0" scrolling="no" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div id="os-pontos-mapa-legenda" class="pontos-mapa-legenda"></div>
+        </div>
+
+        <!-- Pontos de atendimento -->
+        <div class="os-pontos-secao">
+          <div class="os-pontos-header">
+            <span>Pontos de Atendimento</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button type="button" id="btn-adicionar-ponto-form" class="btn-secundario btn-sm">+ Adicionar Ponto</button>
+            </div>
+          </div>
+          <div id="os-pontos-container">
+            <!-- Linhas de ponto inseridas dinamicamente -->
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:20px;">
+          <button type="submit" class="btn-primario">Abrir Ordem</button>
+          <button type="button" id="btn-limpar-os" class="btn-secundario">Limpar</button>
+        </div>
+      </form>
+
+      <!-- Feedback -->
+      <div id="os-feedback" style="display:none; margin-top:16px;"></div>
+    </div>
+
+    <!-- ===== ABA: BUSCA ===== -->
+    <div id="busca" class="tab-content">
+      <h2 class="aba-legenda">Busca de Ordens</h2>
+      <hr class="aba-linha">
+
+      <!-- Controles de busca -->
+      <div class="busca-controles">
+        <div class="busca-controle-item">
+          <label for="busca-os-status">Status:</label>
+          <select id="busca-os-status">
+            <option value="">Todos</option>
+            <option value="Aberta">Aberta</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Em Deslocamento">Em Deslocamento</option>
+            <option value="Aguardando Despacho de Equipamentos">Aguardando Despacho de Equipamentos</option>
+            <option value="Chegada no Local">Chegada no Local</option>
+            <option value="Finalizada">Finalizada</option>
+            <option value="Cancelada">Cancelada</option>
+          </select>
+        </div>
+        <div class="busca-controle-item">
+          <label>Período:</label>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <input type="date" id="busca-os-inicio">
+            <span style="font-size:13px; color:#888;">a</span>
+            <input type="date" id="busca-os-fim">
+          </div>
+        </div>
+        <button type="button" id="btn-buscar-os" class="btn-primario">Buscar</button>
+        <button type="button" id="btn-baixar-os" class="btn-primario" style="background:#6c6c00;">Baixar Tabela</button>
+      </div>
+
+      <!-- Filtros em tempo real -->
+      <div class="busca-filtros">
+        <div class="busca-filtro-item">
+          <label for="filtro-os-numero">Nº O.S.</label>
+          <input type="text" id="filtro-os-numero" placeholder="Filtrar por número..." />
+        </div>
+        <div class="busca-filtro-item">
+          <label for="filtro-os-solicitante">Solicitante</label>
+          <input type="text" id="filtro-os-solicitante" placeholder="Filtrar por solicitante..." />
+        </div>
+        <div class="busca-filtro-item">
+          <label for="filtro-os-tecnico">Técnico</label>
+          <input type="text" id="filtro-os-tecnico" placeholder="Filtrar por técnico..." />
+        </div>
+        <div class="busca-filtro-item">
+          <label for="filtro-os-tipo">Tipo</label>
+          <select id="filtro-os-tipo">
+            <option value="">Todos</option>
+            <option value="Elétrica">Elétrica</option>
+            <option value="Hidráulica">Hidráulica</option>
+            <option value="TI">TI</option>
+            <option value="Civil">Civil</option>
+            <option value="Mecânica">Mecânica</option>
+            <option value="Limpeza">Limpeza</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabela de resultados -->
+      <div class="tabela-produtos">
+        <table id="tabela-busca-os" class="estilo-tabela">
+          <thead>
+            <tr>
+              <th data-coluna="numero_os">Nº O.S.</th>
+              <th data-coluna="data_abertura">Data Abertura</th>
+              <th data-coluna="solicitante">Solicitante</th>
+              <th data-coluna="setor">Setor</th>
+              <th data-coluna="tipo_servico">Tipo</th>
+              <th data-coluna="prioridade">Prioridade</th>
+              <th data-coluna="tecnico_responsavel">Técnico</th>
+              <th data-coluna="status">Status</th>
+              <th data-coluna="data_prevista">Data Prevista</th>
+              <th data-coluna="data_conclusao">Conclusão</th>
+              <th data-coluna="descricao">Descrição</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Sidebar direita -->
   <div class="sidebar-right">
     <img src="../IMG/Logo.png" alt="Logo" class="logo">
     <hr class="logo-divider">
     <div id="sidebar-content">
-      <!-- Conteúdo dinâmico será inserido aqui -->
+      <!-- Conteúdo dinâmico -->
     </div>
   </div>
 
+  <script src="../SCRIPT/config.js"></script>
   <script src="../SCRIPT/geral.js"></script>
   <script src="../SCRIPT/ordens.js"></script>
 
-    <!-- Painel notificação -->
-<div id="info-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <p>Versão de desenvolvimento: v2 24.06 </p>
-    <button id="modal-ok-btn">OK</button>
+  <!-- Modal de informações -->
+  <div id="info-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <p>Versão de desenvolvimento: v2 24.06</p>
+      <button id="modal-ok-btn">OK</button>
+    </div>
   </div>
-</div>
+
+  <!-- Modal de edição de O.S. -->
+  <div id="modal-editar-os" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:540px; width:90%;">
+      <h3 style="margin-bottom:16px;">Editar Ordem de Serviço</h3>
+      <div id="edit-os-tecnico-legenda" style="margin-top:-8px; margin-bottom:12px; font-size:13px; color:#555; font-weight:600;">
+        Técnico responsavel: —
+      </div>
+      <input type="hidden" id="edit-os-id">
+      <input type="hidden" id="edit-os-status-atual">
+      <div id="edit-os-dados-cabecalho" class="os-form-grid">
+        <div class="os-form-item">
+          <label>Prioridade</label>
+          <select id="edit-os-prioridade">
+            <option value="Baixa">Baixa</option>
+            <option value="Média">Média</option>
+            <option value="Alta">Alta</option>
+            <option value="Urgente">Urgente</option>
+          </select>
+        </div>
+        <div class="os-form-item os-form-full">
+          <label>Descrição do Serviço</label>
+          <textarea id="edit-os-descricao" rows="3"></textarea>
+        </div>
+      </div>
+      <div id="edit-os-dados-resumo" class="os-resumo-minimizado" style="display:none;"></div>
+
+      <div class="os-pontos-secao" style="margin-top:14px;">
+        <div class="os-pontos-header">
+          <span id="edit-os-titulo-etapa">Despacho da Equipe</span>
+          <small id="edit-os-status-label" style="color:#666;font-weight:600;">Status: Aberta</small>
+        </div>
+        <div class="modal-etapas-indicador" id="modal-etapas-indicador">
+          <span class="modal-etapa-pill active" data-etapa="1">1. Equipe</span>
+          <span class="modal-etapa-pill" data-etapa="2">2. Veículos</span>
+          <span class="modal-etapa-pill" data-etapa="3">3. Equipamentos</span>
+          <span class="modal-etapa-pill" data-etapa="4">4. Pontos</span>
+          <span class="modal-etapa-pill" data-etapa="5">5. Relatorio</span>
+        </div>
+
+        <div class="modal-etapa" data-etapa="1">
+          <div class="os-form-grid" style="margin-top:0;">
+            <div class="os-form-item os-form-full">
+              <label>Responsável(is) da Equipe</label>
+              <div class="lista-input-row">
+                <input type="text" id="edit-despacho-responsavel-input" placeholder="Digite e clique em Adicionar" />
+                <button type="button" id="btn-adicionar-responsavel" class="btn-secundario btn-sm">Adicionar</button>
+              </div>
+              <div id="edit-despacho-responsavel-list" class="lista-itens-container"></div>
+            </div>
+            <div class="os-form-item os-form-full">
+              <label>Demais Integrantes da Equipe</label>
+              <div class="lista-input-row">
+                <input type="text" id="edit-despacho-integrante-input" placeholder="Digite e clique em Adicionar" />
+                <button type="button" id="btn-adicionar-integrante" class="btn-secundario btn-sm">Adicionar</button>
+              </div>
+              <div id="edit-despacho-equipe-list" class="lista-itens-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-etapa" data-etapa="2" style="display:none;">
+          <div class="os-form-grid" style="margin-top:0;">
+            <div class="os-form-item os-form-full">
+              <label>Veículos que serão deslocados</label>
+              <div class="lista-input-row">
+                <input type="text" id="edit-despacho-veiculo-input" placeholder="Digite o veículo e clique em Adicionar" />
+                <button type="button" id="btn-adicionar-veiculo" class="btn-secundario btn-sm">Adicionar</button>
+              </div>
+              <div id="edit-despacho-veiculos-list" class="lista-itens-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-etapa" data-etapa="3" style="display:none;">
+          <div class="os-form-grid" style="margin-top:0;">
+            <div class="os-form-item os-form-full">
+              <!-- Seção de carregamento por ID da retirada -->
+              <div style="background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px; margin-bottom: 16px;">
+                <label style="font-size: 12px; color: #333; font-weight: bold; margin-bottom: 8px; display: block;">Carregar itens de uma Retirada</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="edit-despacho-id-retirada" placeholder="ID da retirada (ou escaneie o QR)" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" />
+                  <button type="button" id="btn-buscar-retirada" class="btn-primario" style="padding: 8px 16px;">Buscar</button>
+                  <button type="button" id="btn-escanear-qr-retirada" class="btn-secundario" style="padding: 8px 16px;">QR Code</button>
+                </div>
+                <div id="feedback-carregamento-retirada" style="margin-top: 8px; font-size: 12px; color: #666; display: none;"></div>
+              </div>
+              
+              <!-- Seção de adição manual -->
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="flex: 1;">
+                  <label style="font-size: 12px; color: #666;">Nome do Item *</label>
+                  <input type="text" id="edit-despacho-item-nome" list="lista-itens-estoque" placeholder="Buscar item..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
+                  <datalist id="lista-itens-estoque"></datalist>
+                </div>
+                <div style="width: 100px;">
+                  <label style="font-size: 12px; color: #666;">Qtd *</label>
+                  <input type="number" id="edit-despacho-item-qtd" min="1" placeholder="Qtd" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
+                </div>
+                <button type="button" id="btn-adicionar-item-despacho" class="btn-primario" style="align-self: flex-end;">Adicionar</button>
+              </div>
+              <div style="margin-top: 12px;">
+                <label style="font-size: 12px; color: #666;">Items Adicionados:</label>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                  <thead>
+                    <tr style="background: #f5f5f5;">
+                      <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Item</th>
+                      <th style="padding: 8px; text-align: center; border: 1px solid #ddd; width: 80px;">Qtd</th>
+                      <th style="padding: 8px; text-align: center; border: 1px solid #ddd; width: 150px;">ID da Retirada</th>
+                      <th style="padding: 8px; text-align: center; border: 1px solid #ddd; width: 100px;">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-itens-despacho">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-etapa" data-etapa="4" style="display:none;">
+          <!-- Pontos de atendimento vinculados à O.S. -->
+          <div class="os-pontos-secao" style="margin-top:10px;">
+            <!-- Form para novo ponto (oculto por padrão) -->
+            <div id="form-novo-ponto-modal" class="ponto-novo-form" style="display:none;">
+              <div class="ponto-busca-id-row">
+                <input type="text" id="novo-ponto-id-local" placeholder="ID do local cadastrado" class="ponto-input" />
+                <button type="button" id="btn-buscar-local-modal" class="btn-secundario btn-sm">Buscar</button>
+              </div>
+              <input type="text" id="novo-ponto-endereco" placeholder="Endereço *" class="ponto-input" />
+              <input type="text" id="novo-ponto-complemento" placeholder="Complemento" class="ponto-input" />
+            </div>
+            <!-- Lista de pontos existentes -->
+            <div id="modal-pontos-lista"></div>
+            <div id="modal-pontos-mapa-container" class="pontos-mapa-unico" style="display:none; margin-top:8px;">
+              <iframe id="modal-pontos-mapa" class="ponto-mapa-preview" frameborder="0" scrolling="no" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <div id="modal-pontos-mapa-legenda" class="pontos-mapa-legenda"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-etapa" data-etapa="5" style="display:none;">
+          <div class="os-form-grid" style="margin-top:0;">
+            <div class="os-form-item os-form-full">
+              <label>Diagnóstico do Equipamento</label>
+              <textarea id="fech-diagnostico" rows="3" placeholder="Descreva o diagnóstico do equipamento..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; resize:vertical; font-size:14px;"></textarea>
+            </div>
+            <div class="os-form-item os-form-full">
+              <label>Procedimento Executado</label>
+              <textarea id="fech-procedimento" rows="3" placeholder="Descreva o procedimento executado..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; resize:vertical; font-size:14px;"></textarea>
+            </div>
+            <div class="os-form-item">
+              <label>Situação Final</label>
+              <select id="fech-situacao" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px;">
+                <option value="">Selecione...</option>
+                <option value="Resolvido">Resolvido</option>
+                <option value="Parcialmente Resolvido">Parcialmente Resolvido</option>
+                <option value="Não Resolvido">Não Resolvido</option>
+                <option value="Aguardando Peças">Aguardando Peças</option>
+              </select>
+            </div>
+            <div class="os-form-item os-form-full">
+              <label>Materiais Utilizados</label>
+              <div style="display:flex; gap:8px; margin-top:6px; align-items:center;">
+                <input type="text" id="fech-material-nome" list="fech-material-sugestoes" placeholder="Nome do material" style="flex:2; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:13px;" autocomplete="off">
+                <datalist id="fech-material-sugestoes"></datalist>
+                <input type="number" id="fech-material-qtd" placeholder="Qtd" min="1" value="1" style="flex:0 0 44px; padding:6px 3px; border:1px solid #ccc; border-radius:4px; font-size:12px; text-align:center;">
+                <button type="button" id="btn-adicionar-material" class="btn-primario" style="padding:8px 16px; white-space:nowrap;">Adicionar</button>
+              </div>
+              <div id="fech-materiais-lista" style="margin-top:8px;"></div>
+            </div>
+            <div class="os-form-item os-form-full" style="display:flex; gap:12px; margin-top:8px;">
+              <button type="button" id="btn-salvar-fechamento" class="btn-secundario">Salvar Relatório</button>
+            </div>
+            <div id="msg-fechamento-bloqueado" style="display:none; margin-top:4px; color:#b26a00; font-size:12px;">
+              Finalize a O.S. para salvar o relatório.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div id="base-file-preview-modal" class="modal" style="display:none;">
+    <div class="modal-content preview-modal-content">
+      <button type="button" id="preview-close" class="preview-close">×</button>
+      <div class="preview-modal-body">
+        <div id="preview-media" class="preview-media"></div>
+        <div class="preview-details">
+          <h3 id="preview-file-name"></h3>
+          <p id="preview-file-size"></p>
+          <label for="preview-file-caption">Legenda</label>
+          <textarea id="preview-file-caption" rows="3" placeholder="Editar legenda..."></textarea>
+          <div class="preview-actions">
+            <button type="button" id="preview-save-caption" class="btn-primario">Salvar legenda</button>
+            <button type="button" id="preview-download" class="btn-secundario">Baixar</button>
+            <button type="button" id="preview-delete" class="btn-secundario">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
