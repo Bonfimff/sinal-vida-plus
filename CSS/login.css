@@ -21,8 +21,8 @@ html, body {
   border-radius: 8px;
   box-shadow:
     0 4px 20px rgba(0,0,0,0.1),
-    0 0 0 1px rgba(255,203,31,0.3),
-    0 0 20px rgba(255,203,31,0.4);
+    0 0 0 1px rgba(71, 85, 105, 0.3),
+    0 0 20px rgba(71, 85, 105, 0.4);
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -32,24 +32,20 @@ html, body {
 }
 
 @keyframes glow {
-  0% { box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,203,31,0.3), 0 0 20px rgba(255,203,31,0.4); }
-  50% { box-shadow: 4px 6px 25px rgba(0,0,0,0.15), 0 0 0 2px rgba(255,203,31,0.5), 2px 2px 30px rgba(255,203,31,0.6); }
-  100% { box-shadow: -4px 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,203,31,0.3), -2px 2px 20px rgba(255,203,31,0.4); }
+  0% { box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(71, 85, 105, 0.3), 0 0 20px rgba(71, 85, 105, 0.4); }
+  50% { box-shadow: 4px 6px 25px rgba(0,0,0,0.15), 0 0 0 2px rgba(71, 85, 105, 0.5), 2px 2px 30px rgba(71, 85, 105, 0.6); }
+  100% { box-shadow: -4px 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(71, 85, 105, 0.3), -2px 2px 20px rgba(71, 85, 105, 0.4); }
 }
 
 .logo {
-  max-width: 150px;
-  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin-bottom: 1.75rem;
   transition: transform 0.3s;
 }
 .logo:hover {
   transform: scale(1.05);
-}
-
-.login-container h2 {
-  color: #292929;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
 }
 
 .login-form {
@@ -69,8 +65,8 @@ html, body {
 
 .login-form input:focus {
   outline: none;
-  border-color: #FFCB1F;
-  box-shadow: 0 0 0 2px rgba(255,203,31,0.2);
+  border-color: #475569;
+  box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.2);
 }
 
 .login-form button {

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (gerenciamentoTab && gerenciamentoContent && legendaPrincipal) {
     gerenciamentoTab.classList.add('active');
     gerenciamentoContent.classList.add('active');
-    legendaPrincipal.textContent = 'Gerenciamento';
+    legendaPrincipal.textContent = 'Painel Geral';
   }
 
   const tabs = document.querySelectorAll('.tab-btn');

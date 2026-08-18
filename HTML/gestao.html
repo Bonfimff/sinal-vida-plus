@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=3" />
+  <link rel="stylesheet" href="../CSS/gestao.css" />
+  <link rel="icon" href="../IMG/Icone.png" type="image/png">
+  <title>Gestão de Usuários</title>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="account-info">
+        <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
+        <span id="logged-user"></span>
+        <span id="modulo-ativo">Gestão</span>
+      </span>
+    </div>
+    <div class="top-bar-right">
+      <button class="top-tab" id="almoxarifado-tab">Almoxarifado</button>
+      <button class="top-tab" id="frota-tab">Frota</button>
+      <button class="top-tab" id="ordens-tab">Ordens de Serviço</button>
+      <button class="top-tab active" id="gestao-tab">Gestão</button>
+    </div>
+  </div>
+
+  <!-- Menu lateral Gestão -->
+  <div class="menu menu-gestao">
+    <button class="tab-btn" data-tab="usuarios">Usuários</button>
+    <button class="tab-btn" data-tab="perfis">Perfis de Acesso</button>
+    <button class="tab-btn" data-tab="contratos">Contratos</button>
+    <div class="menu-bottom">
+      <button class="menu-icon-btn" id="btn-config">
+        <img src="../IMG/configuracoes.png" alt="Configurações">
+      </button>
+      <button class="menu-icon-btn" id="btn-info">
+        <img src="../IMG/info.png" alt="Informações">
+      </button>
+      <button class="menu-icon-btn" id="btn-logout">
+        <img src="../IMG/sair.png" alt="Sair">
+      </button>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal Gestão -->
+  <div class="content">
+    <h2 id="legenda-principal" class="aba-legenda">Usuários</h2>
+    <hr class="aba-linha">
+
+    <!-- ===== ABA: USUÁRIOS ===== -->
+    <div id="usuarios" class="tab-content">
+      <div class="gestao-cards">
+        <div class="gestao-card">
+          <span class="gestao-card-label">Total de cadastros</span>
+          <span class="gestao-card-value" id="gestao-total-cadastros">0</span>
+        </div>
+        <div class="gestao-card">
+          <span class="gestao-card-label">Administradores</span>
+          <span class="gestao-card-value" id="gestao-total-admins">0</span>
+        </div>
+        <div class="gestao-card">
+          <span class="gestao-card-label">Técnicos &amp; operadores</span>
+          <span class="gestao-card-value" id="gestao-total-tecnicos">0</span>
+        </div>
+      </div>
+
+      <div class="gestao-toolbar">
+        <button type="button" id="btn-novo-usuario" class="btn-primario">+ Novo Usuário</button>
+      </div>
+
+      <div class="tabela-responsiva">
+        <table class="estilo-tabela" id="tabela-usuarios">
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Cargo / Perfil</th>
+              <th>E-mail</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" style="padding:0.75rem;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ABA: PERFIS DE ACESSO ===== -->
+    <div id="perfis" class="tab-content">
+      <div class="gestao-toolbar">
+        <button type="button" id="btn-novo-perfil" class="btn-primario">+ Novo Perfil</button>
+      </div>
+
+      <div class="gestao-perfis-grid" id="grid-perfis">
+        <p style="padding:0.75rem;">Carregando...</p>
+      </div>
+    </div>
+
+    <!-- ===== ABA: CONTRATOS ===== -->
+    <div id="contratos" class="tab-content">
+      <form id="form-contratos" autocomplete="off">
+        <div class="gestao-form-grid">
+          <div class="gestao-form-item">
+            <label for="contrato-nome">Nome do contrato *</label>
+            <input type="text" id="contrato-nome" placeholder="Nome do contrato/empresa" required>
+          </div>
+          <div class="gestao-form-item">
+            <label for="contrato-cnpj">CNPJ</label>
+            <input type="text" id="contrato-cnpj" placeholder="00.000.000/0000-00">
+          </div>
+          <div class="gestao-form-item gestao-form-full">
+            <label for="contrato-especificacoes">Especificações</label>
+            <textarea id="contrato-especificacoes" rows="3" placeholder="Descreva as especificações do contrato..."></textarea>
+          </div>
+          <div class="gestao-form-item gestao-form-full">
+            <small style="color:#64748b;">Para dar acesso deste contrato a um usuário, marque-o em "Contratos com acesso liberado" na tela de edição do usuário.</small>
+          </div>
+          <div class="gestao-form-item gestao-form-full">
+            <label for="contrato-arquivo-input">Arquivos do contrato</label>
+            <input type="file" id="contrato-arquivo-input" multiple>
+            <small id="contrato-arquivo-aviso" style="display:none; color:#b45309;">Salve o contrato antes de anexar arquivos.</small>
+            <div id="contrato-arquivos-lista" class="gestao-arquivos-lista"></div>
+          </div>
+        </div>
+
+        <div id="contrato-form-feedback" class="gestao-feedback" style="display:none;"></div>
+
+        <div class="gestao-modal-acoes" style="justify-content:flex-start;">
+          <button type="submit" class="btn-primario" id="btn-salvar-contrato">Salvar Contrato</button>
+          <button type="button" class="btn-secundario" id="btn-limpar-contrato">Limpar</button>
+        </div>
+      </form>
+
+      <div class="tabela-responsiva" style="margin-top:1.5rem;">
+        <table class="estilo-tabela" id="tabela-contratos">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CNPJ</th>
+              <th>Usuários com acesso</th>
+              <th>Arquivos</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" style="padding:0.75rem;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar direita Gestão -->
+  <div class="sidebar-right sidebar-gestao">
+    <img src="../IMG/Logo.png" alt="Logo" class="logo">
+    <hr class="logo-divider">
+    <div id="sidebar-content">
+      <h4>Sobre esta tela</h4>
+      <ul>
+        <li>Aqui você cadastra usuários, vincula perfis de acesso prontos ou customiza permissões por pessoa.</li>
+        <li>Perfis de fábrica não podem ser excluídos, só editados.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: NOVO/EDITAR USUÁRIO ===== -->
+  <div id="modal-usuario" class="modal" style="display:none;">
+    <div class="modal-content gestao-modal-content">
+      <button type="button" class="gestao-modal-fechar" id="fechar-modal-usuario" aria-label="Fechar">×</button>
+      <h3 id="titulo-modal-usuario">Novo Usuário</h3>
+
+      <form id="form-usuario" autocomplete="off">
+        <input type="hidden" id="usuario-id">
+
+        <div class="gestao-secao">
+          <h4>Vínculo de perfil de acesso</h4>
+          <div class="gestao-form-grid">
+            <div class="gestao-form-item">
+              <label for="usuario-perfil">Perfil de acesso vinculado</label>
+              <select id="usuario-perfil">
+                <option value="">Nenhum (sem acesso extra)</option>
+              </select>
+            </div>
+            <div class="gestao-form-item gestao-checkbox-item">
+              <label>
+                <input type="checkbox" id="usuario-usa-customizadas">
+                Usar ajustes sob medida (sobrescrever perfil)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="gestao-secao">
+          <h4>Dados cadastrais</h4>
+          <div class="gestao-form-grid">
+            <div class="gestao-form-item">
+              <label for="usuario-login">Nome de usuário (login) *</label>
+              <input type="text" id="usuario-login" required>
+            </div>
+            <div class="gestao-form-item" id="campo-senha-criacao">
+              <label for="usuario-senha">Senha operacional *</label>
+              <input type="text" id="usuario-senha" autocomplete="new-password">
+            </div>
+            <div class="gestao-form-item" id="campo-redefinir-senha" style="display:none;">
+              <label>
+                <input type="checkbox" id="usuario-redefinir-senha-toggle">
+                Redefinir senha
+              </label>
+              <input type="text" id="usuario-nova-senha" placeholder="Nova senha" style="display:none; margin-top:6px;" autocomplete="new-password">
+            </div>
+            <div class="gestao-form-item">
+              <label for="usuario-nome">Nome</label>
+              <input type="text" id="usuario-nome">
+            </div>
+            <div class="gestao-form-item">
+              <label for="usuario-email">Endereço de e-mail</label>
+              <input type="email" id="usuario-email">
+            </div>
+            <div class="gestao-form-item">
+              <label for="usuario-cargo">Cargo / nível operacional</label>
+              <input type="text" id="usuario-cargo" placeholder="Ex.: Administrador Geral">
+            </div>
+            <div class="gestao-form-item gestao-form-full">
+              <label for="usuario-foto">Link/URL para foto de perfil</label>
+              <input type="url" id="usuario-foto" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+
+        <div class="gestao-secao gestao-secao-customizada" id="bloco-permissoes-usuario" style="display:none;">
+          <h4>Painel de direitos e permissões do sistema</h4>
+          <div class="gestao-matriz-permissoes" id="matriz-permissoes-usuario"></div>
+
+          <h4>Ajustes sob medida (autorizações e restrições extras)</h4>
+          <div class="gestao-restricoes" id="restricoes-usuario"></div>
+        </div>
+
+        <div class="gestao-secao">
+          <h4>Contratos com acesso liberado</h4>
+          <div class="gestao-form-grid">
+            <div class="gestao-form-item gestao-form-full">
+              <label>Marque os contratos que este usuário pode visualizar. Sem nenhum marcado, o acesso segue o padrão do perfil vinculado (ou vê tudo, se não houver perfil).</label>
+              <div id="usuario-contratos-lista" class="gestao-perfis-checklist"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="usuario-form-feedback" class="gestao-feedback" style="display:none;"></div>
+
+        <div class="gestao-modal-acoes">
+          <button type="button" class="btn-secundario" id="cancelar-modal-usuario">Cancelar</button>
+          <button type="submit" class="btn-primario">Salvar alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: NOVO/EDITAR PERFIL ===== -->
+  <div id="modal-perfil" class="modal" style="display:none;">
+    <div class="modal-content gestao-modal-content">
+      <button type="button" class="gestao-modal-fechar" id="fechar-modal-perfil" aria-label="Fechar">×</button>
+      <h3 id="titulo-modal-perfil">Novo Perfil</h3>
+
+      <form id="form-perfil" autocomplete="off">
+        <input type="hidden" id="perfil-id">
+
+        <div class="gestao-form-item gestao-form-full">
+          <label for="perfil-nome">Nome do perfil *</label>
+          <input type="text" id="perfil-nome" required>
+        </div>
+
+        <div class="gestao-secao">
+          <h4>Painel de direitos e permissões do sistema</h4>
+          <div class="gestao-matriz-permissoes" id="matriz-permissoes-perfil"></div>
+
+          <h4>Restrições operacionais</h4>
+          <div class="gestao-restricoes" id="restricoes-perfil"></div>
+
+          <h4>Contratos</h4>
+          <div class="gestao-form-grid">
+            <div class="gestao-form-item gestao-form-full">
+              <label for="perfil-contratos-autorizados">Contratos autorizados (visualização) — separe por vírgula, vazio = todos</label>
+              <input type="text" id="perfil-contratos-autorizados">
+            </div>
+            <div class="gestao-form-item gestao-form-full">
+              <label for="perfil-contratos-leitura">Contratos com bloqueio de alteração (somente leitura) — separe por vírgula</label>
+              <input type="text" id="perfil-contratos-leitura">
+            </div>
+          </div>
+        </div>
+
+        <div id="perfil-form-feedback" class="gestao-feedback" style="display:none;"></div>
+
+        <div class="gestao-modal-acoes">
+          <button type="button" class="btn-secundario" id="cancelar-modal-perfil">Cancelar</button>
+          <button type="submit" class="btn-primario">Salvar perfil</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../SCRIPT/config.js"></script>
+  <script src="../SCRIPT/gestao.js"></script>
+  <script src="../SCRIPT/geral.js"></script>
+
+  <!-- Painel notificação -->
+  <div id="info-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <p>Versão de desenvolvimento: 1.0.0</p>
+      <button id="modal-ok-btn">OK</button>
+    </div>
+  </div>
+</body>
+</html>

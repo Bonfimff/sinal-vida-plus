@@ -1,11 +1,90 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    // Sugestão de nomes de kits para o campo de cadastro de kit
+    async function carregarNomesKitsCadastro() {
+        const input = document.getElementById('nome-kit-cadastro');
+        if (!input) return;
+        let datalist = document.getElementById('datalist-nome-kit-cadastro');
+        if (!datalist) {
+            datalist = document.createElement('datalist');
+            datalist.id = 'datalist-nome-kit-cadastro';
+            document.body.appendChild(datalist);
+        }
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const resp = await fetch(apiUrl('/kits/sugestoes-nomes'), {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.status === 'ok' && Array.isArray(data.nomes)) {
+                    datalist.innerHTML = '';
+                    data.nomes.forEach(kit => {
+                        if (kit.nome_do_kit) {
+                            const option = document.createElement('option');
+                            option.value = kit.nome_do_kit;
+                            datalist.appendChild(option);
+                        }
+                    });
+                    input.setAttribute('list', 'datalist-nome-kit-cadastro');
+                }
+            }
+        } catch (e) {
+            console.warn('Erro ao carregar nomes dos kits para cadastro:', e);
+        }
+    }
+    // Função para carregar nomes dos kits no select de busca de kits
+    async function carregarNomesKitsBusca() {
+        const input = document.getElementById('nome-kit-busca');
+        if (!input) return;
+        // Cria datalist se não existir
+        let datalist = document.getElementById('datalist-nome-kit-busca');
+        if (!datalist) {
+            datalist = document.createElement('datalist');
+            datalist.id = 'datalist-nome-kit-busca';
+            document.body.appendChild(datalist);
+        }
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const resp = await fetch(apiUrl('/kits/sugestoes-nomes'), {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.status === 'ok' && Array.isArray(data.nomes)) {
+                    datalist.innerHTML = '';
+                    data.nomes.forEach(kit => {
+                        if (kit.nome_do_kit) {
+                            const option = document.createElement('option');
+                            option.value = kit.nome_do_kit;
+                            datalist.appendChild(option);
+                        }
+                    });
+                    input.setAttribute('list', 'datalist-nome-kit-busca');
+                }
+            }
+        } catch (e) {
+            console.warn('Erro ao carregar nomes dos kits para busca:', e);
+        }
+    }
     
-    // Lista de todos os IDs de select de categoria encontrados no HTML
+    // Lista de todos os IDs de campos de categoria encontrados no HTML
+    // ATENÇÃO: 'categoria-kit-cadastro' é <input type="text">, os demais são <select>
     const seletoresCategorias = [
-        'categoria-produto-consulta',   
-        'categoria-entrada',           
-        'categoria',                    
-        'categoria-kit'                 
+        'categoria-produto-consulta',   // select
+        'categoria-entrada',            // select
+        'categoria',                    // select
+        'categoria-kit',                // select
+        'categoria-kit-cadastro'        // input text (Kits)
     ];
 
     // Lista de todos os IDs de select de patrimônio
@@ -54,6 +133,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     ];
 
     // LISTA COMPLETA DE INPUTS DE NOME DE PRODUTO PARA TODAS AS ABAS
+    // ATENÇÃO: 'nome-kit-cadastro' deve receber apenas nomes de kits, não produtos!
     const seletoresNomeProduto = [
         // Abas principais
         'nome-produto',                 
@@ -65,7 +145,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         'produto-nome',                 
         'nome-item',                    
         'produto',                      
-        'nome-kit'                     
+        'nome-kit',
+        'produto-kit-cadastro'          // Corrige autocomplete na aba de cadastro de kits
+        // 'nome-kit-cadastro' removido daqui para não receber produtos
     ];
 
 
@@ -81,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 console.error('❌ Token não encontrado');
                 return;
             }
-            const response = await fetch('https://api.exksvol.website/requisitantes', {
+            const response = await fetch(apiUrl('/requisitantes'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -183,7 +265,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             const token = localStorage.getItem('token');
             if (!token) return;
-            const response = await fetch('https://api.exksvol.website/retiradas/ids', {
+            const response = await fetch(apiUrl('/retiradas/ids'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -257,12 +339,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             cor: '#ff4444'
         },
         
+
         // Aba Kits
         'nome-produto-kit': {
             img: ['preview-produto-kit', 'preview-kit', 'imagem-kit'],
             info: '.kit-coluna-direita div[style*="text-align: center"]',
             tipo: 'kit',
             cor: '#9C27B0'
+        },
+
+        // Aba Cadastro de Kit (produto do kit)
+        'produto-kit-cadastro': {
+            img: ['preview-kit-cadastro'],
+            info: '', // Se quiser exibir info, adicione o seletor correto
+            tipo: 'kit-cadastro',
+            cor: '#475569'
         },
         
         // Aba Retirada
@@ -325,7 +416,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            const response = await fetch('https://api.exksvol.website/parametros/categoria', {
+            const response = await fetch(apiUrl('/parametros/categoria'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -335,10 +426,33 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             if (response.ok) {
                 const data = await response.json();
-                
                 if (data.status === 'ok' && data.categorias) {
                     seletoresCategorias.forEach(seletorId => {
-                        atualizarSelect(seletorId, data.categorias, 'Selecione uma categoria');
+                        // Campo de categoria da aba de cadastro de kits é input text, os outros são select
+                        if (seletorId === 'categoria-kit-cadastro') {
+                            const input = document.getElementById('categoria-kit-cadastro');
+                            if (input) {
+                                // Cria datalist se não existir
+                                let datalist = document.getElementById('datalist-categoria-kit-cadastro');
+                                if (!datalist) {
+                                    datalist = document.createElement('datalist');
+                                    datalist.id = 'datalist-categoria-kit-cadastro';
+                                    document.body.appendChild(datalist);
+                                }
+                                datalist.innerHTML = '';
+                                data.categorias.forEach(cat => {
+                                    if (cat.valor) {
+                                        const option = document.createElement('option');
+                                        option.value = cat.valor;
+                                        datalist.appendChild(option);
+                                    }
+                                });
+                                input.setAttribute('list', 'datalist-categoria-kit-cadastro');
+                            }
+                        } else {
+                            // Preenche selects normalmente
+                            atualizarSelect(seletorId, data.categorias, 'Selecione uma categoria');
+                        }
                     });
                 }
             } else {
@@ -363,7 +477,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            const response = await fetch('https://api.exksvol.website/parametros/patrimonio', {
+            const response = await fetch(apiUrl('/parametros/patrimonio'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -400,7 +514,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            const response = await fetch('https://api.exksvol.website/parametros/localEstoque', {
+            const response = await fetch(apiUrl('/parametros/localEstoque'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -438,7 +552,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            const response = await fetch('https://api.exksvol.website/parametros/finalidade', {
+            const response = await fetch(apiUrl('/parametros/finalidade'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -600,7 +714,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             console.log('🧪 DEBUG COMPLETO - LOCAIS DE DESTINO');
             
-            const response = await fetch('https://api.exksvol.website/parametros', {
+            const response = await fetch(apiUrl('/parametros'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -660,7 +774,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             // Busca produtos normalmente
-            const response = await fetch('https://api.exksvol.website/produtos/sugestoes-nomes', {
+            const response = await fetch(apiUrl('/produtos/sugestoes-nomes'), {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -671,7 +785,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Busca nomes de kits para incluir nas opções da aba retirada
             let kitsNomes = [];
             try {
-                const kitsResp = await fetch('https://api.exksvol.website/kits/sugestoes-nomes', {
+                const kitsResp = await fetch(apiUrl('/kits/sugestoes-nomes'), {
                     method: 'GET',
                     headers: {
                         'Authorization': 'Bearer ' + token,
@@ -716,6 +830,28 @@ document.addEventListener('DOMContentLoaded', async function() {
                             }
                         }
                     });
+                    // Corrige: campo nome-kit-cadastro deve receber apenas nomes de kits
+                    const inputNomeKitCadastro = document.getElementById('nome-kit-cadastro');
+                    if (inputNomeKitCadastro) {
+                        // Busca nomes de kits diretamente do endpoint de kits
+                        fetch(apiUrl('/kits/sugestoes-nomes'), {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(resp => resp.ok ? resp.json() : null)
+                        .then(dataKits => {
+                            if (dataKits && dataKits.status === 'ok' && Array.isArray(dataKits.nomes)) {
+                                const nomesKits = dataKits.nomes.map(kit => ({ nome: kit.nome_do_kit }));
+                                configurarInputProdutoUniversal(inputNomeKitCadastro, 'nome-kit-cadastro', nomesKits);
+                            }
+                        })
+                        .catch(e => {
+                            console.warn('Erro ao carregar nomes dos kits para nome-kit-cadastro:', e);
+                        });
+                    }
                 } else {
                     console.error('❌ Nenhuma sugestão de produto encontrada');
                 }
@@ -771,8 +907,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         inputNome._handleInput = debounce((e) => {
             const valor = e.target.value.trim();
             console.log('[DEBUG input] Evento input:', { valor, seletorId });
+            let produtoId = null;
             if (window.produtosData && window.produtosData[valor]) {
-                const produtoId = window.produtosData[valor];
+                produtoId = window.produtosData[valor];
                 console.log('[DEBUG input] Produto encontrado:', { produtoId, valor, seletorId });
                 atualizarImagemProdutoUniversal(produtoId, valor, seletorId);
                 // Se for um kit, mostrar os itens do kit
@@ -792,14 +929,23 @@ document.addEventListener('DOMContentLoaded', async function() {
                 atualizarImagemProdutoUniversal(null, '', seletorId);
                 esconderDivItensKit();
             }
+
+            // Atualiza imagem do produto na aba de cadastro de kit
+            if (seletorId === 'produto-kit-cadastro') {
+                if (!produtoId && window.produtosData && window.produtosData[valor]) {
+                    produtoId = window.produtosData[valor];
+                }
+                atualizarImagemProdutoUniversal(produtoId, valor, seletorId);
+            }
         }, 300);
 
         // Handler para change (seleção via mouse/teclado)
         inputNome._handleChange = (e) => {
             const valor = e.target.value.trim();
             console.log('[DEBUG change] Evento change:', { valor, seletorId });
+            let produtoId = null;
             if (window.produtosData && window.produtosData[valor]) {
-                const produtoId = window.produtosData[valor];
+                produtoId = window.produtosData[valor];
                 console.log('[DEBUG change] Produto encontrado:', { produtoId, valor, seletorId });
                 atualizarImagemProdutoUniversal(produtoId, valor, seletorId);
                 if (seletorId === 'retirada-produto' && produtoId && typeof produtoId === 'string' && produtoId.startsWith('KIT_')) {
@@ -817,6 +963,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             } else if (valor === '') {
                 atualizarImagemProdutoUniversal(null, '', seletorId);
                 esconderDivItensKit();
+            }
+
+            // Atualiza imagem do produto na aba de cadastro de kit
+            if (seletorId === 'produto-kit-cadastro') {
+                if (!produtoId && window.produtosData && window.produtosData[valor]) {
+                    produtoId = window.produtosData[valor];
+                }
+                atualizarImagemProdutoUniversal(produtoId, valor, seletorId);
             }
         };
 //======================================================================================================
@@ -897,7 +1051,7 @@ function validarCamposObrigatoriosRetirada() {
             div.innerHTML = '<span style="color:#292929;font-weight:bold;">Carregando itens do kit...</span>';
             try {
                 const token = localStorage.getItem('token');
-                const resp = await fetch('https://api.exksvol.website/kits/itens', {
+                const resp = await fetch(apiUrl('/kits/itens'), {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
@@ -908,12 +1062,12 @@ function validarCamposObrigatoriosRetirada() {
                 if (resp.ok) {
                     const data = await resp.json();
                     if (data.status === 'ok' && Array.isArray(data.itens) && data.itens.length > 0) {
-                        let html = `<div style="margin-bottom:10px;"><span style='color:#292929;font-size:1.15em;'>Itens do Kit <span style=\"color:#FFCB1F\">${nomeDoKit}</span>:</span></div>`;
+                        let html = `<div style="margin-bottom:10px;"><span style='color:#292929;font-size:1.15em;'>Itens do Kit <span style=\"color:#475569\">${nomeDoKit}</span>:</span></div>`;
                         html += `<ul style='margin-bottom:14px;list-style:none;padding:0;'>`;
                         data.itens.forEach(item => {
                             html += `<li style='margin-bottom:10px;background:#fff;color:#060606;padding:7px 12px 2px 12px;border-radius:6px;display:block;border:1px solid #e0e0e0;'>` +
                                 `<div style='font-weight:normal;color:#060606;font-size:1.08em;'>${item.produto}</div>` +
-                                `<div style='color:#292929;font-size:0.98em;margin-top:2px;'>Qtd: <span style='color:#FFCB1F;font-weight:normal;'>${item.quantidade}</span></div>` +
+                                `<div style='color:#292929;font-size:0.98em;margin-top:2px;'>Qtd: <span style='color:#475569;font-weight:normal;'>${item.quantidade}</span></div>` +
                                 (item.categoria && !item.categoria.includes('EPC') ? `<div style='color:#bdbdbd;font-size:0.95em;margin-top:1px;'>(${item.categoria})</div>` : '') +
                             `</li>`;
                         });
@@ -921,33 +1075,33 @@ function validarCamposObrigatoriosRetirada() {
                         // Campo para multiplicar o kit
                         html += `<div style='margin-bottom:12px;text-align:center;'>`;
                         html += `<label for='multiplicador-kit' style='font-weight:normal;margin-right:8px;color:#292929;'>Multiplicar kit:</label>`;
-                        html += `<input id='multiplicador-kit' type='number' min='1' value='1' style='width:60px;padding:4px 6px;border:1.5px solid #FFCB1F;border-radius:4px;font-size:1em;text-align:center;background:#fff;color:#292929;'>`;
+                        html += `<input id='multiplicador-kit' type='number' min='1' value='1' style='width:60px;padding:4px 6px;border:1.5px solid #475569;border-radius:4px;font-size:1em;text-align:center;background:#fff;color:#292929;'>`;
                         html += `</div>`;
                         html += `<div style='display:flex;gap:12px;justify-content:center;margin-top:10px;'>`;
-                        html += `<button id='btn-adicionar-itens-kit-retirada' style='background:#fff;color:#292929;border:2px solid #FFCB1F;padding:10px 22px;border-radius:6px;cursor:pointer;font-weight:normal;font-size:1em;box-shadow:none;transition:background 0.2s;'>Adicionar à tabela de retirada</button>`;
-                        html += `<button id='btn-cancelar-itens-kit-retirada' style='background:#fff;color:#292929;border:2px solid #FFCB1F;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:normal;transition:background 0.2s;'>Cancelar</button>`;
+                        html += `<button id='btn-adicionar-itens-kit-retirada' style='background:#fff;color:#292929;border:2px solid #475569;padding:10px 22px;border-radius:6px;cursor:pointer;font-weight:normal;font-size:1em;box-shadow:none;transition:background 0.2s;'>Adicionar à tabela de retirada</button>`;
+                        html += `<button id='btn-cancelar-itens-kit-retirada' style='background:#fff;color:#292929;border:2px solid #475569;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:normal;transition:background 0.2s;'>Cancelar</button>`;
                         html += `</div>`;
                         div.innerHTML = html;
                         // Remover qualquer hover laranja dos botões e usar apenas as cores do sistema
                         document.getElementById('btn-adicionar-itens-kit-retirada').onmouseover = function(){
                             this.style.background = '#f7f7f7';
                             this.style.color = '#292929';
-                            this.style.borderColor = '#FFCB1F';
+                            this.style.borderColor = '#475569';
                         };
                         document.getElementById('btn-adicionar-itens-kit-retirada').onmouseout = function(){
                             this.style.background = '#fff';
                             this.style.color = '#292929';
-                            this.style.borderColor = '#FFCB1F';
+                            this.style.borderColor = '#475569';
                         };
                         document.getElementById('btn-cancelar-itens-kit-retirada').onmouseover = function(){
                             this.style.background = '#f7f7f7';
                             this.style.color = '#292929';
-                            this.style.borderColor = '#FFCB1F';
+                            this.style.borderColor = '#475569';
                         };
                         document.getElementById('btn-cancelar-itens-kit-retirada').onmouseout = function(){
                             this.style.background = '#fff';
                             this.style.color = '#292929';
-                            this.style.borderColor = '#FFCB1F';
+                            this.style.borderColor = '#475569';
                         };
                         document.getElementById('btn-adicionar-itens-kit-retirada').onclick = () => {
                             let multiplicador = parseInt(document.getElementById('multiplicador-kit').value, 10);
@@ -981,13 +1135,13 @@ function validarCamposObrigatoriosRetirada() {
                             }
                         };
                     } else {
-                        div.innerHTML = `<span style='color:#b71c1c;'>Nenhum item encontrado para este kit.</span><br><br><button onclick='esconderDivItensKit()' style='background:#fff;color:#292929;border:2px solid #FFCB1F;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;margin-top:10px;'>Fechar</button>`;
+                        div.innerHTML = `<span style='color:#b71c1c;'>Nenhum item encontrado para este kit.</span><br><br><button onclick='esconderDivItensKit()' style='background:#fff;color:#292929;border:2px solid #475569;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;margin-top:10px;'>Fechar</button>`;
                     }
                 } else {
-                    div.innerHTML = `<span style='color:#b71c1c;'>Erro ao buscar itens do kit.</span><br><br><button onclick='esconderDivItensKit()' style='background:#fff;color:#292929;border:2px solid #FFCB1F;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;margin-top:10px;'>Fechar</button>`;
+                    div.innerHTML = `<span style='color:#b71c1c;'>Erro ao buscar itens do kit.</span><br><br><button onclick='esconderDivItensKit()' style='background:#fff;color:#292929;border:2px solid #475569;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;margin-top:10px;'>Fechar</button>`;
                 }
             } catch (e) {
-                div.innerHTML = `<span style='color:#b71c1c;'>Erro ao buscar itens do kit.</span><br><br><button onclick='esconderDivItensKit()' style='background:#fff;color:#292929;border:2px solid #FFCB1F;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;margin-top:10px;'>Fechar</button>`;
+                div.innerHTML = `<span style='color:#b71c1c;'>Erro ao buscar itens do kit.</span><br><br><button onclick='esconderDivItensKit()' style='background:#fff;color:#292929;border:2px solid #475569;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;margin-top:10px;'>Fechar</button>`;
             }
         }
 
@@ -1084,6 +1238,8 @@ function validarCamposObrigatoriosRetirada() {
         carregarSugestoesProdutos(),
         carregarSugestoesIdRetirada(), 
         carregarRequisitantes(), 
+        carregarNomesKitsBusca(),
+        carregarNomesKitsCadastro(), // Chama sugestão de nomes de kit para o campo de cadastro
     ]);
 });
 
@@ -1093,6 +1249,8 @@ function validarCamposObrigatoriosRetirada() {
 // Atualiza a imagem do produto em qualquer aba do sistema.
 //======================================================================================================
 function atualizarImagemProdutoUniversal(produtoId, nomeProduto = '', inputId = '') {
+    // DEBUG: Verifica se a função está sendo chamada corretamente
+    console.log('[DEBUG atualizarImagemProdutoUniversal] inputId:', inputId, 'produtoId:', produtoId, 'nomeProduto:', nomeProduto);
     if (!inputId) return;
 
     // MAPEAMENTO COMPLETO DE TODAS AS ABAS
@@ -1121,6 +1279,12 @@ function atualizarImagemProdutoUniversal(produtoId, nomeProduto = '', inputId = 
             tipo: 'kit',
             cor: '#9C27B0'
         },
+        'produto-kit-cadastro': {
+            img: ['preview-kit-cadastro'],
+            info: '', // Se quiser exibir info, adicione o seletor correto
+            tipo: 'kit-cadastro',
+            cor: '#475569'
+        },
         'retirada-produto': {
             img: ['retirada-produto-img', 'preview-retirada', 'preview-produto-retirada', 'imagem-retirada'],
             info: '.retirada-coluna-direita div[style*="text-align: center"]',
@@ -1136,7 +1300,10 @@ function atualizarImagemProdutoUniversal(produtoId, nomeProduto = '', inputId = 
     };
 
     const config = mapeamentoCompleto[inputId];
-    if (!config) return;
+    if (!config) {
+        console.warn('[DEBUG atualizarImagemProdutoUniversal] Campo não mapeado:', inputId);
+        return;
+    }
 
     // Busca o elemento de imagem (tenta vários IDs)
     let imgElement = null;
@@ -1144,8 +1311,10 @@ function atualizarImagemProdutoUniversal(produtoId, nomeProduto = '', inputId = 
         imgElement = document.getElementById(imgId);
         if (imgElement) break;
     }
-    
-    if (!imgElement) return;
+    if (!imgElement) {
+        console.warn('[DEBUG atualizarImagemProdutoUniversal] Elemento de imagem não encontrado para inputId:', inputId, 'ids possíveis:', config.img);
+        return;
+    }
 
     if (!produtoId || produtoId === 'undefined' || produtoId === null) {
         imgElement.src = '../IMG/Sem imagem.png';
@@ -1164,13 +1333,16 @@ function atualizarImagemProdutoUniversal(produtoId, nomeProduto = '', inputId = 
     }
     
     // Atualiza info do produto
-    const infoElement = document.querySelector(config.info);
-    if (infoElement) {
-        infoElement.innerHTML = `
-            <p><strong>Produto ID: ${produtoId}</strong></p>
-            <p><strong>${nomeProduto || 'Carregando...'}</strong></p>
-            <p><em>Clique na imagem para expandir</em></p>
-        `;
+    let infoElement = null;
+    if (config.info && typeof config.info === 'string' && config.info.trim() !== '') {
+        infoElement = document.querySelector(config.info);
+        if (infoElement) {
+            infoElement.innerHTML = `
+                <p><strong>Produto ID: ${produtoId}</strong></p>
+                <p><strong>${nomeProduto || 'Carregando...'}</strong></p>
+                <p><em>Clique na imagem para expandir</em></p>
+            `;
+        }
     }
     
     buscarImagemProdutoUniversal(produtoId, nomeProduto, config.tipo, imgElement);
@@ -1199,8 +1371,7 @@ async function buscarImagemProdutoUniversal(produtoId, nomeProduto, tipo, imgEle
 
         // URLs para tentar
         const urls = [
-            `http://localhost:5000/produtos/${produtoId}/imagem`,
-            `https://api.exksvol.website/produtos/${produtoId}/imagem`
+            apiUrl(`/produtos/${produtoId}/imagem`)
         ];
 
         // LOG DE DEBUG: Veja se a função está sendo chamada e com qual produtoId

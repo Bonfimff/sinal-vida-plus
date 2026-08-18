@@ -1,4 +1,4 @@
-// Função para atualizar o cabeçalho e colunas da tabela conforme seleção do campo "Buscar em:"
+  // Função para atualizar o cabeçalho e colunas da tabela conforme seleção do campo "Buscar em:"
   function atualizarTabelaPorContextoBusca() {
     // Função agora não faz mais nada para o contexto "kits".
     // Toda a exibição de kits é feita exclusivamente pela tabela de kits.
@@ -19,6 +19,18 @@
 
   // Chama ao carregar a página para garantir consistência
   atualizarTabelaPorContextoBusca();
+
+if (!window.TUNNEL_API_URL) {
+  window.TUNNEL_API_URL = 'http://127.0.0.1:5000';
+}
+
+function apiUrl(path) {
+  let base = window.TUNNEL_API_URL;
+  if (!base.endsWith('/')) base += '/';
+  if (path.startsWith('/')) path = path.slice(1);
+  return base + path;
+}
+
 // ======================================================================================================
 // FUNÇÃO: Carregar Datalist de IDs de Retirada para o input de devolução
 // Preenche automaticamente o datalist do input devolucao-id com os IDs vindos do backend
@@ -40,181 +52,119 @@ function carregarDatalistRetiradas() {
   // Limpa opções antigas
   datalist.innerHTML = '';
 
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.warn('Não foi possível carregar as retiradas para devolução: token de autenticação ausente.');
+    return;
+  }
+
   // Busca os IDs de retirada do backend
   fetch(apiUrl('retiradas/ids'), {
     method: 'GET',
     headers: {
-      'Authorization': 'Bearer ' + localStorage.getItem('token')
-    }
+      'Authorization': 'Bearer ' + token,
+    },
   })
-    .then(resp => resp.json())
-    .then(data => {
-      if (data && Array.isArray(data.ids)) {
-        data.ids.forEach(id => {
-          const opt = document.createElement('option');
-          opt.value = id;
-          datalist.appendChild(opt);
-        });
-      } else {
-        // Feedback visual em caso de erro
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'Erro ao carregar IDs';
-        datalist.appendChild(opt);
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Falha ao carregar retiradas: 401 (sessão expirada ou token inválido)');
+        }
+        throw new Error(`Falha ao carregar retiradas: ${response.status}`);
       }
+      return response.json();
     })
-    .catch(() => {
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = 'Erro ao conectar ao servidor';
-      datalist.appendChild(opt);
-    });
-}
+    .then(dados => {
+      const listaIds = Array.isArray(dados) ? dados : (Array.isArray(dados?.ids) ? dados.ids : []);
 
-// ================= DATALIST DE RETIRADAS =====================
-// Função para carregar os IDs de retirada e preencher o datalist
-async function carregarDatalistRetiradas() {
-  const inputDevolucao = document.getElementById('devolucao-id');
-  if (!inputDevolucao) return; // Só executa se o input existir
-
-  // Cria o datalist se não existir
-  let datalist = document.getElementById('lista-retiradas');
-  if (!datalist) {
-    datalist = document.createElement('datalist');
-    datalist.id = 'lista-retiradas';
-    document.body.appendChild(datalist);
-  }
-  inputDevolucao.setAttribute('list', 'lista-retiradas');
-
-  // Busca os IDs de retirada do backend
-  try {
-    const resp = await fetch(apiUrl('retiradas/ids'), {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-      }
-    });
-    const data = await resp.json();
-    if (resp.ok && Array.isArray(data.ids)) {
       datalist.innerHTML = '';
-      data.ids.forEach(id => {
-        const opt = document.createElement('option');
-        opt.value = id;
-        datalist.appendChild(opt);
+      listaIds.forEach(item => {
+        const valor = typeof item === 'string' ? item : String(item?.id ?? item?.valor ?? item ?? '');
+        if (!valor) return;
+        const option = document.createElement('option');
+        option.value = valor;
+        datalist.appendChild(option);
       });
-    } else {
-      datalist.innerHTML = '';
-    }
-  } catch (e) {
-    datalist.innerHTML = '';
-  }
+    })
+    .catch(error => {
+      console.warn('Não foi possível carregar as retiradas para devolução:', error);
+    });
 }
 
-// Chama a função ao carregar a página
-document.addEventListener('DOMContentLoaded', function() {
-  carregarDatalistRetiradas();
-});
+const RASCUNHO_RETIRADA_KEY = 'almoxarifado:retirada:rascunho:v1';
 
-// Lógica para exibir o form de busca de kits quando "kits" for selecionado em "Buscar em:"
-document.addEventListener('DOMContentLoaded', function() {
-  const selectBusca = document.getElementById('tipo-busca');
-  const formKits = document.getElementById('form-busca-kits');
-  const blocoProdutos = document.getElementById('produtos-bloco-busca');
-  // MANTÉM APENAS A LÓGICA DE BUSCA DE KITS
-  function alternarFormBuscaKits() {
-    if (!selectBusca || !formKits || !blocoProdutos) return;
-    const tabelaKits = document.getElementById('tabela-kits-lista');
-    if (selectBusca.value === 'kits') {
-      blocoProdutos.style.display = 'block';
-      formKits.style.display = 'block';
-      // Lógica para busca de kits
-      const inputKitBusca = document.getElementById('nome-kit-busca');
-      if (inputKitBusca && tabelaKits) {
-        inputKitBusca.onchange = async function() {
-          const nomeKit = this.value.trim();
-          const tbodyKits = tabelaKits.querySelector('tbody');
-          tabelaKits.style.display = '';
-          if (!nomeKit) {
-            tbodyKits.innerHTML = '';
-            return;
-          }
-          try {
-            const tunnelUrl = window.TUNNEL_KITS_API_URL || 'http://localhost:5000/kits/itens';
-            const resp = await fetch(tunnelUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-              },
-              body: JSON.stringify({ nome_do_kit: nomeKit })
-            });
-            const data = await resp.json();
-            tbodyKits.innerHTML = '';
-            if (resp.ok && data.status === 'ok' && Array.isArray(data.itens)) {
-              for (const item of data.itens) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                  <td data-coluna="nome-do-kit">${nomeKit}</td>
-                  <td data-coluna="produto">${item.produto || ''}</td>
-                  <td data-coluna="quantidade">${item.quantidade || ''}</td>
-                  <td data-coluna="categoria">${item.categoria || ''}</td>
-                  <td data-coluna="observacao">${item.observacao || ''}</td>
-                  <td data-coluna="imagens">${item.imagem_base64 ? `<img src='data:image/png;base64,${item.imagem_base64}' style='max-width:60px;max-height:60px;object-fit:contain;display:block;margin:auto;cursor:pointer;' />` : ''}</td>
-                `;
-                tbodyKits.appendChild(row);
-              }
-            } else {
-              tbodyKits.innerHTML = '<tr><td colspan="6">Nenhum item encontrado para este kit.</td></tr>';
-            }
-          } catch (e) {
-            tbodyKits.innerHTML = '<tr><td colspan="6">Erro ao buscar itens do kit.</td></tr>';
-          }
-        };
-      }
-    } else {
-      formKits.style.display = 'none';
-      blocoProdutos.style.display = 'none';
-    }
-  }
-  if (selectBusca) {
-    selectBusca.addEventListener('change', alternarFormBuscaKits);
-    alternarFormBuscaKits();
-  }
-});
-document.getElementById('btn-baixar-tabela')?.addEventListener('click', function() {
-  console.log('[DEBUG] Botão "Baixar Tabela" clicado!');
-});
-//======================================================================================================
-// FUNÇÃO PRINCIPAL: Exportação de Tabela de Produtos
-// Exporta a tabela de produtos para um arquivo Excel (.xlsx) usando SheetJS, aplicando estilos e layout.
-//======================================================================================================
-function exportarTabelaProdutosParaExcel() {
-  if (typeof XLSX === 'undefined') {
-    alert('A biblioteca de exportação XLSX não foi carregada.');
-    return;
-  }
-  const tabela = document.getElementById('Lista-dos-produtos');
-  if (!tabela) {
-    alert('Tabela de produtos não encontrada!');
-    return;
-  }
-  // Coleta os cabeçalhos visíveis
-  const ths = tabela.querySelectorAll('thead th');
-  const headers = Array.from(ths).filter(th => th.offsetParent !== null).map(th => th.textContent.trim());
-  // Coleta as linhas visíveis do tbody
-  const trs = tabela.querySelectorAll('tbody tr');
-  const data = [];
-  trs.forEach(tr => {
-    if (tr.offsetParent === null) return;
-    const row = [];
-    Array.from(tr.children).forEach(td => {
-      if (td.offsetParent !== null) {
-        row.push(td.textContent.trim());
-      }
-    });
-    if (row.length > 0) data.push(row);
+function obterDadosRascunhoRetirada() {
+  const camposIds = [
+    'retirada-id',
+    'retirada-data',
+    'retirada-requisitante',
+    'retirada-responsavel',
+    'retirada-local',
+    'retirada-outro-local',
+    'retirada-finalidade',
+    'retirada-observacoes',
+  ];
+
+  const campos = {};
+  camposIds.forEach(id => {
+    const elemento = document.getElementById(id);
+    if (elemento) campos[id] = elemento.value;
   });
 
+  return {
+    campos,
+    itensHtml: document.getElementById('itens-retirada')?.innerHTML || '',
+  };
+}
+
+function salvarRascunhoRetirada() {
+  try {
+    localStorage.setItem(RASCUNHO_RETIRADA_KEY, JSON.stringify(obterDadosRascunhoRetirada()));
+  } catch (error) {
+    console.warn('Não foi possível salvar o rascunho da retirada:', error);
+  }
+}
+
+function limparRascunhoRetirada() {
+  try {
+    localStorage.removeItem(RASCUNHO_RETIRADA_KEY);
+  } catch (error) {
+    console.warn('Não foi possível limpar o rascunho da retirada:', error);
+  }
+}
+
+function carregarRascunhoRetirada() {
+  try {
+    const bruto = localStorage.getItem(RASCUNHO_RETIRADA_KEY);
+    if (!bruto) return false;
+
+    const rascunho = JSON.parse(bruto);
+    if (!rascunho || typeof rascunho !== 'object') return false;
+
+    Object.entries(rascunho.campos || {}).forEach(([id, valor]) => {
+      const elemento = document.getElementById(id);
+      if (elemento && typeof valor === 'string') {
+        elemento.value = valor;
+      }
+    });
+
+    const tabelaItens = document.getElementById('itens-retirada');
+    if (tabelaItens && typeof rascunho.itensHtml === 'string') {
+      tabelaItens.innerHTML = rascunho.itensHtml;
+    }
+
+    if (rascunho.campos?.['retirada-id']) {
+      idRetiradaGerado = rascunho.campos['retirada-id'];
+    }
+
+    return true;
+  } catch (error) {
+    console.warn('Não foi possível carregar o rascunho da retirada:', error);
+    return false;
+  }
+}
+
+function exportarTabelaProdutosParaExcel() {
 
   const aoa = [];
   aoa.push([]); // Linha 1 vazia
@@ -300,42 +250,85 @@ function exportarTabelaProdutosParaExcel() {
 document.getElementById('btn-baixar-tabela')?.addEventListener('click', function() {
   exportarTabelaProdutosParaExcel();
 });
-// Exibe ou oculta os elementos da "aba produtos" conforme o tipo de busca selecionado
+// Controla qual bloco de busca é exibido conforme o tipo selecionado
 document.addEventListener('DOMContentLoaded', function() {
-  var selectTipoBusca = document.getElementById('tipo-busca');
-  var blocoProdutos = document.getElementById('produtos-bloco-busca');
-  var tabelaProdutos = document.getElementById('produtos-tabela-bloco');
-  function atualizarVisibilidadeProdutos() {
-    if (selectTipoBusca && blocoProdutos && tabelaProdutos) {
-      if (selectTipoBusca.value === 'produtos') {
-        blocoProdutos.style.display = 'flex';
-        tabelaProdutos.style.display = '';
-      } else {
-        blocoProdutos.style.display = 'none';
-        tabelaProdutos.style.display = 'none';
-      }
+  const selectTipoBusca = document.getElementById('tipo-busca');
+
+  // Mapa: valor do select → ID do bloco
+  const blocosBusca = {
+    produtos:      'busca-bloco-produtos',
+    kits:          'busca-bloco-kits',
+    retiradas:     'busca-bloco-retiradas',
+    devolucoes:    'busca-bloco-devolucoes',
+    fornecedores:  'busca-bloco-fornecedores',
+    requisitantes: 'busca-bloco-requisitantes',
+  };
+
+  function mostrarBlocoAtivo(tipo) {
+    // Oculta todos os blocos
+    Object.values(blocosBusca).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    // Exibe o bloco do tipo selecionado
+    const blocoId = blocosBusca[tipo];
+    const blocoAtivo = blocoId ? document.getElementById(blocoId) : null;
+    if (blocoAtivo) blocoAtivo.style.display = 'block';
+  }
+
+  function carregarDadosTipo(tipo) {
+    switch(tipo) {
+      case 'produtos':
+        if (typeof carregarTodosProdutos === 'function') carregarTodosProdutos();
+        break;
+      case 'kits':
+        if (typeof carregarTodosKits === 'function') carregarTodosKits();
+        break;
+      case 'retiradas':
+        if (typeof carregarTodasRetiradas === 'function') carregarTodasRetiradas();
+        break;
+      case 'devolucoes':
+        if (typeof carregarTodasDevolucoes === 'function') carregarTodasDevolucoes();
+        break;
+      case 'fornecedores':
+        if (typeof carregarTodosFornecedores === 'function') carregarTodosFornecedores();
+        break;
+      case 'requisitantes':
+        if (typeof carregarTodosRequisitantes === 'function') carregarTodosRequisitantes();
+        break;
     }
   }
-  if (selectTipoBusca) {
-    selectTipoBusca.addEventListener('change', atualizarVisibilidadeProdutos);
-    atualizarVisibilidadeProdutos();
+
+  function atualizarBusca() {
+    if (!selectTipoBusca) return;
+    const tipo = selectTipoBusca.value;
+    mostrarBlocoAtivo(tipo);
+    carregarDadosTipo(tipo);
   }
+
+  if (selectTipoBusca) {
+    selectTipoBusca.addEventListener('change', atualizarBusca);
+    atualizarBusca(); // Executa ao carregar para exibir o bloco inicial
+  }
+
+  // Filtros em tempo real para Retiradas
+  document.getElementById('filtro-retirada-requisitante')?.addEventListener('input', () => filtrarTabelaGenerica('tabela-retiradas-lista'));
+  document.getElementById('filtro-retirada-produto')?.addEventListener('input', () => filtrarTabelaGenerica('tabela-retiradas-lista'));
+
+  // Filtros em tempo real para Devoluções
+  document.getElementById('filtro-devolucao-requisitante')?.addEventListener('input', () => filtrarTabelaGenerica('tabela-devolucoes-lista'));
+  document.getElementById('filtro-devolucao-produto')?.addEventListener('input', () => filtrarTabelaGenerica('tabela-devolucoes-lista'));
+
+  // Filtros em tempo real para Fornecedores
+  document.getElementById('filtro-fornecedor-nome')?.addEventListener('input', () => filtrarTabelaGenerica('tabela-fornecedores-lista'));
+
+  // Filtros em tempo real para Requisitantes
+  document.getElementById('filtro-requisitante-nome')?.addEventListener('input', () => filtrarTabelaGenerica('tabela-requisitantes-lista'));
 });
 document.addEventListener('DOMContentLoaded', function () {
   // Carrega o datalist de IDs de retirada para o input de devolução
   carregarDatalistRetiradas();
-  // Definir a URL base do túnel para todas as requisições de API
-  if (!window.TUNNEL_API_URL) {
-    window.TUNNEL_API_URL = 'https://api.exksvol.website/';
-  }
-  // Função auxiliar para montar URLs de API
-  function apiUrl(path) {
-    let base = window.TUNNEL_API_URL;
-    if (!base.endsWith('/')) base += '/';
-    if (path.startsWith('/')) path = path.slice(1);
-    return base + path;
-  }
-
 
   // Código existente do almoxarifado.js
   const sidebarContent = document.getElementById('sidebar-content'); 
@@ -404,6 +397,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Gera o HTML do preview do cupom a partir dos campos e itens informados.
   //======================================================================================================
   function gerarHtmlPreviewCupom(campos, itensHtml) {
+    const qrRetiradaUrl = campos.id && campos.id !== '-'
+      ? `https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(`ID: ${campos.id}`)}`
+      : '';
+
     return `
       <div style="margin-bottom: 16px;">
         <h4 style="margin-bottom: 8px;">Nota de Retirada</h4>
@@ -441,6 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <span style="font-size: 12px; color: #888;">Assinatura do Requisitante</span>
             <div style="border-top:1px dashed #bbb; margin-top:8px; font-size:11px; text-align:center;">
             <br>Retirada registrada
+            ${qrRetiradaUrl ? `<div style="margin-top: 10px;"><img src="${qrRetiradaUrl}" alt="QR Code da retirada" style="width: 110px; height: 110px; display: block; margin: 0 auto;" /></div>` : ''}
           </div>
           </div>
         </div>
@@ -476,20 +474,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Adiciona eventos para atualizar o preview ao alterar os campos
   const camposParaMonitorar = [
+    'retirada-id',
     'retirada-data',
     'retirada-requisitante',
     'retirada-responsavel',
     'retirada-observacoes',
     'retirada-finalidade',
     'retirada-local',
-    'retirada-outro-local'
+    'retirada-outro-local',
+    'retirada-produto',
+    'retirada-quantidade'
   ];
 
   camposParaMonitorar.forEach(campoId => {
     const campo = document.getElementById(campoId);
     if (campo) {
-      campo.addEventListener('input', atualizarPreviewCupom);
-      campo.addEventListener('change', atualizarPreviewCupom);
+      campo.addEventListener('input', () => {
+        atualizarPreviewCupom();
+        salvarRascunhoRetirada();
+      });
+      campo.addEventListener('change', () => {
+        atualizarPreviewCupom();
+        salvarRascunhoRetirada();
+      });
     }
   });
 
@@ -529,6 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Atualiza o preview no painel lateral
       atualizarPreviewCupom();
+      salvarRascunhoRetirada();
     });
   }
 
@@ -537,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.target.classList.contains('remover-item')) {
       e.target.closest('tr').remove();
       atualizarPreviewCupom();
+      salvarRascunhoRetirada();
     }
     if (e.target.classList.contains('editar-item')) {
       const row = e.target.closest('tr');
@@ -544,6 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('retirada-quantidade').value = row.cells[1].textContent;
       row.remove();
       atualizarPreviewCupom();
+      salvarRascunhoRetirada();
     }
   });
 
@@ -564,8 +574,157 @@ document.addEventListener('DOMContentLoaded', function () {
   // Atualiza o preview ao carregar a página
   atualizarPreviewCupom();
 
+  // Função para carregar TODOS os produtos do banco
+  async function carregarTodosProdutos() {
+    try {
+      const response = await fetch(apiUrl('produtos/consultar'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+        },
+        body: JSON.stringify({
+          nome_produto_consulta: '',
+          codigo_produto_consulta: '',
+          categoria_produto_consulta: '',
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.status === 'ok') {
+        const tabelaProdutos = document.querySelector('#Lista-dos-produtos tbody');
+        tabelaProdutos.innerHTML = '';
+        data.produtos.forEach(produto => {
+          const row = document.createElement('tr');
+          function colunaVisivel(coluna) {
+            const grupo = getGrupoColunasAtivo();
+            if (!grupo.checkboxes || !grupo.checkboxes.length) return true;
+            const checkbox = Array.from(grupo.checkboxes).find(cb => cb.value === coluna);
+            return checkbox ? checkbox.checked : true;
+          }
+          if (colunaVisivel('id')) row.innerHTML += `<td data-coluna="id">${produto.id}</td>`;
+          if (colunaVisivel('nome-produto')) row.innerHTML += `<td data-coluna="nome-produto">${produto.nome_produto}</td>`;
+          if (colunaVisivel('codigo')) row.innerHTML += `<td data-coluna="codigo">${produto.codigo || ''}</td>`;
+          if (colunaVisivel('marca')) row.innerHTML += `<td data-coluna="marca">${produto.marca || ''}</td>`;
+          if (colunaVisivel('categoria')) row.innerHTML += `<td data-coluna="categoria">${produto.categoria || ''}</td>`;
+          if (colunaVisivel('unidade-medida')) row.innerHTML += `<td data-coluna="unidade-medida">${produto.unidade_medida || ''}</td>`;
+          if (colunaVisivel('numero-serie')) row.innerHTML += `<td data-coluna="numero-serie">${produto.numero_serie || ''}</td>`;
+          if (colunaVisivel('patrimonio')) row.innerHTML += `<td data-coluna="patrimonio">${produto.patrimonio || ''}</td>`;
+          if (colunaVisivel('local')) row.innerHTML += `<td data-coluna="local">${produto.local || ''}</td>`;
+          if (colunaVisivel('estoque')) row.innerHTML += `<td data-coluna="estoque">${produto.estoque || ''}</td>`;
+          if (colunaVisivel('quantidade')) row.innerHTML += `<td data-coluna="quantidade">${produto.quantidade || ''}</td>`;
+          if (colunaVisivel('estoque-minimo')) row.innerHTML += `<td data-coluna="estoque-minimo">${produto.estoque_minimo || ''}</td>`;
+          if (colunaVisivel('custo')) row.innerHTML += `<td data-coluna="custo">${produto.custo || ''}</td>`;
+          if (colunaVisivel('data-compra')) row.innerHTML += `<td data-coluna="data-compra">${produto.data_compra || ''}</td>`;
+          if (colunaVisivel('numero-nota')) row.innerHTML += `<td data-coluna="numero-nota">${produto.numero_nota || ''}</td>`;
+          if (colunaVisivel('fornecedor')) row.innerHTML += `<td data-coluna="fornecedor">${produto.fornecedor || ''}</td>`;
+          if (colunaVisivel('data-validade')) row.innerHTML += `<td data-coluna="data-validade">${produto.data_validade || ''}</td>`;
+          if (colunaVisivel('termino-garantia')) row.innerHTML += `<td data-coluna="termino-garantia">${produto.termino_garantia || ''}</td>`;
+          if (colunaVisivel('outras-informacoes')) row.innerHTML += `<td data-coluna="outras-informacoes">${produto.outras_informacoes || ''}</td>`;
+          if (colunaVisivel('imagem')) row.innerHTML += `<td data-coluna="imagem">${produto.imagem_base64 ? `<img src='data:image/png;base64,${produto.imagem_base64}' style='max-width:60px;max-height:60px;object-fit:contain;display:block;margin:auto;cursor:pointer;' />` : ''}</td>`;
+          tabelaProdutos.appendChild(row);
+        });
+        // Exibe a tabela de produtos
+        document.getElementById('produtos-tabela-bloco').style.display = '';
+        // Aplica qualquer filtro que esteja nos campos
+        filtrarTabelaProdutos();
+      } else {
+        console.error('Erro ao buscar produtos:', data.mensagem);
+      }
+    } catch (error) {
+      console.error('Erro ao conectar ao servidor:', error);
+    }
+  }
+
+  // ===== FILTRO GENÉRICO PARA QUALQUER TABELA =====
+  // Filtra as linhas de uma tabela pelo texto digitado nos campos do bloco visível
+  // tabelaId: ID da <table>
+  function filtrarTabelaGenerica(tabelaId) {
+    const tbody = document.querySelector(`#${tabelaId} tbody`);
+    if (!tbody) return;
+
+    // Descobre o bloco pai da tabela para limitar os filtros ao bloco ativo
+    const tabela = document.getElementById(tabelaId);
+    const bloco = tabela ? tabela.closest('.busca-bloco') : null;
+
+    // Coleta os valores dos inputs de filtro do bloco ativo
+    const filtros = [];
+    if (bloco) {
+      bloco.querySelectorAll('input[id^="filtro-"]').forEach(input => {
+        const val = input.value?.trim().toLowerCase();
+        if (val) {
+          const partes = input.id.split('-');
+          const coluna = partes[partes.length - 1];
+          filtros.push({ coluna, val });
+        }
+      });
+    }
+
+    tbody.querySelectorAll('tr').forEach(linha => {
+      const passa = filtros.every(({ coluna, val }) => {
+        const cell = linha.querySelector(`[data-coluna="${coluna}"]`);
+        return !cell || cell.textContent.trim().toLowerCase().includes(val);
+      });
+      linha.style.display = passa ? '' : 'none';
+    });
+  }
+
+  // ===== FILTRO EM TEMPO REAL NA TABELA DE PRODUTOS =====
+  // Função para filtrar a tabela conforme o usuário digita nos campos
+  function filtrarTabelaProdutos() {
+    const nomeFiltro = document.getElementById('nome-produto-consulta')?.value.trim().toLowerCase() || '';
+    const codigoFiltro = document.getElementById('codigo-produto-consulta')?.value.trim().toLowerCase() || '';
+    const categoriaFiltro = document.getElementById('categoria-produto-consulta')?.value.toLowerCase() || '';
+    
+    const tabelaProdutos = document.querySelector('#Lista-dos-produtos tbody');
+    if (!tabelaProdutos) return;
+    
+    const linhas = tabelaProdutos.querySelectorAll('tr');
+    let totalVisivel = 0;
+    
+    linhas.forEach(linha => {
+      const id = linha.querySelector('[data-coluna="id"]')?.textContent.trim().toLowerCase() || '';
+      const nome = linha.querySelector('[data-coluna="nome-produto"]')?.textContent.trim().toLowerCase() || '';
+      const codigo = linha.querySelector('[data-coluna="codigo"]')?.textContent.trim().toLowerCase() || '';
+      const categoria = linha.querySelector('[data-coluna="categoria"]')?.textContent.trim().toLowerCase() || '';
+      
+      // Verifica se a linha corresponde a TODOS os filtros preenchidos
+      const passaNome = !nomeFiltro || nome.includes(nomeFiltro);
+      const passaCodigo = !codigoFiltro || codigo.includes(codigoFiltro);
+      const passaCategoria = !categoriaFiltro || categoria === categoriaFiltro || categoriaFiltro === '';
+      
+      const correspondente = passaNome && passaCodigo && passaCategoria;
+      
+      if (correspondente) {
+        linha.style.display = '';
+        totalVisivel++;
+      } else {
+        linha.style.display = 'none';
+      }
+    });
+    
+    // Se nenhuma linha corresponder, mostra mensagem
+    if (totalVisivel === 0 && (nomeFiltro || codigoFiltro || categoriaFiltro)) {
+      const mensagem = document.getElementById('mensagem-filtro-vazio') || document.createElement('div');
+      if (!document.getElementById('mensagem-filtro-vazio')) {
+        mensagem.id = 'mensagem-filtro-vazio';
+        mensagem.style.cssText = 'text-align: center; padding: 20px; color: #888; font-style: italic;';
+        tabelaProdutos.parentElement.appendChild(mensagem);
+      }
+      mensagem.textContent = 'Nenhum produto encontrado com esses filtros.';
+      mensagem.style.display = 'block';
+    } else {
+      const mensagem = document.getElementById('mensagem-filtro-vazio');
+      if (mensagem) mensagem.style.display = 'none';
+    }
+  }
+
+  // Adiciona listeners aos campos de filtro para filtrar em tempo real
+  document.getElementById('nome-produto-consulta')?.addEventListener('input', filtrarTabelaProdutos);
+  document.getElementById('codigo-produto-consulta')?.addEventListener('input', filtrarTabelaProdutos);
+  document.getElementById('categoria-produto-consulta')?.addEventListener('change', filtrarTabelaProdutos);
+
   // Lógica unificada de busca para o formulário principal
-  const formBusca = document.getElementById('form-busca');
+  const formBusca = document.getElementById('form-busca') || document.getElementById('form-produtos-consulta');
   if (formBusca) {
     formBusca.addEventListener('submit', async function (event) {
       event.preventDefault();
@@ -624,6 +783,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             // Exibe a tabela de produtos
             document.getElementById('produtos-tabela-bloco').style.display = '';
+            // Aplica qualquer filtro que esteja nos campos
+            filtrarTabelaProdutos();
           } else {
             alert('Erro ao buscar produtos: ' + data.mensagem);
           }
@@ -1201,6 +1362,14 @@ function formatarDataParaInput(data) {
 // Esta função trata a exclusão de um produto selecionado na tabela, realizando a confirmação,
 // chamada à API e remoção da linha correspondente em caso de sucesso.
 //======================================================================================================
+
+
+
+//======================================================================================================
+// FUNÇÃO PRINCIPAL: Exclusão de Produto
+// Esta função trata a exclusão de um produto selecionado na tabela, realizando a confirmação,
+// chamada à API e remoção da linha correspondente em caso de sucesso.
+//======================================================================================================
 async function excluirProduto(row, cells) {
   // Extrai o ID corretamente da primeira célula
   const produtoId = cells[0]?.textContent?.trim();
@@ -1428,7 +1597,9 @@ async function enviarRetirada() {
 
   const todasAbas = document.querySelectorAll('.tab-content'); 
   const todosBotoes = document.querySelectorAll('.top-tab2'); 
-  
+
+
+ 
   todosBotoes.forEach(botao => botao.classList.remove('active'));
 
    // ------------ evento abertura aba Entrada ------------
@@ -1920,7 +2091,7 @@ document.getElementById("btn-novoProduto").addEventListener("click", async funct
       // Adiciona o ID do produto ao objeto
       produto.id = produtoIdEdicao;
       
-      response = await fetch(`https://api.exksvol.website/produtos/atualizar/${produtoIdEdicao}`, {
+      response = await fetch(apiUrl(`/produtos/atualizar/${produtoIdEdicao}`), {
         method: "PUT", // ✅ PUT para atualizar
         headers: {
           "Content-Type": "application/json",
@@ -1935,7 +2106,7 @@ document.getElementById("btn-novoProduto").addEventListener("click", async funct
       // ===== MODO CRIAÇÃO =====
       console.log('🔄 Enviando criação de novo produto...');
       
-      response = await fetch("https://api.exksvol.website/produtos/salvar", {
+      response = await fetch(apiUrl("/produtos/salvar"), {
         method: "POST", // ✅ POST para criar
         headers: {
           "Content-Type": "application/json",
@@ -1953,7 +2124,7 @@ document.getElementById("btn-novoProduto").addEventListener("click", async funct
       alert(mensagemSucesso);
       
       // Limpa os campos do formulário
-      document.getElementById("form-produtos").reset();
+      document.getElementById("form-cadastro-produto").reset();
       
       // Remove o campo de edição e restaura o botão
       const campoEdicao = document.getElementById('produto-id-edicao');
@@ -2143,6 +2314,48 @@ formOutros.addEventListener("submit", function (event) {
   camposDinamicos.innerHTML = "";
 });
 
+  // ===== GERADOR DE CHECKBOXES PARA COLUNAS DE PRODUTOS =====
+  const colunasProdutos = [
+    { id: 'id', label: 'ID' },
+    { id: 'nome-produto', label: 'Nome do Produto' },
+    { id: 'codigo', label: 'Código' },
+    { id: 'marca', label: 'Marca' },
+    { id: 'categoria', label: 'Categoria' },
+    { id: 'unidade-medida', label: 'Unidade de Medida' },
+    { id: 'numero-serie', label: 'Número de Série' },
+    { id: 'patrimonio', label: 'Patrimônio' },
+    { id: 'local', label: 'Local' },
+    { id: 'estoque', label: 'Estoque' },
+    { id: 'quantidade', label: 'Quantidade' },
+    { id: 'estoque-minimo', label: 'Estoque Mínimo' },
+    { id: 'custo', label: 'Custo' },
+    { id: 'data-compra', label: 'Data de Compra' },
+    { id: 'numero-nota', label: 'Número da Nota' },
+    { id: 'fornecedor', label: 'Fornecedor' },
+    { id: 'data-validade', label: 'Data de Validade' },
+    { id: 'termino-garantia', label: 'Término da Garantia' },
+    { id: 'outras-informacoes', label: 'Outras Informações' },
+    { id: 'imagem', label: 'Imagem' }
+  ];
+
+  // Função para montar os checkboxes de colunas de produtos
+  function montarColunasSelector() {
+    const container = document.getElementById('colunas-visiveis-busca');
+    if (!container) return;
+    container.innerHTML = '';
+    colunasProdutos.forEach(col => {
+      const label = document.createElement('label');
+      label.style.marginRight = '12px';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = col.id;
+      checkbox.checked = true; // Marca todas como visíveis por padrão
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(' ' + col.label));
+      container.appendChild(label);
+    });
+  }
+
   // Função utilitária para obter o grupo correto de checkboxes conforme a aba ativa
   function getGrupoColunasAtivo() {
     // Verifica se a aba Busca está ativa
@@ -2169,22 +2382,28 @@ formOutros.addEventListener("submit", function (event) {
   function inicializarColunasVisiveis() {
     const grupo = getGrupoColunasAtivo();
     if (!grupo.toggleBtn || !grupo.colunasDiv) return;
-    grupo.colunasDiv.style.display = "none";
-    grupo.toggleBtn.textContent = "▼ Escolha as colunas a serem exibidas";
+    
+    // Remove o painel ao iniciar
+    grupo.colunasDiv.parentElement.classList.remove('ativo');
+    grupo.toggleBtn.classList.remove('ativo');
 
-    grupo.toggleBtn.addEventListener("click", function () {
-      const displayAtual = window.getComputedStyle(grupo.colunasDiv).display;
-      if (displayAtual === "none") {
-        grupo.colunasDiv.style.display = "block";
-        grupo.toggleBtn.textContent = "▲ Recolher opções";
+    grupo.toggleBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const container = grupo.colunasDiv.parentElement;
+      
+      // Toggle da classe 'ativo'
+      if (container.classList.contains('ativo')) {
+        container.classList.remove('ativo');
+        grupo.toggleBtn.classList.remove('ativo');
       } else {
-        grupo.colunasDiv.style.display = "none";
-        grupo.toggleBtn.textContent = "▼ Escolha as colunas a serem exibidas";
+        container.classList.add('ativo');
+        grupo.toggleBtn.classList.add('ativo');
       }
     });
   }
 
   // Chama ao carregar a página e ao trocar de aba
+  montarColunasSelector(); // Cria os checkboxes de colunas de produtos
   inicializarColunasVisiveis();
   // Se você já tem um listener de troca de abas, chame inicializarColunasVisiveis() dentro dele também
 
@@ -2234,12 +2453,45 @@ formOutros.addEventListener("submit", function (event) {
     if (abaTabela) abaTabela.style.display = algumaColunaVisivel ? '' : 'none';
   }
 
+  // ===== FUNÇÕES PARA SALVAR/CARREGAR PREFERÊNCIAS DE COLUNAS NO LOCALSTORAGE =====
+  
+  // Salva quais colunas devem ser exibidas no localStorage
+  function salvarPreferenciaColunas() {
+    const grupo = getGrupoColunasAtivo();
+    const colunasSelecionadas = {};
+    grupo.checkboxes.forEach(checkbox => {
+      colunasSelecionadas[checkbox.value] = checkbox.checked;
+    });
+    const abaBuscaAtiva = document.getElementById('busca')?.classList.contains('active');
+    const chaveArmazenamento = abaBuscaAtiva ? 'coluna-visiveis-busca' : 'coluna-visiveis-produtos';
+    localStorage.setItem(chaveArmazenamento, JSON.stringify(colunasSelecionadas));
+  }
+
+  // Carrega as preferências de colunas do localStorage
+  function carregarPreferenciaColunas() {
+    const grupo = getGrupoColunasAtivo();
+    const abaBuscaAtiva = document.getElementById('busca')?.classList.contains('active');
+    const chaveArmazenamento = abaBuscaAtiva ? 'coluna-visiveis-busca' : 'coluna-visiveis-produtos';
+    const preferencias = localStorage.getItem(chaveArmazenamento);
+    
+    if (preferencias) {
+      const colunasSelecionadas = JSON.parse(preferencias);
+      grupo.checkboxes.forEach(checkbox => {
+        // Se existe preferência, usa ela; se não, mantém o padrão do checkbox
+        if (colunasSelecionadas.hasOwnProperty(checkbox.value)) {
+          checkbox.checked = colunasSelecionadas[checkbox.value];
+        }
+      });
+    }
+  }
+
   // Função para adicionar listeners aos checkboxes do grupo ativo
   function adicionarListenersCheckboxes() {
     const grupo = getGrupoColunasAtivo();
     const tabela = document.getElementById('Lista-dos-produtos');
     grupo.checkboxes.forEach(checkbox => {
       checkbox.addEventListener("change", function() {
+        salvarPreferenciaColunas(); // Salva ao mudar qualquer checkbox
         atualizarColunas();
         if (tabela && tabela.style.display === "none") {
           const abaTabela = document.getElementById('aba-tabela-produtos') || document.querySelector('.tab-content.tabela-produtos');
@@ -2253,21 +2505,34 @@ formOutros.addEventListener("submit", function (event) {
   }
 
   // Adiciona listeners ao carregar a página
+  carregarPreferenciaColunas(); // Carrega preferências antes de tudo
   adicionarListenersCheckboxes();
 
   // Adiciona listeners ao trocar de aba (reexecuta para o grupo correto)
   document.querySelectorAll('.tab-btn, .top-tab, .top-tab2').forEach(btn => {
     btn.addEventListener('click', () => {
       setTimeout(() => {
+        carregarPreferenciaColunas(); // Carrega preferências da aba ativa
         inicializarColunasVisiveis();
         adicionarListenersCheckboxes();
         atualizarColunas();
+        
+        // Carrega todos os produtos se a aba "Busca" for ativada
+        if (btn.getAttribute('data-tab') === 'busca') {
+          carregarTodosProdutos();
+        }
       }, 100);
     });
   });
 
   // Atualizar colunas ao carregar a página
   atualizarColunas();
+  
+  // Carrega produtos na aba de busca se ela estiver ativa ao carregar a página
+  const abaBuscaAtiva = document.getElementById('busca')?.classList.contains('active');
+  if (abaBuscaAtiva) {
+    carregarTodosProdutos();
+  }
 
   function adicionarLinhaTabela(dados) {
     const tabelaBody = document.querySelector("#Lista-dos-produtos tbody");
@@ -2423,7 +2688,7 @@ formOutros.addEventListener("submit", function (event) {
     const itens = [];
 
     linhas.forEach((linha, index) => {
-      const celulas = linha.cells;
+      const celulas = linha.querySelectorAll('td');
       if (celulas.length >= 5) {
         const produto = celulas[0]?.textContent?.trim() || '';
         const quantidade = celulas[1]?.textContent?.trim() || '1';
@@ -2450,7 +2715,7 @@ formOutros.addEventListener("submit", function (event) {
   async function consultarEstoqueProduto(nomeProduto) {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://api.exksvol.website/produtos/estoque', {
+      const response = await fetch(apiUrl('/produtos/estoque'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2575,7 +2840,7 @@ formOutros.addEventListener("submit", function (event) {
         return false;
       }
 
-      const response = await fetch('https://api.exksvol.website/retiradas/salvar', {
+      const response = await fetch(apiUrl('/retiradas/salvar'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2620,20 +2885,19 @@ formOutros.addEventListener("submit", function (event) {
       const campoRequisitante = document.getElementById('retirada-requisitante');
       if (campoRequisitante) campoRequisitante.value = '';
       atualizarPreviewCupom();
+      salvarRascunhoRetirada();
       // Gera novo ID de retirada e preenche o campo
       setTimeout(() => {
-        // Gera novo ID manualmente e preenche o campo
         const campoId = document.getElementById('retirada-id');
         if (campoId && typeof gerarIdRetirada8Digitos === 'function') {
           const novoId = gerarIdRetirada8Digitos();
           campoId.value = novoId;
-          // Atualiza variável global se necessário
           if (typeof idRetiradaGerado !== 'undefined') {
             idRetiradaGerado = novoId;
           }
+          salvarRascunhoRetirada();
         }
       }, 100);
-      atualizarPreviewCupom();
     } else {
       alert(
         `Processamento parcial!\n\n` +
@@ -2678,6 +2942,11 @@ formOutros.addEventListener("submit", function (event) {
       return;
     }
 
+    const rascunhoCarregado = carregarRascunhoRetirada();
+    if (!rascunhoCarregado) {
+      carregarIdRetiradaAoIniciar();
+    }
+
     if (btnFinalizarRetirada) {
       btnFinalizarRetirada.addEventListener('click', finalizarRetiradaAdaptada);
     }
@@ -2690,7 +2959,10 @@ formOutros.addEventListener("submit", function (event) {
     }, 500);
     
     // Preenche data inicial
-    setTimeout(preencherDataRetirada, 1000);
+    setTimeout(() => {
+      preencherDataRetirada();
+      salvarRascunhoRetirada();
+    }, 1000);
   }
 
   // Inicializa o sistema de retirada
@@ -2720,7 +2992,7 @@ async function buscarDevolucoesPorId() {
 
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+    const response = await fetch(apiUrl('/retiradas/por-id'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2801,7 +3073,7 @@ document.getElementById('btn-adicionar-item-devolucao')?.addEventListener('click
   // Busca os itens da retirada no backend para validar o produto
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+    const response = await fetch(apiUrl('/retiradas/por-id'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2877,7 +3149,7 @@ document.getElementById('btn-registro-devolucao')?.addEventListener('click', asy
 
   // Busca os itens da retirada no backend
   const token = localStorage.getItem('token');
-  const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+  const response = await fetch(apiUrl('/retiradas/por-id'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -2930,7 +3202,7 @@ document.getElementById('btn-registro-devolucao')?.addEventListener('click', asy
   const data = new Date().toISOString();
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch('https://api.exksvol.website/devolucao/salvar', {
+    const response = await fetch(apiUrl('/devolucao/salvar'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2980,7 +3252,7 @@ document.getElementById('devolucao-id')?.addEventListener('blur', async function
   if (!idRetirada) return;
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch('https://api.exksvol.website/retiradas/por-id', {
+    const response = await fetch(apiUrl('/retiradas/por-id'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -3041,7 +3313,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         // Envia para o backend
         const token = localStorage.getItem('token');
-        const response = await fetch('https://api.exksvol.website/kits/salvar', {
+        const response = await fetch(apiUrl('/kits/salvar'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3112,9 +3384,6 @@ document.addEventListener('DOMContentLoaded', function () {
           valoresCampos[campo.id] = el.value.trim();
           if (campo.obrigatorio && !el.value.trim()) {
             camposInvalidos.push(campo.id);
-            el.style.borderColor = '#dc3545';
-          } else if (el) {
-            el.style.borderColor = '';
           }
         }
       });
@@ -3219,11 +3488,41 @@ function montarColunasKitsSelector() {
     checkbox.type = 'checkbox';
     checkbox.value = col.id;
     checkbox.checked = true;
-    checkbox.addEventListener('change', atualizarColunasKits);
+    // Adiciona listener para salvar preferências
+    checkbox.addEventListener('change', function() {
+      salvarPreferenciaColunasKits();
+      atualizarColunasKits();
+    });
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(' ' + col.label));
     container.appendChild(label);
   });
+  // Carrega preferências salvas
+  carregarPreferenciaColunasKits();
+}
+
+// Salva preferências de colunas de kits
+function salvarPreferenciaColunasKits() {
+  const checkboxes = document.querySelectorAll('#colunas-visiveis-kits input[type="checkbox"]');
+  const colunasSelecionadas = {};
+  checkboxes.forEach(checkbox => {
+    colunasSelecionadas[checkbox.value] = checkbox.checked;
+  });
+  localStorage.setItem('coluna-visiveis-kits', JSON.stringify(colunasSelecionadas));
+}
+
+// Carrega preferências de colunas de kits
+function carregarPreferenciaColunasKits() {
+  const preferencias = localStorage.getItem('coluna-visiveis-kits');
+  if (preferencias) {
+    const colunasSelecionadas = JSON.parse(preferencias);
+    const checkboxes = document.querySelectorAll('#colunas-visiveis-kits input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      if (colunasSelecionadas.hasOwnProperty(checkbox.value)) {
+        checkbox.checked = colunasSelecionadas[checkbox.value];
+      }
+    });
+  }
 }
 
 // Função para atualizar a visibilidade das colunas da tabela de kits
@@ -3255,11 +3554,509 @@ function atualizarColunasKits() {
   });
 }
 
+// ===== CARREGAR TODOS OS KITS =====
+async function carregarTodosKits() {
+  const tabelaKits = document.querySelector('#tabela-kits-lista tbody');
+  if (!tabelaKits) return;
+
+  tabelaKits.innerHTML = '';
+
+  try {
+    // 1) Busca a lista de nomes de kits
+    const nomesResp = await fetch(apiUrl('kits/sugestoes-nomes'), {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
+    if (!nomesResp.ok) {
+      throw new Error(`Falha ao listar nomes de kits (${nomesResp.status})`);
+    }
+
+    const nomesData = await nomesResp.json();
+    const nomesKits = Array.isArray(nomesData?.nomes)
+      ? nomesData.nomes.map(n => n?.nome_do_kit).filter(Boolean)
+      : [];
+
+    // 2) Para cada nome de kit, busca os itens em /kits/itens
+    for (const nomeKit of nomesKits) {
+      const itensResp = await fetch(apiUrl('kits/itens'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ nome_do_kit: nomeKit }),
+      });
+
+      if (!itensResp.ok) {
+        continue;
+      }
+
+      const itensData = await itensResp.json();
+      const itens = Array.isArray(itensData?.itens) ? itensData.itens : [];
+
+      itens.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-coluna="nome-do-kit">${nomeKit}</td>
+          <td data-coluna="produto">${item.produto || item.nome_produto || ''}</td>
+          <td data-coluna="quantidade">${item.quantidade || ''}</td>
+          <td data-coluna="categoria">${item.categoria || ''}</td>
+          <td data-coluna="observacao">${item.observacao || ''}</td>
+          <td data-coluna="imagens">${item.imagem_base64 ? `<img src='data:image/png;base64,${item.imagem_base64}' style='max-width:60px;max-height:60px;object-fit:contain;display:block;margin:auto;cursor:pointer;' />` : ''}</td>
+        `;
+        tabelaKits.appendChild(row);
+      });
+    }
+
+    // Aplica filtro se houver algum texto no campo de busca
+    filtrarTabelaKits();
+  } catch (error) {
+    console.error('Erro ao carregar kits:', error);
+    // Mantém a UI estável em caso de erro de rede/CORS
+    tabelaKits.innerHTML = '';
+  }
+}
+
+// Adiciona listener ao dropdown para carregar dados quando selecionado
+document.getElementById('tipo-busca')?.addEventListener('change', function() {
+  if (this.value === 'kits') {
+    carregarTodosKits();
+  } else if (this.value === 'retiradas') {
+    carregarTodasRetiradas();
+  } else if (this.value === 'devolucoes') {
+    carregarTodasDevolucoes();
+  } else if (this.value === 'fornecedores') {
+    carregarTodosFornecedores();
+  }
+});
+
+// ===== CARREGAR TODAS AS RETIRADAS =====
+async function carregarTodasRetiradas() {
+  try {
+    const response = await fetch(apiUrl('retiradas/listar'), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    });
+    const data = await response.json();
+    const tbody = document.querySelector('#tabela-retiradas-lista tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const lista = (response.ok && (data.retiradas || data.itens || data.data || data)) || [];
+    const items = Array.isArray(lista) ? lista : (Array.isArray(lista.retiradas) ? lista.retiradas : []);
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      const idRetirada = item.id_retirada || item.id || '';
+      row.innerHTML = `
+        <td data-coluna="id">${item.id || ''}</td>
+        <td data-coluna="data">${item.data || item.data_retirada || ''}</td>
+        <td data-coluna="requisitante">${item.requisitante || item.nome_requisitante || ''}</td>
+        <td data-coluna="produto">${item.produto || item.nome_produto || ''}</td>
+        <td data-coluna="quantidade">${item.quantidade || ''}</td>
+        <td data-coluna="local">${item.local || ''}</td>
+        <td data-coluna="observacao">${item.observacao || ''}</td>
+        <td data-coluna="acao" style="text-align: center;">
+          <button class="btn-retirada-acao" data-id-retirada="${escapeHtml(idRetirada)}" style="
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+          ">
+            📤 Retirada
+          </button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+    
+    // Adiciona listeners aos botões de retirada
+    document.querySelectorAll('.btn-retirada-acao').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const idRetirada = this.getAttribute('data-id-retirada');
+        processarRetiradaCompleta(idRetirada);
+      });
+      // Hover effect
+      btn.addEventListener('mouseenter', function() {
+        this.style.background = '#218838';
+      });
+      btn.addEventListener('mouseleave', function() {
+        this.style.background = '#28a745';
+      });
+    });
+  } catch (error) {
+    console.error('Erro ao carregar retiradas:', error);
+  }
+}
+
+// ===== PROCESSAR RETIRADA COMPLETA =====
+async function processarRetiradaCompleta(idRetirada) {
+  try {
+    // Busca todos os itens com este ID de retirada
+    const response = await fetch(apiUrl('retiradas/listar'), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    });
+    const data = await response.json();
+    const lista = (response.ok && (data.retiradas || data.itens || data.data || data)) || [];
+    const items = Array.isArray(lista) ? lista : (Array.isArray(lista.retiradas) ? lista.retiradas : []);
+    
+    // Filtra itens com o mesmo ID de retirada
+    const itensRetirada = items.filter(item => 
+      (item.id_retirada || item.id) === idRetirada
+    );
+    
+    if (itensRetirada.length === 0) {
+      alert('❌ Nenhum item encontrado para esta retirada.');
+      return;
+    }
+    
+    // Cria modal de confirmação com informações dos itens
+    criarModalConfirmarRetirada(idRetirada, itensRetirada);
+  } catch (error) {
+    console.error('Erro ao processar retirada:', error);
+    alert('❌ Erro ao carregar dados da retirada. Verifique o console.');
+  }
+}
+
+// ===== CRIAR MODAL DE CONFIRMAÇÃO DE RETIRADA =====
+function criarModalConfirmarRetirada(idRetirada, itensRetirada) {
+  const modalExistente = document.getElementById('modal-confirmacao-retirada');
+  if (modalExistente) {
+    modalExistente.remove();
+  }
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-confirmacao-retirada';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    font-family: Arial, sans-serif;
+  `;
+
+  // Cria lista de itens
+  const listaItensHTML = itensRetirada.map((item, idx) => {
+    return `
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 8px; text-align: left;">${idx + 1}</td>
+        <td style="padding: 8px; text-align: left; font-weight: bold;">${item.produto || item.nome_produto || '-'}</td>
+        <td style="padding: 8px; text-align: center;">${item.quantidade || '-'}</td>
+        <td style="padding: 8px; text-align: left;">${item.requisitante || item.nome_requisitante || '-'}</td>
+      </tr>
+    `;
+  }).join('');
+
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    ">
+      <h2 style="margin-top: 0; color: #e74c3c; font-size: 22px; text-align: center;">
+        ⚠️ Retirada Completa
+      </h2>
+      
+      <div style="background-color: #fff3cd; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; color: #856404; font-weight: bold;">
+          ⚡ ATENÇÃO: Todos os itens desta retirada serão retirados juntos!
+        </p>
+      </div>
+      
+      <div style="margin: 20px 0;">
+        <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
+          <strong>ID da Retirada:</strong> <span style="font-family: monospace; background: #f0f0f0; padding: 4px 8px; border-radius: 3px;">${escapeHtml(idRetirada)}</span>
+        </p>
+        <p style="color: #333; font-size: 16px;">
+          <strong>Total de itens:</strong> <span style="color: #e74c3c; font-weight: bold; font-size: 18px;">${itensRetirada.length}</span>
+        </p>
+      </div>
+
+      <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead style="background: #f8f9fa; position: sticky; top: 0;">
+            <tr>
+              <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; font-weight: bold;">#</th>
+              <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; font-weight: bold;">Produto</th>
+              <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd; font-weight: bold;">Qtd</th>
+              <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd; font-weight: bold;">Requisitante</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${listaItensHTML}
+          </tbody>
+        </table>
+      </div>
+
+      <p style="color: #666; font-size: 14px; margin: 20px 0;">
+        Clique em <strong>"Confirmar Retirada"</strong> para processar a retirada de todos estes itens de uma só vez.
+      </p>
+
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button id="btn-confirmar-retirada-completa" style="
+          background: linear-gradient(45deg, #27ae60, #229954);
+          color: white;
+          border: none;
+          padding: 12px 30px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 15px;
+          font-weight: bold;
+          transition: all 0.3s;
+          box-shadow: 0 3px 12px rgba(39, 174, 96, 0.3);
+        ">
+          Confirmar Retirada
+        </button>
+        
+        <button id="btn-cancelar-retirada-completa" style="
+          background: #95a5a6;
+          color: white;
+          border: none;
+          padding: 12px 30px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 15px;
+          font-weight: bold;
+          transition: all 0.3s;
+          box-shadow: 0 3px 12px rgba(149, 165, 166, 0.3);
+        ">
+          ❌ Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Eventos dos botões
+  modal.querySelector('#btn-confirmar-retirada-completa').addEventListener('click', function() {
+    modal.remove();
+    executarRetiradaCompleta(idRetirada, itensRetirada);
+  });
+
+  modal.querySelector('#btn-cancelar-retirada-completa').addEventListener('click', function() {
+    modal.remove();
+  });
+
+  // Fecha ao clicar fora
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  // Fecha com ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('modal-confirmacao-retirada')) {
+      document.getElementById('modal-confirmacao-retirada').remove();
+    }
+  });
+
+  document.body.appendChild(modal);
+}
+
+// ===== EXECUTAR RETIRADA COMPLETA =====
+async function executarRetiradaCompleta(idRetirada, itensRetirada) {
+  try {
+    console.log(`📤 Processando retirada completa: ${idRetirada}`);
+    console.log(`📦 Total de itens: ${itensRetirada.length}`);
+    
+    // Remove as linhas da tabela que correspondem a esta retirada
+    const tbody = document.querySelector('#tabela-retiradas-lista tbody');
+    if (!tbody) {
+      alert('❌ Tabela não encontrada.');
+      return;
+    }
+
+    let removidos = 0;
+    const linhas = tbody.querySelectorAll('tr');
+    
+    for (const linha of linhas) {
+      const idDaLinha = linha.querySelector('[data-coluna="id"]')?.textContent.trim();
+      
+      // Verifica se esta linha pertence à retirada
+      if (idDaLinha === idRetirada) {
+        console.log(`🗑️ Removendo: ${linha.querySelector('[data-coluna="produto"]')?.textContent}`);
+        linha.remove();
+        removidos++;
+      }
+    }
+
+    console.log(`✓ Processamento concluído: ${removidos} item(ns) removido(s)`);
+    
+    if (removidos > 0) {
+      alert(`Retirada concluída!\n\n${removidos} item(ns) foram retirados com sucesso.`);
+    } else {
+      alert(`⚠️ Nenhum item foi encontrado para remover.`);
+    }
+    
+  } catch (error) {
+    console.error('Erro geral na retirada:', error);
+    alert(`❌ Erro ao processar retirada: ${error.message}`);
+  }
+}
+
+// ===== CARREGAR TODAS AS DEVOLUÇÕES =====
+async function carregarTodasDevolucoes() {
+  try {
+    const response = await fetch(apiUrl('devolucao/listar'), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    });
+    const data = await response.json();
+    const tbody = document.querySelector('#tabela-devolucoes-lista tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const items = Array.isArray(data.devolucoes || data) ? (data.devolucoes || data) : [];
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td data-coluna="id">${item.id || ''}</td>
+        <td data-coluna="data">${item.data || item.data_devolucao || ''}</td>
+        <td data-coluna="requisitante">${item.requisitante || item.nome_requisitante || ''}</td>
+        <td data-coluna="produto">${item.produto || item.nome_produto || ''}</td>
+        <td data-coluna="quantidade">${item.quantidade || ''}</td>
+        <td data-coluna="observacao">${item.observacao || ''}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar devoluções:', error);
+  }
+}
+
+// ===== CARREGAR TODOS OS FORNECEDORES =====
+async function carregarTodosFornecedores() {
+  try {
+    const response = await fetch(apiUrl('fornecedores/listar'), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    });
+    const data = await response.json();
+    const tbody = document.querySelector('#tabela-fornecedores-lista tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const items = Array.isArray(data.fornecedores || data) ? (data.fornecedores || data) : [];
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td data-coluna="id">${item.id || ''}</td>
+        <td data-coluna="nome">${item.nome || ''}</td>
+        <td data-coluna="cnpj">${item.cnpj || ''}</td>
+        <td data-coluna="telefone">${item.telefone || ''}</td>
+        <td data-coluna="email">${item.email || ''}</td>
+        <td data-coluna="endereco">${item.endereco || ''}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar fornecedores:', error);
+  }
+}
+
+// ===== CARREGAR TODOS OS REQUISITANTES =====
+async function carregarTodosRequisitantes() {
+  try {
+    const response = await fetch(apiUrl('requisitantes/listar'), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    });
+    const data = await response.json();
+    const tbody = document.querySelector('#tabela-requisitantes-lista tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const items = Array.isArray(data.requisitantes || data) ? (data.requisitantes || data) : [];
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td data-coluna="id">${item.id || ''}</td>
+        <td data-coluna="nome">${item.nome || ''}</td>
+        <td data-coluna="setor">${item.setor || ''}</td>
+        <td data-coluna="cargo">${item.cargo || ''}</td>
+        <td data-coluna="telefone">${item.telefone || ''}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar requisitantes:', error);
+  }
+}
+
+// ===== FILTRO EM TEMPO REAL PARA KITS =====
+function filtrarTabelaKits() {
+  const nomeFiltro = document.getElementById('nome-kit-busca')?.value.trim().toLowerCase() || '';
+  const tabelaKits = document.querySelector('#tabela-kits-lista tbody');
+  if (!tabelaKits) return;
+  
+  const linhas = tabelaKits.querySelectorAll('tr');
+  let totalVisivel = 0;
+  
+  linhas.forEach(linha => {
+    const nomeKit = linha.querySelector('[data-coluna="nome-do-kit"]')?.textContent.trim().toLowerCase() || '';
+    const correspondente = !nomeFiltro || nomeKit.includes(nomeFiltro);
+    
+    if (correspondente) {
+      linha.style.display = '';
+      totalVisivel++;
+    } else {
+      linha.style.display = 'none';
+    }
+  });
+  
+  // Se nenhuma linha corresponder, mostra mensagem
+  if (totalVisivel === 0 && nomeFiltro && linhas.length > 0) {
+    const mensagem = document.getElementById('mensagem-filtro-kits-vazio') || document.createElement('div');
+    if (!document.getElementById('mensagem-filtro-kits-vazio')) {
+      mensagem.id = 'mensagem-filtro-kits-vazio';
+      mensagem.style.cssText = 'text-align: center; padding: 20px; color: #888; font-style: italic;';
+      tabelaKits.parentElement.appendChild(mensagem);
+    }
+    mensagem.textContent = 'Nenhum kit encontrado com esse nome.';
+    mensagem.style.display = 'block';
+  } else {
+    const mensagem = document.getElementById('mensagem-filtro-kits-vazio');
+    if (mensagem) mensagem.style.display = 'none';
+  }
+}
+
+// Adiciona listener ao campo de filtro para filtrar em tempo real
+document.getElementById('nome-kit-busca')?.addEventListener('input', filtrarTabelaKits);
 
 // Chame isso ao carregar a aba de kits:
 document.addEventListener('DOMContentLoaded', function () {
   montarColunasKitsSelector();
   atualizarColunasKits();
+
+  // Inicializa o botão de toggle de colunas para kits
+  const btnToggleColunasKits = document.getElementById('toggle-colunas-kits-busca');
+  if (btnToggleColunasKits) {
+    btnToggleColunasKits.addEventListener('click', function(e) {
+      e.preventDefault();
+      const container = this.parentElement.nextElementSibling;
+      if (container && container.classList.contains('colunas-selector-container')) {
+        if (container.classList.contains('ativo')) {
+          container.classList.remove('ativo');
+          this.classList.remove('ativo');
+        } else {
+          container.classList.add('ativo');
+          this.classList.add('ativo');
+        }
+      }
+    });
+  }
 
   // Lógica robusta para adicionar item ao kit (sem interferência de outros elementos)
   // Lógica robusta e isolada para adicionar item ao kit e controle de colunas
@@ -3354,5 +4151,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // =================================== FINAL DO SCRIPT =====================================
-
 });

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   togglePwd.addEventListener('click', () => {
     const type = pwdInput.type === 'password' ? 'text' : 'password';
     pwdInput.type = type;
-    togglePwd.style.color = type === 'text' ? '#FFCB1F' : '#888';
+    togglePwd.style.color = type === 'text' ? '#475569' : '#888';
   });
 
 
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const password = form.password.value;
 
     try {
-      const res = await fetch('https://api.exksvol.website/login', {
+      const res = await fetch(apiUrl('/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })

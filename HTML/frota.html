@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../CSS/geral.css" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=3" />
   <link rel="stylesheet" href="../CSS/frota.css" />
   <link
     rel="stylesheet"
@@ -11,7 +11,7 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""
   />
-  <link rel="icon" href="../IMG/logoSvplus.png" type="image/png">
+  <link rel="icon" href="../IMG/Icone.png" type="image/png">
   <title>Frota</title>
 </head>
 <body>
@@ -28,13 +28,13 @@
       <button class="top-tab" id="almoxarifado-tab">Almoxarifado</button>
       <button class="top-tab active" id="frota-tab">Frota</button>
       <button class="top-tab" id="ordens-tab">Ordens de Serviço</button>
-      <button class="top-tab" id="nobreaks-tab">Nobreaks</button>
+      <button class="top-tab" id="gestao-tab">Gestão</button>
     </div>
   </div>
 
   <!-- Menu lateral Frota -->
   <div class="menu menu-frota">
-    <button class="tab-btn" data-tab="gerenciamento">Gerenciamento</button>
+    <button class="tab-btn" data-tab="gerenciamento">Painel Geral</button>
     <button class="tab-btn" data-tab="veiculos">Veículos</button>
     <button class="tab-btn" data-tab="manutencao">Manutenção</button>
     <button class="tab-btn" data-tab="abastecimento">Abastecimento</button>
@@ -56,7 +56,7 @@
 
   <!-- Conteúdo principal Frota -->
   <div class="content">
-    <h2 id="legenda-principal" class="aba-legenda">Gerenciamento</h2>
+    <h2 id="legenda-principal" class="aba-legenda">Painel Geral</h2>
     <hr class="aba-linha">
     <div id="gerenciamento" class="tab-content">
       <div class="frota-cards">
@@ -194,8 +194,8 @@
               <div class="frota-checklist-imagem-box" id="frota-veiculo-imagem-box">
                 <svg viewBox="0 0 220 120" aria-hidden="true" focusable="false" id="frota-veiculo-imagem-placeholder">
                   <rect x="28" y="14" width="164" height="92" rx="12" fill="#0b0b0b"></rect>
-                  <circle cx="82" cy="46" r="11" fill="#ffb400"></circle>
-                  <path d="M50 80l28-30a6 6 0 0 1 9 0l17 18 25-31a6 6 0 0 1 9 0l32 43H50z" fill="#ffc61b"></path>
+                  <circle cx="82" cy="46" r="11" fill="#94A3B8"></circle>
+                  <path d="M50 80l28-30a6 6 0 0 1 9 0l17 18 25-31a6 6 0 0 1 9 0l32 43H50z" fill="#475569"></path>
                 </svg>
                 <img id="frota-veiculo-imagem-preview" alt="Preview imagem do veículo" style="display:none;" />
               </div>
@@ -485,8 +485,8 @@
             <div class="frota-checklist-imagem-box" id="frota-checklist-veiculo-imagem-box">
               <svg viewBox="0 0 220 120" aria-hidden="true" focusable="false" id="frota-checklist-veiculo-imagem-placeholder">
                 <rect x="28" y="14" width="164" height="92" rx="12" fill="#0b0b0b"></rect>
-                <circle cx="82" cy="46" r="11" fill="#ffb400"></circle>
-                <path d="M50 80l28-30a6 6 0 0 1 9 0l17 18 25-31a6 6 0 0 1 9 0l32 43H50z" fill="#ffc61b"></path>
+                <circle cx="82" cy="46" r="11" fill="#94A3B8"></circle>
+                <path d="M50 80l28-30a6 6 0 0 1 9 0l17 18 25-31a6 6 0 0 1 9 0l32 43H50z" fill="#475569"></path>
               </svg>
               <img id="frota-checklist-veiculo-imagem-preview" alt="Imagem do veículo selecionado" style="display:none;" />
             </div>
@@ -619,7 +619,7 @@
     crossorigin=""
   ></script>
     <script src="../SCRIPT/config.js"></script>
-    <script src="../SCRIPT/frota.js"></script>
+    <script src="../SCRIPT/frota.js?v=2"></script>
   <script src="../SCRIPT/geral.js"></script>
 
     <!-- Painel notificação -->

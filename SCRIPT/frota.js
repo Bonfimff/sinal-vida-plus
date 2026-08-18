@@ -1,30 +1,1950 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const legendaPrincipal = document.getElementById('legenda-principal'); 
+(function () {
+  const FROTA_API_BASE = window.TUNNEL_API_URL || (window.API_BASE_URL + '/');
+  const FROTA_LOCAL_KEY = 'svplus_frota_veiculos';
+  const FROTA_VEICULOS_IMAGENS_LOCAL_KEY = 'svplus_frota_veiculos_imagens';
+  const FROTA_ABAST_LOCAL_KEY = 'svplus_frota_abastecimentos';
+  const FROTA_CARTOES_ABAST_LOCAL_KEY = 'svplus_frota_cartoes_abastecimento';
+  const FROTA_CHECKLIST_LOCAL_KEY = 'svplus_frota_checklists';
+  const FROTA_OFICINAS_LOCAL_KEY = 'svplus_frota_oficinas';
+  const FROTA_MAPA_CENTRO = [-22.9068, -43.1729];
+  const CHECKLIST_ETAPAS = ['frente', 'traseira', 'lateral_esquerda', 'lateral_direita', 'painel'];
+  let frotaVeiculosCache = [];
+  let frotaChecklistsCache = [];
+  let frotaMapa = null;
+  let frotaMapaCamada = null;
+  let checklistImagens = {
+    frente: null,
+    traseira: null,
+    lateral_esquerda: null,
+    lateral_direita: null,
+    painel: null,
+    extras: [],
+  };
+  let veiculoEditandoPlaca = null;
+  let checklistModalSelecao = null;
+  let modalChecklistImagemEl = null;
+  let listaEquipamentosVisivel = false;
 
-  const gerenciamentoTab = document.querySelector('.tab-btn[data-tab="gerenciamento"]');
-  const gerenciamentoContent = document.getElementById('gerenciamento');
-  if (gerenciamentoTab && gerenciamentoContent && legendaPrincipal) {
-    gerenciamentoTab.classList.add('active');
-    gerenciamentoContent.classList.add('active');
-    legendaPrincipal.textContent = 'Gerenciamento';
+  function frotaApiUrl(path) {
+    let base = (window.TUNNEL_API_URL || FROTA_API_BASE);
+    if (!base.endsWith('/')) base += '/';
+    if (path.startsWith('/')) path = path.slice(1);
+    return base + path;
   }
 
-  const tabs = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
+  function authHeaders(json = false) {
+    const h = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+  }
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', function () {
-      tabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
+  function toIntOrNull(value) {
+    if (value === '' || value == null) return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.round(n) : null;
+  }
 
-      this.classList.add('active');
-      const tabId = this.getAttribute('data-tab');
-      const contentToShow = document.getElementById(tabId);
-      if (contentToShow) {
-        contentToShow.classList.add('active');
+  function toFloatOrNull(value) {
+    if (value === '' || value == null) return null;
+    const n = Number(value);
+    if (!Number.isFinite(n)) return null;
+    return Math.round(n * 100) / 100;
+  }
+
+  function formatPlaca(value) {
+    return String(value || '')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 7);
+  }
+
+  function normalizarStatus(status) {
+    const s = String(status || '').toLowerCase();
+    if (s.includes('manuten')) return 'Em manutenção';
+    if (s.includes('inativ')) return 'Inativo';
+    return 'Ativo';
+  }
+
+  function statusBadge(status) {
+    const st = normalizarStatus(status);
+    let classe = 'frota-status-ativo';
+    if (st === 'Em manutenção') classe = 'frota-status-manutencao';
+    if (st === 'Inativo') classe = 'frota-status-inativo';
+    return `<span class="frota-status-badge ${classe}">${st}</span>`;
+  }
+
+  function escapeHtml(texto) {
+    return String(texto || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function normalizarTextoLista(valor) {
+    return String(valor || '')
+      .split(/\r?\n|,|;/)
+      .map(item => item.trim())
+      .filter(Boolean)
+      .join('; ');
+  }
+
+  function obterListaItens(valor) {
+    const bruto = String(valor || '')
+      .split(/\r?\n|,|;/)
+      .map(item => item.trim())
+      .filter(Boolean);
+
+    const vistos = new Set();
+    const unicos = [];
+    bruto.forEach(item => {
+      const chave = item.toLowerCase();
+      if (vistos.has(chave)) return;
+      vistos.add(chave);
+      unicos.push(item);
+    });
+
+    return unicos;
+  }
+
+  function renderListaTags(valor, vazioLabel) {
+    const itens = obterListaItens(valor);
+    if (!itens.length) {
+      return `<span class="frota-lista-tag-vazia">${escapeHtml(vazioLabel || 'Não informado')}</span>`;
+    }
+    return `<div class="frota-lista-tags">${itens.map(item => `<span class="frota-lista-tag">${escapeHtml(item)}</span>`).join('')}</div>`;
+  }
+
+  function hashTexto(valor) {
+    const texto = String(valor || 'SVPLUS');
+    let hash = 0;
+    for (let i = 0; i < texto.length; i += 1) {
+      hash = ((hash << 5) - hash) + texto.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function coordenadaEstimativa(placa, indice) {
+    const hash = hashTexto(`${placa || ''}-${indice}`);
+    const deltaLat = ((hash % 900) / 10000) - 0.045;
+    const deltaLng = (((Math.floor(hash / 1000)) % 900) / 10000) - 0.045;
+    return [
+      FROTA_MAPA_CENTRO[0] + deltaLat,
+      FROTA_MAPA_CENTRO[1] + deltaLng,
+    ];
+  }
+
+  function obterCoordenadasVeiculo(veiculo, indice) {
+    const lat = Number(veiculo?.latitude ?? veiculo?.lat);
+    const lng = Number(veiculo?.longitude ?? veiculo?.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return [lat, lng];
+    }
+    return coordenadaEstimativa(veiculo?.placa, indice);
+  }
+
+  function corMarcador(status) {
+    const st = normalizarStatus(status);
+    if (st === 'Em manutenção') return '#f39c12';
+    if (st === 'Inativo') return '#8d99ae';
+    return '#1a9e55';
+  }
+
+  function atualizarResumoMapa(lista) {
+    const resumo = document.getElementById('frota-mapa-resumo');
+    if (!resumo) return;
+
+    if (!Array.isArray(lista) || !lista.length) {
+      resumo.innerHTML = '<div class="frota-mapa-item">Nenhum veículo disponível para exibição no mapa.</div>';
+      return;
+    }
+
+    const itens = lista.slice(0, 8).map((veiculo, indice) => {
+      const coords = obterCoordenadasVeiculo(veiculo, indice);
+      const status = normalizarStatus(veiculo.status);
+      const localizacaoReal = Number.isFinite(Number(veiculo?.latitude ?? veiculo?.lat)) && Number.isFinite(Number(veiculo?.longitude ?? veiculo?.lng));
+
+      return `
+        <div class="frota-mapa-item">
+          <strong>${escapeHtml(veiculo.placa || 'Sem placa')}</strong> · ${escapeHtml(veiculo.marca || '—')} ${escapeHtml(veiculo.modelo || '')}<br>
+          Status: <em>${escapeHtml(status)}</em><br>
+          ${localizacaoReal ? 'Posição real' : 'Posição estimada'}: ${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}
+        </div>
+      `;
+    });
+
+    resumo.innerHTML = itens.join('');
+  }
+
+  function renderMapaFrota(lista) {
+    const mapaEl = document.getElementById('frota-mapa-regiao');
+    const aviso = document.getElementById('frota-mapa-sem-biblioteca');
+    if (!mapaEl) return;
+
+    if (!window.L) {
+      if (aviso) aviso.style.display = 'block';
+      atualizarResumoMapa(lista);
+      return;
+    }
+
+    if (aviso) aviso.style.display = 'none';
+
+    if (!frotaMapa) {
+      frotaMapa = L.map(mapaEl).setView(FROTA_MAPA_CENTRO, 11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(frotaMapa);
+      frotaMapaCamada = L.layerGroup().addTo(frotaMapa);
+    }
+
+    if (frotaMapaCamada) {
+      frotaMapaCamada.clearLayers();
+    }
+
+    if (!Array.isArray(lista) || !lista.length) {
+      frotaMapa.setView(FROTA_MAPA_CENTRO, 11);
+      atualizarResumoMapa([]);
+      setTimeout(() => {
+        frotaMapa.invalidateSize();
+      }, 40);
+      return;
+    }
+
+    const bounds = [];
+    lista.forEach((veiculo, indice) => {
+      const coords = obterCoordenadasVeiculo(veiculo, indice);
+      bounds.push(coords);
+      const status = normalizarStatus(veiculo.status);
+      const marker = L.circleMarker(coords, {
+        radius: 8,
+        color: '#ffffff',
+        weight: 2,
+        fillColor: corMarcador(status),
+        fillOpacity: 0.92,
+      }).addTo(frotaMapaCamada);
+
+      marker.bindPopup(`
+        <strong>${escapeHtml(veiculo.placa || 'Sem placa')}</strong><br>
+        ${escapeHtml([veiculo.marca, veiculo.modelo].filter(Boolean).join(' ') || 'Veículo')}<br>
+        Status: ${escapeHtml(status)}
+      `);
+    });
+
+    if (bounds.length === 1) {
+      frotaMapa.setView(bounds[0], 12);
+    } else {
+      frotaMapa.fitBounds(bounds, { padding: [30, 30] });
+    }
+
+    atualizarResumoMapa(lista);
+    setTimeout(() => {
+      frotaMapa.invalidateSize();
+    }, 40);
+  }
+
+  function carregarLocal() {
+    try {
+      const bruto = localStorage.getItem(FROTA_LOCAL_KEY);
+      const lista = bruto ? JSON.parse(bruto) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) {
+      console.warn('Falha ao ler cache local da frota:', e);
+      return [];
+    }
+  }
+
+  function salvarLocal(lista) {
+    localStorage.setItem(FROTA_LOCAL_KEY, JSON.stringify(lista));
+  }
+
+  function mostrarFeedback(msg, tipo, elementoId = 'frota-feedback') {
+    const el = document.getElementById(elementoId);
+    if (!el) return;
+    el.textContent = msg;
+    el.className = tipo === 'erro' ? 'feedback-erro' : 'feedback-sucesso';
+    el.style.display = 'block';
+    clearTimeout(mostrarFeedback._timer);
+    mostrarFeedback._timer = setTimeout(() => {
+      el.style.display = 'none';
+    }, 3500);
+  }
+
+  function atualizarCards(lista) {
+    const total = lista.length;
+    const operacao = lista.filter(v => {
+      const st = String(v.status || '').toLowerCase();
+      return st.includes('opera');
+    }).length;
+    const disponivel = lista.filter(v => {
+      const st = String(v.status || '').toLowerCase();
+      return st.includes('dispon') || st.includes('ativo');
+    }).length;
+    const manutencao = lista.filter(v => normalizarStatus(v.status) === 'Em manutenção').length;
+
+    const elTotal = document.getElementById('frota-total-veiculos');
+    const elOperacao = document.getElementById('frota-total-operacao');
+    const elDisponivel = document.getElementById('frota-total-disponivel');
+    const elManutencao = document.getElementById('frota-total-manutencao');
+
+    if (elTotal) elTotal.textContent = String(total);
+    if (elOperacao) elOperacao.textContent = String(operacao);
+    if (elDisponivel) elDisponivel.textContent = String(disponivel);
+    if (elManutencao) elManutencao.textContent = String(manutencao);
+  }
+
+  function renderTabela(lista) {
+    const tbody = document.querySelector('#frota-tabela-veiculos tbody');
+    if (!tbody) return;
+
+    if (!lista.length) {
+      tbody.innerHTML = `<tr><td class="frota-vazio" colspan="13">Nenhum veículo cadastrado.</td></tr>`;
+      atualizarCards([]);
+      renderMapaFrota([]);
+      return;
+    }
+
+    const linhas = lista.map(v => `
+      <tr>
+        <td>${escapeHtml(v.modelo)}</td>
+        <td>${escapeHtml(v.marca)}</td>
+        <td>${escapeHtml(v.placa)}</td>
+        <td>${statusBadge(v.status)}</td>
+        <td>${v.ano ?? '—'}</td>
+        <td>${v.quilometragem ?? '—'}</td>
+        <td>${escapeHtml(v.tipo_veiculo || '—')}</td>
+        <td>${v.km_revisoes ?? '—'}</td>
+        <td>${escapeHtml(v.tipo_combustivel || '—')}</td>
+        <td>${v.km_por_litro ?? '—'}</td>
+        <td>${renderListaTags(v.itens_checklist_especificos, 'Nenhum item específico')}</td>
+        <td>${renderListaTags(v.equipamentos_ferramentas, 'Nenhum equipamento/ferramenta')}</td>
+        <td>${escapeHtml(v.obs || '—')}</td>
+      </tr>
+    `);
+
+    tbody.innerHTML = linhas.join('');
+    tbody.querySelectorAll('tr').forEach(row => {
+      const placa = row.querySelector('td:nth-child(3)')?.textContent.trim();
+      if (!placa) return;
+      row.addEventListener('dblclick', () => {
+        const veiculo = buscarVeiculoPorPlaca(placa);
+        if (veiculo) {
+          preencherFormularioVeiculo(veiculo);
+          const validacaoPlaca = document.getElementById('frota-placa');
+          if (validacaoPlaca) validacaoPlaca.focus();
+        }
+      });
+    });
+    atualizarCards(lista);
+    renderMapaFrota(lista);
+  }
+
+  async function listarVeiculos() {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/veiculos'), { headers: authHeaders() });
+      if (!resp.ok) throw new Error('Falha ao listar via API');
+      const data = await resp.json();
+      const lista = Array.isArray(data.veiculos) ? data.veiculos : [];
+      salvarLocal(lista);
+      frotaVeiculosCache = lista;
+      preencherSelectPlacasAbastecimento(lista);
+      preencherSelectPlacasChecklist(lista);
+      return lista;
+    } catch (err) {
+      console.warn('API de frota indisponível, usando cache local:', err.message);
+      const lista = carregarLocal();
+      frotaVeiculosCache = lista;
+      preencherSelectPlacasAbastecimento(lista);
+      preencherSelectPlacasChecklist(lista);
+      return lista;
+    }
+  }
+
+  async function salvarVeiculo(payload) {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/veiculos'), {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const dataErro = await resp.json().catch(() => ({}));
+        throw new Error(dataErro.mensagem || 'Erro ao salvar veículo na API.');
       }
 
-      legendaPrincipal.textContent = this.textContent.trim();
+      return await resp.json();
+    } catch (err) {
+      const lista = carregarLocal();
+      const placaExiste = lista.some(v => String(v.placa || '').toUpperCase() === payload.placa.toUpperCase());
+      const placaComparada = veiculoEditandoPlaca ? veiculoEditandoPlaca.toUpperCase() : null;
+      if (placaExiste && payload.placa.toUpperCase() !== placaComparada) {
+        throw new Error('Já existe veículo com essa placa.');
+      }
+
+      if (placaComparada && payload.placa.toUpperCase() === placaComparada) {
+        const index = lista.findIndex(v => String(v.placa || '').toUpperCase() === placaComparada);
+        if (index >= 0) {
+          lista[index] = { ...lista[index], ...payload };
+          salvarLocal(lista);
+          return { status: 'ok', veiculo: lista[index], local: true };
+        }
+      }
+
+      const novo = {
+        ...payload,
+        id: Date.now(),
+        created_at: new Date().toISOString(),
+      };
+      lista.unshift(novo);
+      salvarLocal(lista);
+      return { status: 'ok', veiculo: novo, local: true };
+    }
+  }
+
+  function coletarFormulario() {
+    const modelo = document.getElementById('frota-modelo').value.trim();
+    const marca = document.getElementById('frota-marca').value.trim();
+    const placa = formatPlaca(document.getElementById('frota-placa').value);
+    const status = normalizarStatus(document.getElementById('frota-status').value);
+
+    if (!modelo || !marca || !placa) {
+      throw new Error('Preencha os campos obrigatórios: Modelo, Marca e Placa.');
+    }
+
+    return {
+      modelo,
+      marca,
+      placa,
+      status,
+      ano: toIntOrNull(document.getElementById('frota-ano').value),
+      quilometragem: toIntOrNull(document.getElementById('frota-quilometragem').value),
+      tipo_veiculo: document.getElementById('frota-tipo').value || null,
+      km_revisoes: toIntOrNull(document.getElementById('frota-km-revisoes').value),
+      tipo_combustivel: document.getElementById('frota-combustivel').value || null,
+      km_por_litro: toFloatOrNull(document.getElementById('frota-km-por-litro').value),
+      itens_checklist_especificos: normalizarTextoLista(document.getElementById('frota-itens-checklist').value) || null,
+      equipamentos_ferramentas: normalizarTextoLista(document.getElementById('frota-equipamentos').value) || null,
+      obs: document.getElementById('frota-obs').value.trim() || null,
+    };
+  }
+
+  function carregarImagensVeiculosLocal() {
+    try {
+      const bruto = localStorage.getItem(FROTA_VEICULOS_IMAGENS_LOCAL_KEY);
+      const mapa = bruto ? JSON.parse(bruto) : {};
+      return mapa && typeof mapa === 'object' ? mapa : {};
+    } catch (e) {
+      console.warn('Falha ao ler cache de imagens de veículos:', e);
+      return {};
+    }
+  }
+
+  function salvarImagensVeiculosLocal(mapa) {
+    try {
+      localStorage.setItem(FROTA_VEICULOS_IMAGENS_LOCAL_KEY, JSON.stringify(mapa));
+    } catch (e) {
+      console.warn('Falha ao salvar cache de imagens de veículos:', e);
+    }
+  }
+
+  function obterImagemVeiculoPorPlaca(placa) {
+    const placaFormatada = formatPlaca(placa);
+    if (!placaFormatada) return null;
+    const mapa = carregarImagensVeiculosLocal();
+    return mapa[placaFormatada] || null;
+  }
+
+  function limparFormulario() {
+    const form = document.getElementById('frota-veiculo-form');
+    if (form) {
+      form.reset();
+    }
+    sairModoEdicaoVeiculo();
+    const preview = document.getElementById('frota-veiculo-imagem-preview');
+    const placeholder = document.getElementById('frota-veiculo-imagem-placeholder');
+    if (preview && placeholder) {
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+      placeholder.style.display = 'block';
+    }
+  }
+
+  function sairModoEdicaoVeiculo() {
+    veiculoEditandoPlaca = null;
+    const botaoSalvar = document.getElementById('frota-veiculo-salvar');
+    if (botaoSalvar) {
+      botaoSalvar.textContent = 'Cadastrar veículo';
+    }
+  }
+
+  function preencherFormularioVeiculo(veiculo) {
+    if (!veiculo) return;
+    document.getElementById('frota-modelo').value = veiculo.modelo || '';
+    document.getElementById('frota-marca').value = veiculo.marca || '';
+    document.getElementById('frota-placa').value = formatPlaca(veiculo.placa || '');
+    document.getElementById('frota-status').value = veiculo.status || 'Ativo';
+    document.getElementById('frota-ano').value = veiculo.ano ?? '';
+    document.getElementById('frota-quilometragem').value = veiculo.quilometragem ?? '';
+    document.getElementById('frota-tipo').value = veiculo.tipo_veiculo || '';
+    document.getElementById('frota-km-revisoes').value = veiculo.km_revisoes ?? '';
+    document.getElementById('frota-combustivel').value = veiculo.tipo_combustivel || '';
+    document.getElementById('frota-km-por-litro').value = veiculo.km_por_litro ?? '';
+    document.getElementById('frota-itens-checklist').value = Array.isArray(veiculo.itens_checklist_especificos) ? veiculo.itens_checklist_especificos.join(', ') : veiculo.itens_checklist_especificos || '';
+    document.getElementById('frota-equipamentos').value = Array.isArray(veiculo.equipamentos_ferramentas) ? veiculo.equipamentos_ferramentas.join(', ') : veiculo.equipamentos_ferramentas || '';
+    document.getElementById('frota-obs').value = veiculo.obs || '';
+    veiculoEditandoPlaca = formatPlaca(veiculo.placa || '');
+    const botaoSalvar = document.getElementById('frota-veiculo-salvar');
+    if (botaoSalvar) {
+      botaoSalvar.textContent = 'Atualizar veículo';
+    }
+    const imagem = obterImagemVeiculoPorPlaca(veiculo.placa);
+    const preview = document.getElementById('frota-veiculo-imagem-preview');
+    const placeholder = document.getElementById('frota-veiculo-imagem-placeholder');
+    if (imagem && preview && placeholder) {
+      preview.src = imagem;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    }
+  }
+
+  function nowDataHora() {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const hora = String(agora.getHours()).padStart(2, '0');
+    const minuto = String(agora.getMinutes()).padStart(2, '0');
+
+    return {
+      data: `${ano}-${mes}-${dia}`,
+      hora: `${hora}:${minuto}`,
+    };
+  }
+
+  function preencherDataHoraAbastecimento() {
+    const dataInput = document.getElementById('frota-abast-data');
+    const horaInput = document.getElementById('frota-abast-hora');
+    if (!dataInput || !horaInput) return;
+
+    const agora = nowDataHora();
+    dataInput.value = agora.data;
+    horaInput.value = agora.hora;
+  }
+
+  function preencherSelectPlacasAbastecimento(veiculos) {
+    const select = document.getElementById('frota-abast-placa');
+    if (!select) return;
+
+    const valorAtual = select.value;
+    const itens = Array.isArray(veiculos) ? veiculos : [];
+
+    const opcoes = itens
+      .map(v => {
+        const placa = formatPlaca(v.placa || '');
+        const descricao = [v.marca, v.modelo].filter(Boolean).join(' ');
+        if (!placa) return '';
+        return `<option value="${escapeHtml(placa)}">${escapeHtml(placa)}${descricao ? ` - ${escapeHtml(descricao)}` : ''}</option>`;
+      })
+      .filter(Boolean)
+      .join('');
+
+    select.innerHTML = `<option value="">Selecione o veículo...</option>${opcoes}`;
+    if (valorAtual && Array.from(select.options).some(o => o.value === valorAtual)) {
+      select.value = valorAtual;
+    }
+  }
+
+  function preencherSelectPlacasChecklist(veiculos) {
+    const select = document.getElementById('frota-checklist-placa');
+    if (!select) return;
+
+    const valorAtual = select.value;
+    const itens = Array.isArray(veiculos) ? veiculos : [];
+
+    const opcoes = itens
+      .map(v => {
+        const placa = formatPlaca(v.placa || '');
+        const descricao = [v.marca, v.modelo].filter(Boolean).join(' ');
+        if (!placa) return '';
+        return `<option value="${escapeHtml(placa)}">${escapeHtml(placa)}${descricao ? ` - ${escapeHtml(descricao)}` : ''}</option>`;
+      })
+      .filter(Boolean)
+      .join('');
+
+    select.innerHTML = `<option value="">Selecione o veículo...</option>${opcoes}`;
+    if (valorAtual && Array.from(select.options).some(o => o.value === valorAtual)) {
+      select.value = valorAtual;
+    }
+
+    atualizarInfoChecklistVeiculo(select.value);
+  }
+
+  function preencherSelectPlacasCartoesAbastecimento(veiculos) {
+    const select = document.getElementById('frota-cartao-abastecimento-placa');
+    if (!select) return;
+
+    const valorAtual = select.value;
+    const itens = Array.isArray(veiculos) ? veiculos : [];
+
+    const opcoes = itens
+      .map(v => {
+        const placa = formatPlaca(v.placa || '');
+        const descricao = [v.marca, v.modelo].filter(Boolean).join(' ');
+        if (!placa) return '';
+        return `<option value="${escapeHtml(placa)}">${escapeHtml(placa)}${descricao ? ` - ${escapeHtml(descricao)}` : ''}</option>`;
+      })
+      .filter(Boolean)
+      .join('');
+
+    select.innerHTML = `<option value="">Sem vínculo</option>${opcoes}`;
+    if (valorAtual && Array.from(select.options).some(o => o.value === valorAtual)) {
+      select.value = valorAtual;
+    }
+  }
+
+  function buscarCartaoAbastecimentoPorPlaca(placa) {
+    const placaFormatada = formatPlaca(placa);
+    if (!placaFormatada) return null;
+
+    const lista = carregarCartoesAbastecimentoLocal();
+    const cartoes = Array.isArray(lista) ? lista : [];
+    const correspondentes = cartoes.filter(item => formatPlaca(item.placa) === placaFormatada);
+    if (!correspondentes.length) return null;
+
+    const ativo = correspondentes.find(item => String(item.status).toLowerCase() === 'ativo');
+    return ativo || correspondentes[0] || null;
+  }
+
+  function preencherCartaoAbastecimentoPorPlaca(placa) {
+    const inputCartao = document.getElementById('frota-abast-cartao');
+    if (!inputCartao) return;
+
+    const cartao = buscarCartaoAbastecimentoPorPlaca(placa);
+    if (!cartao) return;
+
+    const valorAtual = inputCartao.value.trim();
+    if (!valorAtual || valorAtual !== cartao.numero) {
+      inputCartao.value = cartao.numero || '';
+    }
+  }
+
+  function buscarVeiculoPorPlaca(placa) {
+    const placaFormatada = formatPlaca(placa);
+    if (!placaFormatada || !Array.isArray(frotaVeiculosCache)) return null;
+    return frotaVeiculosCache.find(v => formatPlaca(v.placa) === placaFormatada) || null;
+  }
+
+  function obterUltimoKmChecklistPorPlaca(placa) {
+    const placaFormatada = formatPlaca(placa);
+    if (!placaFormatada || !Array.isArray(frotaChecklistsCache)) return null;
+
+    const registro = frotaChecklistsCache.find(item => formatPlaca(item?.placa) === placaFormatada);
+    const km = toIntOrNull(registro?.km);
+    return km == null ? null : km;
+  }
+
+  function preencherKmChecklistPorPlaca(placa) {
+    const inputKm = document.getElementById('frota-checklist-km');
+    if (!inputKm) return;
+
+    const placaFormatada = formatPlaca(placa);
+    if (!placaFormatada) {
+      inputKm.value = '';
+      return;
+    }
+
+    const ultimoKmChecklist = obterUltimoKmChecklistPorPlaca(placaFormatada);
+    if (ultimoKmChecklist != null) {
+      inputKm.value = String(ultimoKmChecklist);
+      return;
+    }
+
+    const veiculo = buscarVeiculoPorPlaca(placaFormatada);
+    const kmVeiculo = toIntOrNull(veiculo?.quilometragem);
+    inputKm.value = kmVeiculo != null ? String(kmVeiculo) : '';
+  }
+
+  function atualizarInfoChecklistVeiculo(placa) {
+    const wrap = document.getElementById('frota-checklist-veiculo-info');
+    const itensEl = document.getElementById('frota-checklist-itens-obrigatorios');
+    const equipamentosListaEl = document.getElementById('frota-checklist-equipamentos-lista');
+    const imagemPreview = document.getElementById('frota-checklist-veiculo-imagem-preview');
+    const imagemPlaceholder = document.getElementById('frota-checklist-veiculo-imagem-placeholder');
+    const imagemBox = document.getElementById('frota-checklist-veiculo-imagem-box');
+    if (!wrap || !itensEl || !equipamentosListaEl || !imagemPreview || !imagemPlaceholder || !imagemBox) return;
+
+    const veiculo = buscarVeiculoPorPlaca(placa);
+    const imagem = veiculo?.imagem_veiculo || obterImagemVeiculoPorPlaca(placa);
+    if (imagem) {
+      imagemPreview.src = imagem;
+      imagemPreview.style.display = 'block';
+      imagemPlaceholder.style.display = 'none';
+    } else {
+      imagemPreview.removeAttribute('src');
+      imagemPreview.style.display = 'none';
+      imagemPlaceholder.style.display = 'block';
+    }
+
+    if (!veiculo) {
+      wrap.style.display = 'block';
+      itensEl.innerHTML = '<li>Nenhum item específico configurado.</li>';
+      equipamentosListaEl.innerHTML = '<li>Selecione um veículo para visualizar a lista.</li>';
+      definirVisibilidadeListaEquipamentos(false);
+      return;
+    }
+
+    const itensChecklist = obterListaItens(veiculo.itens_checklist_especificos);
+    const equipamentos = obterListaItens(veiculo.equipamentos_ferramentas);
+
+    wrap.style.display = 'block';
+    itensEl.innerHTML = itensChecklist.length
+      ? itensChecklist.map(item => `<li>${escapeHtml(item)}</li>`).join('')
+      : '<li>Nenhum item específico configurado.</li>';
+    equipamentosListaEl.innerHTML = equipamentos.length
+      ? equipamentos.map(item => `<li>${escapeHtml(item)}</li>`).join('')
+      : '<li>Nenhum equipamento/ferramenta associado.</li>';
+    definirVisibilidadeListaEquipamentos(false);
+  }
+
+  function definirVisibilidadeListaEquipamentos(exibir) {
+    const detalhes = document.getElementById('frota-checklist-veiculo-detalhes');
+    const botao = document.getElementById('frota-checklist-toggle-lista-equipamentos');
+    if (!detalhes || !botao) return;
+
+    listaEquipamentosVisivel = !!exibir;
+    detalhes.style.display = listaEquipamentosVisivel ? 'block' : 'none';
+    botao.classList.toggle('ativo', listaEquipamentosVisivel);
+    botao.setAttribute('aria-expanded', listaEquipamentosVisivel ? 'true' : 'false');
+    botao.setAttribute('title', listaEquipamentosVisivel ? 'Ocultar lista de itens específicos e equipamentos/ferramentas' : 'Mostrar lista de itens específicos e equipamentos/ferramentas');
+    botao.setAttribute('aria-label', listaEquipamentosVisivel ? 'Ocultar lista de itens específicos e equipamentos/ferramentas' : 'Mostrar lista de itens específicos e equipamentos/ferramentas');
+  }
+
+  function atualizarVisibilidadeObsChecklist() {
+    const confItens = document.getElementById('frota-checklist-conf-itens')?.value;
+    const confEquip = document.getElementById('frota-checklist-conf-equipamentos')?.value;
+    const wrapObsItens = document.getElementById('frota-checklist-obs-itens-wrap');
+    const wrapObsEquip = document.getElementById('frota-checklist-obs-equipamentos-wrap');
+    const obsItens = document.getElementById('frota-checklist-obs-itens');
+    const obsEquip = document.getElementById('frota-checklist-obs-equipamentos');
+
+    const precisaObsItens = confItens === 'Não está conforme';
+    const precisaObsEquip = confEquip === 'Não está conforme';
+
+    if (wrapObsItens) wrapObsItens.style.display = precisaObsItens ? '' : 'none';
+    if (wrapObsEquip) wrapObsEquip.style.display = precisaObsEquip ? '' : 'none';
+    if (obsItens) obsItens.required = precisaObsItens;
+    if (obsEquip) obsEquip.required = precisaObsEquip;
+
+    if (!precisaObsItens && obsItens) obsItens.value = '';
+    if (!precisaObsEquip && obsEquip) obsEquip.value = '';
+  }
+
+  function obterNomeUsuarioLogado() {
+    function limparNome(raw) {
+      let nome = String(raw || '').trim();
+      nome = nome.replace(/^bem[-\s]*vindo\s*,?\s*/i, '').trim();
+      nome = nome.replace(/[!.,;:\-\s]+$/g, '').trim();
+      return nome;
+    }
+
+    const elLogged = document.getElementById('logged-user');
+    const nomeTela = limparNome(elLogged?.textContent || '');
+    if (nomeTela) return nomeTela;
+
+    try {
+      const usuarioObj = JSON.parse(localStorage.getItem('usuario') || '{}');
+      const nomeObj = limparNome(usuarioObj.nome || usuarioObj.username || usuarioObj.usuario || '');
+      if (nomeObj) return nomeObj;
+    } catch (_) {
+      // Ignora falha de parse e tenta outras fontes.
+    }
+
+    const nomeLocal = limparNome(localStorage.getItem('usuario_nome') || localStorage.getItem('username') || '');
+    if (nomeLocal) return nomeLocal;
+
+    try {
+      const token = localStorage.getItem('token');
+      if (token && token.includes('.')) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const nomeToken = limparNome(payload.username || payload.nome || payload.usuario || '');
+        if (nomeToken) return nomeToken;
+      }
+    } catch (_) {
+      // Ignora falha de leitura do token.
+    }
+
+    return 'Usuário do sistema';
+  }
+
+  function preencherMotoristaChecklist() {
+    const input = document.getElementById('frota-checklist-motorista');
+    if (!input) return;
+    input.value = obterNomeUsuarioLogado();
+  }
+
+  function carregarOficinasLocal() {
+    try {
+      const bruto = localStorage.getItem(FROTA_OFICINAS_LOCAL_KEY);
+      const lista = bruto ? JSON.parse(bruto) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) {
+      console.warn('Falha ao ler cache local de oficinas:', e);
+      return [];
+    }
+  }
+
+  function salvarOficinasLocal(lista) {
+    localStorage.setItem(FROTA_OFICINAS_LOCAL_KEY, JSON.stringify(lista));
+  }
+
+  function normalizarUrlLocalizacao(url) {
+    const valor = String(url || '').trim();
+    if (!valor) return null;
+    if (/^https?:\/\//i.test(valor)) return valor;
+    return `https://${valor}`;
+  }
+
+  function renderTabelaOficinas(lista) {
+    const tbody = document.querySelector('#frota-tabela-oficinas tbody');
+    if (!tbody) return;
+
+    if (!Array.isArray(lista) || !lista.length) {
+      tbody.innerHTML = '<tr><td class="frota-vazio" colspan="10">Nenhuma oficina cadastrada.</td></tr>';
+      return;
+    }
+
+    const linhas = lista.map(item => {
+      const link = item.url_localizacao
+        ? `<a class="frota-link-localizacao" href="${escapeHtml(item.url_localizacao)}" target="_blank" rel="noopener">Abrir mapa</a>`
+        : '—';
+
+      return `
+        <tr>
+          <td>${escapeHtml(item.nome_oficina || '—')}</td>
+          <td>${escapeHtml(item.endereco || '—')}</td>
+          <td>${link}</td>
+          <td>${escapeHtml(item.servicos || '—')}</td>
+          <td>${escapeHtml(item.area_atendimento || '—')}</td>
+          <td>${escapeHtml(item.horario_funcionamento || '—')}</td>
+            <td>${escapeHtml(item.responsavel_tecnico || '—')}</td>
+            <td>${escapeHtml(item.cnpj || '—')}</td>
+          <td>${escapeHtml(item.numero_contato || '—')}</td>
+          <td>${escapeHtml(item.obs || '—')}</td>
+        </tr>
+      `;
     });
-  });
-});
+
+    tbody.innerHTML = linhas.join('');
+  }
+
+  async function listarOficinas() {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/oficinas'), { headers: authHeaders() });
+      if (!resp.ok) throw new Error('Falha ao listar oficinas via API');
+      const data = await resp.json();
+      const lista = Array.isArray(data.oficinas) ? data.oficinas : [];
+      salvarOficinasLocal(lista);
+      return lista;
+    } catch (err) {
+      console.warn('API de oficinas indisponível, usando cache local:', err.message);
+      return carregarOficinasLocal();
+    }
+  }
+
+  async function salvarOficina(payload) {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/oficinas'), {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const dataErro = await resp.json().catch(() => ({}));
+        throw new Error(dataErro.mensagem || 'Erro ao salvar oficina na API.');
+      }
+
+      return await resp.json();
+    } catch (err) {
+      const lista = carregarOficinasLocal();
+      const novo = {
+        ...payload,
+        id: Date.now(),
+        created_at: new Date().toISOString(),
+      };
+      lista.unshift(novo);
+      salvarOficinasLocal(lista);
+      return { status: 'ok', oficina: novo, local: true };
+    }
+  }
+
+  function coletarFormularioOficina() {
+    const nomeOficina = document.getElementById('frota-oficina-nome').value.trim();
+    const endereco = document.getElementById('frota-oficina-endereco').value.trim();
+    const urlLocalizacao = normalizarUrlLocalizacao(document.getElementById('frota-oficina-url').value);
+    const servicos = document.getElementById('frota-oficina-servicos').value.trim();
+    const areaAtendimento = document.getElementById('frota-oficina-area').value.trim() || null;
+    const horarioFuncionamento = document.getElementById('frota-oficina-horario').value.trim();
+    const numeroContato = document.getElementById('frota-oficina-contato').value.trim() || null;
+    const obs = document.getElementById('frota-oficina-obs').value.trim() || null;
+
+    if (!nomeOficina || !endereco || !servicos || !horarioFuncionamento) {
+      throw new Error('Preencha os campos obrigatórios da oficina.');
+    }
+
+    return {
+      nome_oficina: nomeOficina,
+      endereco,
+      url_localizacao: urlLocalizacao,
+      servicos,
+      area_atendimento: areaAtendimento,
+      horario_funcionamento: horarioFuncionamento,
+      numero_contato: numeroContato,
+      obs,
+        responsavel_tecnico: document.getElementById('frota-oficina-responsavel').value.trim() || null,
+        cnpj: document.getElementById('frota-oficina-cnpj').value.trim() || null,
+    };
+  }
+
+  function limparFormularioOficina() {
+    const form = document.getElementById('frota-oficina-form');
+    if (form) form.reset();
+  }
+
+  function carregarAbastecimentosLocal() {
+    try {
+      const bruto = localStorage.getItem(FROTA_ABAST_LOCAL_KEY);
+      const lista = bruto ? JSON.parse(bruto) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) {
+      console.warn('Falha ao ler cache local de abastecimentos:', e);
+      return [];
+    }
+  }
+
+  function salvarAbastecimentosLocal(lista) {
+    localStorage.setItem(FROTA_ABAST_LOCAL_KEY, JSON.stringify(lista));
+  }
+
+  function arquivoParaDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Falha ao ler arquivo do comprovante.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function atualizarPreviewComprovante() {
+    const input = document.getElementById('frota-abast-comprovante');
+    const wrap = document.getElementById('frota-abast-preview-wrap');
+    const img = document.getElementById('frota-abast-preview');
+
+    if (!input || !wrap || !img) return;
+    const file = input.files && input.files[0];
+    if (!file) {
+      img.removeAttribute('src');
+      wrap.style.display = 'none';
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    img.src = objectUrl;
+    wrap.style.display = 'block';
+    img.onload = () => URL.revokeObjectURL(objectUrl);
+  }
+
+  function atualizarPreviewImagemVeiculo() {
+    const input = document.getElementById('frota-veiculo-imagem');
+    const preview = document.getElementById('frota-veiculo-imagem-preview');
+    const placeholder = document.getElementById('frota-veiculo-imagem-placeholder');
+
+    if (!input || !preview || !placeholder) return;
+    const file = input.files && input.files[0];
+    if (!file) {
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+      placeholder.style.display = 'block';
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    preview.src = objectUrl;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    preview.onload = () => URL.revokeObjectURL(objectUrl);
+  }
+
+  async function listarAbastecimentos() {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/abastecimentos'), { headers: authHeaders() });
+      if (!resp.ok) throw new Error('Falha ao listar abastecimentos via API');
+      const data = await resp.json();
+      const lista = Array.isArray(data.abastecimentos) ? data.abastecimentos : [];
+      salvarAbastecimentosLocal(lista);
+      return lista;
+    } catch (err) {
+      console.warn('API de abastecimentos indisponível, usando cache local:', err.message);
+      return carregarAbastecimentosLocal();
+    }
+  }
+
+  async function salvarAbastecimento(payload) {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/abastecimentos'), {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const dataErro = await resp.json().catch(() => ({}));
+        throw new Error(dataErro.mensagem || 'Erro ao salvar abastecimento na API.');
+      }
+
+      return await resp.json();
+    } catch (err) {
+      const lista = carregarAbastecimentosLocal();
+      const novo = {
+        ...payload,
+        id: Date.now(),
+        created_at: new Date().toISOString(),
+      };
+      lista.unshift(novo);
+      salvarAbastecimentosLocal(lista);
+      return { status: 'ok', abastecimento: novo, local: true };
+    }
+  }
+
+  function renderTabelaAbastecimentos(lista) {
+    const tbody = document.querySelector('#frota-tabela-abastecimentos tbody');
+    if (!tbody) return;
+
+    if (!Array.isArray(lista) || !lista.length) {
+      tbody.innerHTML = '<tr><td class="frota-vazio" colspan="6">Nenhum abastecimento cadastrado.</td></tr>';
+      return;
+    }
+
+    const linhas = lista.map(item => {
+      const comprovante = item.comprovante_foto
+        ? `<a class="frota-link-comprovante" href="${item.comprovante_foto}" target="_blank" rel="noopener">Ver foto</a>`
+        : '—';
+
+      return `
+        <tr>
+          <td>${escapeHtml(item.data_abastecimento || '—')}</td>
+          <td>${escapeHtml(item.hora_abastecimento || '—')}</td>
+          <td>${escapeHtml(item.placa || '—')}</td>
+          <td>${escapeHtml(item.numero_cartao || '—')}</td>
+          <td>${escapeHtml(item.obs || '—')}</td>
+          <td>${comprovante}</td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = linhas.join('');
+  }
+
+  function carregarCartoesAbastecimentoLocal() {
+    try {
+      const bruto = localStorage.getItem(FROTA_CARTOES_ABAST_LOCAL_KEY);
+      const lista = bruto ? JSON.parse(bruto) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) {
+      console.warn('Falha ao ler cache local de cartões de abastecimento:', e);
+      return [];
+    }
+  }
+
+  function salvarCartoesAbastecimentoLocal(lista) {
+    localStorage.setItem(FROTA_CARTOES_ABAST_LOCAL_KEY, JSON.stringify(lista));
+  }
+
+  async function salvarCartaoAbastecimento(payload) {
+    const lista = carregarCartoesAbastecimentoLocal();
+    const novo = {
+      id: Date.now(),
+      created_at: new Date().toISOString(),
+      ...payload,
+    };
+    lista.unshift(novo);
+    salvarCartoesAbastecimentoLocal(lista);
+    return { status: 'ok', cartao: novo, local: true };
+  }
+
+  function renderTabelaCartoesAbastecimento(lista) {
+    const tbody = document.querySelector('#frota-tabela-cartoes-abastecimento tbody');
+    if (!tbody) return;
+
+    if (!Array.isArray(lista) || !lista.length) {
+      tbody.innerHTML = '<tr><td class="frota-vazio" colspan="6">Nenhum cartão cadastrado.</td></tr>';
+      return;
+    }
+
+    const linhas = lista.map(item => `
+      <tr>
+        <td>${escapeHtml(item.nome || '—')}</td>
+        <td>${escapeHtml(item.numero || '—')}</td>
+        <td>${escapeHtml(item.placa || '—')}</td>
+        <td>${escapeHtml(item.bandeira || '—')}</td>
+        <td>${escapeHtml(item.status || '—')}</td>
+        <td>${escapeHtml(item.obs || '—')}</td>
+      </tr>
+    `);
+
+    tbody.innerHTML = linhas.join('');
+  }
+
+  function coletarFormularioCartaoAbastecimento() {
+    const nome = document.getElementById('frota-cartao-abastecimento-nome').value.trim();
+    const numero = document.getElementById('frota-cartao-abastecimento-numero').value.trim();
+    const placa = formatPlaca(document.getElementById('frota-cartao-abastecimento-placa').value);
+    const bandeira = document.getElementById('frota-cartao-abastecimento-bandeira').value.trim() || null;
+    const status = document.getElementById('frota-cartao-abastecimento-status').value;
+    const obs = document.getElementById('frota-cartao-abastecimento-obs').value.trim() || null;
+
+    if (!nome) throw new Error('Informe o nome do cartão de abastecimento.');
+    if (!numero) throw new Error('Informe o número do cartão de abastecimento.');
+
+    return { nome, numero, placa: placa || null, bandeira, status, obs };
+  }
+
+  function limparFormularioCartaoAbastecimento() {
+    const form = document.getElementById('frota-cartoes-abastecimento-form');
+    if (form) form.reset();
+  }
+
+  async function coletarFormularioAbastecimento() {
+    const placa = formatPlaca(document.getElementById('frota-abast-placa').value);
+    const numeroCartao = document.getElementById('frota-abast-cartao').value.trim();
+    const dataAbastecimento = document.getElementById('frota-abast-data').value;
+    const horaAbastecimento = document.getElementById('frota-abast-hora').value;
+    const obs = document.getElementById('frota-abast-obs').value.trim() || null;
+    const comprovanteInput = document.getElementById('frota-abast-comprovante');
+    const file = comprovanteInput?.files?.[0];
+
+    if (!placa) throw new Error('Selecione a placa do veículo abastecido.');
+    if (!numeroCartao) throw new Error('Informe o número do cartão de abastecimento.');
+    if (!dataAbastecimento || !horaAbastecimento) throw new Error('Data e hora devem estar preenchidas automaticamente.');
+    if (!file) throw new Error('Anexe a foto do comprovante.');
+    if (file.size > 6 * 1024 * 1024) throw new Error('A imagem do comprovante deve ter no máximo 6MB.');
+
+    const comprovanteFoto = await arquivoParaDataUrl(file);
+
+    return {
+      placa,
+      numero_cartao: numeroCartao,
+      data_abastecimento: dataAbastecimento,
+      hora_abastecimento: horaAbastecimento,
+      comprovante_foto: comprovanteFoto,
+      obs,
+    };
+  }
+
+  function limparFormularioAbastecimento() {
+    const form = document.getElementById('frota-abastecimento-form');
+    if (form) form.reset();
+    preencherDataHoraAbastecimento();
+    atualizarPreviewComprovante();
+  }
+
+  function carregarChecklistsLocal() {
+    try {
+      const bruto = localStorage.getItem(FROTA_CHECKLIST_LOCAL_KEY);
+      const lista = bruto ? JSON.parse(bruto) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) {
+      console.warn('Falha ao ler cache local de checklists:', e);
+      return [];
+    }
+  }
+
+  function salvarChecklistsLocal(lista) {
+    localStorage.setItem(FROTA_CHECKLIST_LOCAL_KEY, JSON.stringify(lista));
+  }
+
+  function formatDataHoraChecklist(valor) {
+    const d = valor ? new Date(valor) : new Date();
+    const data = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    const hora = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return `${data} ${hora}`;
+  }
+
+  function legendaChecklistTexto(valor) {
+    const legendaMap = {
+      frente: 'Frente',
+      traseira: 'Traseira',
+      lateral_esquerda: 'Lateral esquerda',
+      lateral_direita: 'Lateral direita',
+      painel: 'Painel',
+      extra: 'Foto extra',
+    };
+    return legendaMap[valor] || 'Imagem';
+  }
+
+  function parseFotosExtrasChecklist(valor) {
+    if (!valor) return [];
+    if (Array.isArray(valor)) return valor.filter(Boolean);
+    if (typeof valor === 'string') {
+      try {
+        const parsed = JSON.parse(valor);
+        return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+      } catch (_) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  function resetChecklistImagens() {
+    checklistImagens = {
+      frente: null,
+      traseira: null,
+      lateral_esquerda: null,
+      lateral_direita: null,
+      painel: null,
+      extras: [],
+    };
+  }
+
+  function proximaLegendaChecklist() {
+    const proxima = CHECKLIST_ETAPAS.find(etapa => !checklistImagens[etapa]);
+    return proxima || 'extra';
+  }
+
+  function atualizarStatusChecklist() {
+    const progresso = document.getElementById('frota-checklist-progresso');
+    if (!progresso) return;
+    progresso.textContent = '';
+    progresso.style.display = 'none';
+  }
+
+  function obterItensPreviewChecklist() {
+    const itens = [];
+
+    CHECKLIST_ETAPAS.forEach(etapa => {
+      const foto = checklistImagens[etapa];
+      if (!foto) return;
+
+      itens.push({
+        tipo: 'obrigatoria',
+        chave: etapa,
+        legenda: legendaChecklistTexto(etapa),
+        foto,
+      });
+    });
+
+    checklistImagens.extras.forEach((foto, idx) => {
+      itens.push({
+        tipo: 'extra',
+        indice: idx,
+        legenda: `Extra ${idx + 1}`,
+        foto,
+      });
+    });
+
+    return itens;
+  }
+
+  function garantirModalChecklistImagem() {
+    if (modalChecklistImagemEl) return modalChecklistImagemEl;
+
+    const modal = document.createElement('div');
+    modal.className = 'frota-checklist-modal';
+    modal.innerHTML = `
+      <div class="frota-checklist-modal-backdrop" data-acao="fechar"></div>
+      <div class="frota-checklist-modal-card" role="dialog" aria-modal="true" aria-label="Visualização da imagem do checklist">
+        <button type="button" class="frota-checklist-modal-fechar" data-acao="fechar" aria-label="Fechar visualização">×</button>
+        <div class="frota-checklist-modal-corpo">
+          <img class="frota-checklist-modal-img" src="" alt="Imagem ampliada do checklist">
+          <div class="frota-checklist-modal-actions">
+            <div class="frota-checklist-modal-tags">
+              <span class="frota-checklist-modal-tipo"></span>
+            </div>
+            <div class="frota-checklist-modal-row">
+              <label for="frota-checklist-modal-legenda">Editar legenda</label>
+              <select id="frota-checklist-modal-legenda" class="frota-checklist-modal-select">
+                <option value="frente">Frente</option>
+                <option value="traseira">Traseira</option>
+                <option value="lateral_esquerda">Lateral esquerda</option>
+                <option value="lateral_direita">Lateral direita</option>
+                <option value="painel">Painel</option>
+                <option value="extra">Foto extra</option>
+              </select>
+            </div>
+            <div class="frota-checklist-modal-row frota-checklist-modal-buttons">
+              <button type="button" class="btn-secundario btn-sm frota-checklist-modal-excluir">Excluir</button>
+              <button type="button" class="btn-primario btn-sm frota-checklist-modal-salvar">Salvar legenda</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    modal.addEventListener('click', (event) => {
+      if (event.target?.dataset?.acao === 'fechar') {
+        fecharModalChecklistImagem();
+      }
+    });
+
+    modal.querySelector('.frota-checklist-modal-salvar')?.addEventListener('click', () => {
+      const botaoSalvar = modal.querySelector('.frota-checklist-modal-salvar');
+      const legendaModal = modal.querySelector('#frota-checklist-modal-legenda')?.value;
+      if (botaoSalvar) botaoSalvar.disabled = true;
+
+      try {
+        editarLegendaImagemSelecionada(legendaModal);
+        const legendaSelect = document.getElementById('frota-checklist-legenda');
+        if (legendaSelect) legendaSelect.value = proximaLegendaChecklist();
+        fecharModalChecklistImagem();
+        atualizarPreviewChecklist();
+        atualizarStatusChecklist();
+      } catch (err) {
+        mostrarFeedback(err.message || 'Falha ao alterar legenda da imagem.', 'erro', 'frota-checklist-feedback');
+      } finally {
+        if (botaoSalvar) botaoSalvar.disabled = false;
+      }
+    });
+
+    modal.querySelector('.frota-checklist-modal-excluir')?.addEventListener('click', () => {
+      if (!confirm('Excluir esta imagem?')) return;
+      const botaoExcluir = modal.querySelector('.frota-checklist-modal-excluir');
+      if (botaoExcluir) botaoExcluir.disabled = true;
+
+      try {
+        excluirImagemChecklistSelecionada();
+      } catch (err) {
+        mostrarFeedback(err.message || 'Falha ao excluir imagem.', 'erro', 'frota-checklist-feedback');
+      } finally {
+        if (botaoExcluir) botaoExcluir.disabled = false;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('ativo')) {
+        fecharModalChecklistImagem();
+      }
+    });
+
+    document.body.appendChild(modal);
+    modalChecklistImagemEl = modal;
+    return modalChecklistImagemEl;
+  }
+
+  function fecharModalChecklistImagem() {
+    if (!modalChecklistImagemEl) return;
+    const img = modalChecklistImagemEl.querySelector('.frota-checklist-modal-img');
+    if (img) img.removeAttribute('src');
+    modalChecklistImagemEl.classList.remove('ativo');
+    document.body.classList.remove('frota-checklist-modal-aberto');
+    checklistModalSelecao = null;
+  }
+
+  function abrirModalChecklistImagem(tipo, chave, indice) {
+    const modal = garantirModalChecklistImagem();
+    const img = modal.querySelector('.frota-checklist-modal-img');
+    const legendaSelect = modal.querySelector('#frota-checklist-modal-legenda');
+    const tipoEl = modal.querySelector('.frota-checklist-modal-tipo');
+    if (!modal || !img || !legendaSelect) return;
+
+    let foto = null;
+    let legenda = 'extra';
+
+    if (tipo === 'obrigatoria') {
+      foto = checklistImagens[chave] || null;
+      legenda = chave;
+    } else {
+      foto = checklistImagens.extras[indice] || null;
+      legenda = 'extra';
+    }
+
+    if (!foto) return;
+
+    checklistModalSelecao = { tipo, chave, indice };
+    img.src = foto;
+    legendaSelect.value = legenda;
+    if (tipoEl) tipoEl.textContent = tipo === 'extra' ? `Extra ${Number(indice) + 1}` : legendaChecklistTexto(chave);
+    modal.classList.add('ativo');
+    document.body.classList.add('frota-checklist-modal-aberto');
+  }
+
+  function excluirImagemChecklistSelecionada() {
+    if (!checklistModalSelecao) return;
+
+    if (checklistModalSelecao.tipo === 'obrigatoria') {
+      checklistImagens[checklistModalSelecao.chave] = null;
+    } else if (typeof checklistModalSelecao.indice === 'number') {
+      checklistImagens.extras.splice(checklistModalSelecao.indice, 1);
+    }
+
+    const legendaSelect = document.getElementById('frota-checklist-legenda');
+    if (legendaSelect) legendaSelect.value = proximaLegendaChecklist();
+
+    fecharModalChecklistImagem();
+    atualizarPreviewChecklist();
+    atualizarStatusChecklist();
+  }
+
+  function editarLegendaImagemSelecionada(novaLegenda) {
+    if (!checklistModalSelecao || !novaLegenda) return;
+
+    const origemTipo = checklistModalSelecao.tipo;
+    const origemChave = checklistModalSelecao.chave;
+    const origemIndice = checklistModalSelecao.indice;
+
+    let foto = null;
+    if (origemTipo === 'obrigatoria') {
+      foto = checklistImagens[origemChave] || null;
+    } else if (typeof origemIndice === 'number') {
+      foto = checklistImagens.extras[origemIndice] || null;
+    }
+
+    if (!foto) {
+      throw new Error('Imagem selecionada não foi encontrada.');
+    }
+
+    if (novaLegenda === 'extra') {
+      if (origemTipo === 'extra') return;
+      checklistImagens.extras.push(foto);
+      checklistImagens[origemChave] = null;
+      return;
+    }
+
+    if (origemTipo === 'obrigatoria' && origemChave === novaLegenda) {
+      return;
+    }
+
+    if (checklistImagens[novaLegenda]) {
+      throw new Error(`A legenda ${legendaChecklistTexto(novaLegenda)} já possui imagem. Exclua ou altere a imagem atual antes.`);
+    }
+
+    checklistImagens[novaLegenda] = foto;
+    if (origemTipo === 'obrigatoria') {
+      checklistImagens[origemChave] = null;
+    } else if (typeof origemIndice === 'number') {
+      checklistImagens.extras.splice(origemIndice, 1);
+    }
+  }
+
+  function montarLinksChecklist(item) {
+    const links = [];
+    if (item.foto_frente) links.push(`<a href="${item.foto_frente}" target="_blank" rel="noopener">Frente</a>`);
+    if (item.foto_traseira) links.push(`<a href="${item.foto_traseira}" target="_blank" rel="noopener">Traseira</a>`);
+    if (item.foto_lateral_esquerda) links.push(`<a href="${item.foto_lateral_esquerda}" target="_blank" rel="noopener">Lat. Esq.</a>`);
+    if (item.foto_lateral_direita) links.push(`<a href="${item.foto_lateral_direita}" target="_blank" rel="noopener">Lat. Dir.</a>`);
+    if (item.foto_painel) links.push(`<a href="${item.foto_painel}" target="_blank" rel="noopener">Painel</a>`);
+
+    const extras = parseFotosExtrasChecklist(item.fotos_extras);
+    extras.forEach((foto, idx) => {
+      links.push(`<a href="${foto}" target="_blank" rel="noopener">Extra ${idx + 1}</a>`);
+    });
+
+    if (item.imagem_foto) {
+      const legenda = legendaChecklistTexto(item.imagem_legenda);
+      links.push(`<a href="${item.imagem_foto}" target="_blank" rel="noopener">${escapeHtml(legenda)}</a>`);
+    }
+
+    if (!links.length) return '—';
+    return `<div class="frota-checklist-links">${links.join('')}</div>`;
+  }
+
+  function renderTabelaChecklist(lista) {
+    const tbody = document.querySelector('#frota-tabela-checklist tbody');
+    if (!tbody) return;
+
+    if (!Array.isArray(lista) || !lista.length) {
+      tbody.innerHTML = '<tr><td class="frota-vazio" colspan="11">Nenhum checklist cadastrado.</td></tr>';
+      return;
+    }
+
+    const linhas = lista.map(item => `
+      <tr>
+        <td>${escapeHtml(formatDataHoraChecklist(item.created_at))}</td>
+        <td>${escapeHtml(item.placa || '—')}</td>
+        <td>${escapeHtml(item.motorista || '—')}</td>
+        <td>${item.km ?? '—'}</td>
+        <td>${escapeHtml(item.verificacao_estepe || '—')}</td>
+        <td>${escapeHtml(item.confirmacao_itens_checklist || '—')}</td>
+        <td>${escapeHtml(item.obs_itens_checklist || '—')}</td>
+        <td>${escapeHtml(item.confirmacao_equipamentos || '—')}</td>
+        <td>${escapeHtml(item.obs_equipamentos || '—')}</td>
+        <td>${escapeHtml(item.obs || '—')}</td>
+        <td>${montarLinksChecklist(item)}</td>
+      </tr>
+    `);
+
+    tbody.innerHTML = linhas.join('');
+  }
+
+  async function listarChecklists() {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/checklists'), { headers: authHeaders() });
+      if (!resp.ok) throw new Error('Falha ao listar checklists via API');
+      const data = await resp.json();
+      const lista = Array.isArray(data.checklists) ? data.checklists : [];
+      salvarChecklistsLocal(lista);
+      frotaChecklistsCache = lista;
+      return lista;
+    } catch (err) {
+      console.warn('API de checklist indisponível, usando cache local:', err.message);
+      const lista = carregarChecklistsLocal();
+      frotaChecklistsCache = lista;
+      return lista;
+    }
+  }
+
+  async function salvarChecklist(payload) {
+    try {
+      const resp = await fetch(frotaApiUrl('frota/checklists'), {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const dataErro = await resp.json().catch(() => ({}));
+        throw new Error(dataErro.mensagem || 'Erro ao salvar checklist na API.');
+      }
+
+      return await resp.json();
+    } catch (err) {
+      const lista = carregarChecklistsLocal();
+      const novo = {
+        ...payload,
+        id: Date.now(),
+        created_at: new Date().toISOString(),
+      };
+      lista.unshift(novo);
+      salvarChecklistsLocal(lista);
+      return { status: 'ok', checklist: novo, local: true };
+    }
+  }
+
+  function obterArquivoChecklist() {
+    const input = document.getElementById('frota-checklist-foto');
+    const file = input?.files?.[0];
+    if (!file) throw new Error('Anexe uma imagem do checklist.');
+    if (file.size > 6 * 1024 * 1024) throw new Error('A imagem do checklist deve ter no máximo 6MB.');
+    return file;
+  }
+
+  async function adicionarImagemChecklistAtual() {
+    const legendaSelect = document.getElementById('frota-checklist-legenda');
+    const fotoInput = document.getElementById('frota-checklist-foto');
+    if (!legendaSelect || !fotoInput || !fotoInput.files?.[0]) return;
+
+    const legendaAtual = legendaSelect.value;
+    if (!legendaAtual) throw new Error('Selecione a legenda da imagem antes de anexar o arquivo.');
+
+    const arquivo = obterArquivoChecklist();
+    const foto = await arquivoParaDataUrl(arquivo);
+
+    if (legendaAtual === 'extra') {
+      checklistImagens.extras.push(foto);
+    } else {
+      checklistImagens[legendaAtual] = foto;
+    }
+
+    fotoInput.value = '';
+    legendaSelect.value = proximaLegendaChecklist();
+    atualizarPreviewChecklist();
+    atualizarStatusChecklist();
+  }
+
+  async function coletarFormularioChecklist() {
+    const placa = formatPlaca(document.getElementById('frota-checklist-placa').value);
+    const motorista = document.getElementById('frota-checklist-motorista').value.trim();
+    const km = toIntOrNull(document.getElementById('frota-checklist-km').value);
+    const verificacaoEstepe = document.getElementById('frota-checklist-estepe').value;
+    const confirmacaoItensChecklist = document.getElementById('frota-checklist-conf-itens').value;
+    const obsItensChecklist = document.getElementById('frota-checklist-obs-itens').value.trim() || null;
+    const confirmacaoEquipamentos = document.getElementById('frota-checklist-conf-equipamentos').value;
+    const obsEquipamentos = document.getElementById('frota-checklist-obs-equipamentos').value.trim() || null;
+    const obs = document.getElementById('frota-checklist-obs').value.trim() || null;
+
+    if (!placa) throw new Error('Selecione a placa do veículo no checklist.');
+    if (!motorista) throw new Error('Motorista não identificado. Recarregue a página e tente novamente.');
+    if (km == null) throw new Error('Informe a quilometragem (km).');
+    if (!verificacaoEstepe) throw new Error('Informe a verificação do estepe.');
+    if (!confirmacaoItensChecklist) throw new Error('Informe a confirmação de verificação dos itens específicos.');
+    if (!confirmacaoEquipamentos) throw new Error('Informe a confirmação de verificação de equipamentos/ferramentas.');
+    if (confirmacaoItensChecklist === 'Não está conforme' && !obsItensChecklist) {
+      throw new Error('Descreva a observação dos itens específicos que não estão conforme.');
+    }
+    if (confirmacaoEquipamentos === 'Não está conforme' && !obsEquipamentos) {
+      throw new Error('Descreva a observação dos equipamentos/ferramentas que não estão conforme.');
+    }
+
+    if (CHECKLIST_ETAPAS.some(etapa => !checklistImagens[etapa])) {
+      throw new Error('Complete as imagens obrigatórias do checklist: frente, traseira, laterais e painel.');
+    }
+
+    return {
+      placa,
+      motorista,
+      km,
+      verificacao_estepe: verificacaoEstepe,
+      confirmacao_itens_checklist: confirmacaoItensChecklist,
+      obs_itens_checklist: obsItensChecklist,
+      confirmacao_equipamentos: confirmacaoEquipamentos,
+      obs_equipamentos: obsEquipamentos,
+      foto_frente: checklistImagens.frente,
+      foto_traseira: checklistImagens.traseira,
+      foto_lateral_esquerda: checklistImagens.lateral_esquerda,
+      foto_lateral_direita: checklistImagens.lateral_direita,
+      foto_painel: checklistImagens.painel,
+      fotos_extras: checklistImagens.extras,
+      obs,
+    };
+  }
+
+  function limparFormularioChecklist() {
+    const form = document.getElementById('frota-checklist-form');
+    if (form) form.reset();
+    resetChecklistImagens();
+    fecharModalChecklistImagem();
+    const legendaSelect = document.getElementById('frota-checklist-legenda');
+    if (legendaSelect) legendaSelect.value = 'frente';
+    preencherMotoristaChecklist();
+    atualizarPreviewChecklist();
+    atualizarStatusChecklist();
+  }
+
+  function atualizarPreviewChecklist() {
+    const previewGrid = document.getElementById('frota-checklist-preview-grid');
+    if (!previewGrid) return;
+
+    const itens = obterItensPreviewChecklist().map(item => {
+      const attrs = item.tipo === 'obrigatoria'
+        ? `data-preview-tipo="obrigatoria" data-preview-chave="${item.chave}"`
+        : `data-preview-tipo="extra" data-preview-indice="${item.indice}"`;
+
+      return `<div class="frota-checklist-preview-item" ${attrs}><strong>${escapeHtml(item.legenda)}</strong><img src="${item.foto}" alt="${escapeHtml(item.legenda)}"></div>`;
+    });
+
+    if (!itens.length) {
+      previewGrid.innerHTML = '';
+      previewGrid.style.display = 'none';
+      return;
+    }
+
+    previewGrid.innerHTML = itens.join('');
+    previewGrid.style.display = 'grid';
+  }
+
+  function inicializarAbas() {
+    const legendaPrincipal = document.getElementById('legenda-principal');
+    const tabs = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    const gerenciamentoTab = document.querySelector('.tab-btn[data-tab="gerenciamento"]');
+    const gerenciamentoContent = document.getElementById('gerenciamento');
+    if (gerenciamentoTab && gerenciamentoContent && legendaPrincipal) {
+      gerenciamentoTab.classList.add('active');
+      gerenciamentoContent.classList.add('active');
+      legendaPrincipal.textContent = 'Painel Geral';
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        const contentToShow = document.getElementById(tabId);
+        if (contentToShow) contentToShow.classList.add('active');
+
+        if (tabId === 'abastecimento') {
+          preencherDataHoraAbastecimento();
+        }
+
+        if (tabId === 'checklist') {
+          preencherSelectPlacasChecklist(frotaVeiculosCache);
+          preencherMotoristaChecklist();
+          const placaChecklist = document.getElementById('frota-checklist-placa')?.value;
+          atualizarInfoChecklistVeiculo(placaChecklist);
+          preencherKmChecklistPorPlaca(placaChecklist);
+        }
+
+        if (tabId === 'gerenciamento' && frotaMapa) {
+          setTimeout(() => {
+            frotaMapa.invalidateSize();
+          }, 60);
+        }
+
+        if (legendaPrincipal) legendaPrincipal.textContent = this.textContent.trim();
+      });
+    });
+  }
+
+  async function inicializarFrota() {
+    inicializarAbas();
+
+    const placaInput = document.getElementById('frota-placa');
+    if (placaInput) {
+      placaInput.addEventListener('input', () => {
+        placaInput.value = formatPlaca(placaInput.value);
+      });
+    }
+
+    const form = document.getElementById('frota-veiculo-form');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        try {
+          const payload = coletarFormulario();
+          const result = await salvarVeiculo(payload);
+          const fileInput = document.getElementById('frota-veiculo-imagem');
+          const file = fileInput?.files?.[0];
+          if (file) {
+            const dataUrl = await arquivoParaDataUrl(file);
+            const mapa = carregarImagensVeiculosLocal();
+            mapa[payload.placa] = dataUrl;
+            salvarImagensVeiculosLocal(mapa);
+          }
+          const lista = await listarVeiculos();
+          renderTabela(lista);
+          limparFormulario();
+
+          if (result.local) {
+            mostrarFeedback('Veículo cadastrado no modo local (sem API).', 'ok', 'frota-feedback');
+          } else {
+            mostrarFeedback('Veículo cadastrado com sucesso.', 'ok', 'frota-feedback');
+          }
+        } catch (err) {
+          mostrarFeedback(err.message || 'Falha ao cadastrar veículo.', 'erro', 'frota-feedback');
+        }
+      });
+    }
+
+    const btnLimpar = document.getElementById('frota-btn-limpar');
+    if (btnLimpar) {
+      btnLimpar.addEventListener('click', limparFormulario);
+    }
+
+    const formOficina = document.getElementById('frota-oficina-form');
+    if (formOficina) {
+      formOficina.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const payload = coletarFormularioOficina();
+          const result = await salvarOficina(payload);
+          const listaOficinas = await listarOficinas();
+          renderTabelaOficinas(listaOficinas);
+          limparFormularioOficina();
+
+          if (result.local) {
+            mostrarFeedback('Oficina cadastrada no modo local (sem API).', 'ok', 'frota-oficina-feedback');
+          } else {
+            mostrarFeedback('Oficina cadastrada com sucesso.', 'ok', 'frota-oficina-feedback');
+          }
+        } catch (err) {
+          mostrarFeedback(err.message || 'Falha ao cadastrar oficina.', 'erro', 'frota-oficina-feedback');
+        }
+      });
+    }
+
+    const btnOficinaLimpar = document.getElementById('frota-oficina-limpar');
+    if (btnOficinaLimpar) {
+      btnOficinaLimpar.addEventListener('click', limparFormularioOficina);
+    }
+
+    const inputComprovante = document.getElementById('frota-abast-comprovante');
+    if (inputComprovante) {
+      inputComprovante.addEventListener('change', atualizarPreviewComprovante);
+    }
+
+    const inputVeiculoImagem = document.getElementById('frota-veiculo-imagem');
+    const veiculoImagemCard = document.getElementById('frota-veiculo-imagem-card');
+    if (veiculoImagemCard && inputVeiculoImagem) {
+      veiculoImagemCard.addEventListener('click', () => {
+        inputVeiculoImagem.click();
+      });
+      inputVeiculoImagem.addEventListener('change', atualizarPreviewImagemVeiculo);
+    }
+
+    const btnAbastAgora = document.getElementById('frota-abast-agora');
+    if (btnAbastAgora) {
+      btnAbastAgora.addEventListener('click', preencherDataHoraAbastecimento);
+    }
+
+    const btnAbastLimpar = document.getElementById('frota-abast-limpar');
+    if (btnAbastLimpar) {
+      btnAbastLimpar.addEventListener('click', limparFormularioAbastecimento);
+    }
+
+    const selectPlacaAbast = document.getElementById('frota-abast-placa');
+    if (selectPlacaAbast) {
+      selectPlacaAbast.addEventListener('change', () => {
+        preencherCartaoAbastecimentoPorPlaca(selectPlacaAbast.value);
+      });
+    }
+
+    const formAbast = document.getElementById('frota-abastecimento-form');
+    if (formAbast) {
+      formAbast.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const payload = await coletarFormularioAbastecimento();
+          const result = await salvarAbastecimento(payload);
+          const listaAbastecimentos = await listarAbastecimentos();
+          renderTabelaAbastecimentos(listaAbastecimentos);
+          limparFormularioAbastecimento();
+
+          if (result.local) {
+            mostrarFeedback('Abastecimento salvo no modo local (sem API).', 'ok', 'frota-abast-feedback');
+          } else {
+            mostrarFeedback('Abastecimento registrado com sucesso.', 'ok', 'frota-abast-feedback');
+          }
+        } catch (err) {
+          mostrarFeedback(err.message || 'Falha ao salvar abastecimento.', 'erro', 'frota-abast-feedback');
+        }
+      });
+    }
+
+    const btnCartaoLimpar = document.getElementById('frota-cartao-abastecimento-limpar');
+    if (btnCartaoLimpar) {
+      btnCartaoLimpar.addEventListener('click', limparFormularioCartaoAbastecimento);
+    }
+
+    const formCartoes = document.getElementById('frota-cartoes-abastecimento-form');
+    if (formCartoes) {
+      formCartoes.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const payload = coletarFormularioCartaoAbastecimento();
+          const result = await salvarCartaoAbastecimento(payload);
+          renderTabelaCartoesAbastecimento(carregarCartoesAbastecimentoLocal());
+          limparFormularioCartaoAbastecimento();
+
+          if (result.local) {
+            mostrarFeedback('Cartão de abastecimento salvo localmente.', 'ok', 'frota-cartoes-abastecimento-feedback');
+          } else {
+            mostrarFeedback('Cartão de abastecimento salvo.', 'ok', 'frota-cartoes-abastecimento-feedback');
+          }
+        } catch (err) {
+          mostrarFeedback(err.message || 'Falha ao salvar cartão de abastecimento.', 'erro', 'frota-cartoes-abastecimento-feedback');
+        }
+      });
+    }
+
+    const checklistFotoInput = document.getElementById('frota-checklist-foto');
+    if (checklistFotoInput) {
+      checklistFotoInput.addEventListener('change', async () => {
+        try {
+          await adicionarImagemChecklistAtual();
+        } catch (err) {
+          mostrarFeedback(err.message || 'Falha ao adicionar imagem do checklist.', 'erro', 'frota-checklist-feedback');
+        }
+      });
+    }
+
+    const checklistLegendaSelect = document.getElementById('frota-checklist-legenda');
+    if (checklistLegendaSelect) {
+      checklistLegendaSelect.value = 'frente';
+      checklistLegendaSelect.addEventListener('change', atualizarStatusChecklist);
+    }
+
+    const checklistConfItens = document.getElementById('frota-checklist-conf-itens');
+    if (checklistConfItens) {
+      checklistConfItens.addEventListener('change', atualizarVisibilidadeObsChecklist);
+    }
+
+    const checklistConfEquip = document.getElementById('frota-checklist-conf-equipamentos');
+    if (checklistConfEquip) {
+      checklistConfEquip.addEventListener('change', atualizarVisibilidadeObsChecklist);
+    }
+
+    const checklistPlacaSelect = document.getElementById('frota-checklist-placa');
+    if (checklistPlacaSelect) {
+      checklistPlacaSelect.addEventListener('change', () => {
+        atualizarInfoChecklistVeiculo(checklistPlacaSelect.value);
+        preencherKmChecklistPorPlaca(checklistPlacaSelect.value);
+      });
+    }
+
+    const checklistToggleListaEquip = document.getElementById('frota-checklist-toggle-lista-equipamentos');
+    if (checklistToggleListaEquip) {
+      checklistToggleListaEquip.addEventListener('click', () => {
+        definirVisibilidadeListaEquipamentos(!listaEquipamentosVisivel);
+      });
+    }
+
+    const checklistPreviewGrid = document.getElementById('frota-checklist-preview-grid');
+    if (checklistPreviewGrid) {
+      checklistPreviewGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.frota-checklist-preview-item');
+        if (!card) return;
+
+        const tipo = card.getAttribute('data-preview-tipo');
+        if (tipo === 'obrigatoria') {
+          abrirModalChecklistImagem('obrigatoria', card.getAttribute('data-preview-chave'), null);
+          return;
+        }
+
+        const indice = Number(card.getAttribute('data-preview-indice'));
+        if (tipo === 'extra' && Number.isFinite(indice)) {
+          abrirModalChecklistImagem('extra', null, indice);
+        }
+      });
+    }
+
+    atualizarStatusChecklist();
+
+    const btnChecklistLimpar = document.getElementById('frota-checklist-limpar');
+    if (btnChecklistLimpar) {
+      btnChecklistLimpar.addEventListener('click', limparFormularioChecklist);
+    }
+
+    const formChecklist = document.getElementById('frota-checklist-form');
+    if (formChecklist) {
+      formChecklist.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const payload = await coletarFormularioChecklist();
+          const result = await salvarChecklist(payload);
+          const listaChecklist = await listarChecklists();
+          renderTabelaChecklist(listaChecklist);
+          limparFormularioChecklist();
+
+          if (result.local) {
+            mostrarFeedback('Checklist salvo no modo local (sem API).', 'ok', 'frota-checklist-feedback');
+          } else {
+            mostrarFeedback('Checklist registrado com sucesso.', 'ok', 'frota-checklist-feedback');
+          }
+        } catch (err) {
+          mostrarFeedback(err.message || 'Falha ao salvar checklist.', 'erro', 'frota-checklist-feedback');
+        }
+      });
+    }
+
+    const listaInicial = await listarVeiculos();
+    renderTabela(listaInicial);
+
+    preencherSelectPlacasAbastecimento(listaInicial);
+    preencherSelectPlacasCartoesAbastecimento(listaInicial);
+    preencherSelectPlacasChecklist(listaInicial);
+    atualizarInfoChecklistVeiculo(document.getElementById('frota-checklist-placa')?.value);
+    preencherKmChecklistPorPlaca(document.getElementById('frota-checklist-placa')?.value);
+    preencherCartaoAbastecimentoPorPlaca(document.getElementById('frota-abast-placa')?.value);
+    definirVisibilidadeListaEquipamentos(false);
+    preencherMotoristaChecklist();
+    atualizarVisibilidadeObsChecklist();
+    preencherDataHoraAbastecimento();
+    const listaAbastecimentos = await listarAbastecimentos();
+    renderTabelaAbastecimentos(listaAbastecimentos);
+    const listaCartoes = carregarCartoesAbastecimentoLocal();
+    renderTabelaCartoesAbastecimento(listaCartoes);
+    const listaChecklist = await listarChecklists();
+    renderTabelaChecklist(listaChecklist);
+    preencherKmChecklistPorPlaca(document.getElementById('frota-checklist-placa')?.value);
+    const listaOficinas = await listarOficinas();
+    renderTabelaOficinas(listaOficinas);
+  }
+
+  document.addEventListener('DOMContentLoaded', inicializarFrota);
+})();

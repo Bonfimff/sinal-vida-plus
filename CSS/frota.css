@@ -8,7 +8,7 @@
 .frota-card {
 	background: #ffffff;
 	border: 1px solid #e6e6e6;
-	border-left: 4px solid #ffcb1f;
+	border-left: 4px solid var(--cor-destaque);
 	border-radius: 8px;
 	padding: 12px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -127,8 +127,8 @@
 
 .frota-form-item textarea:focus {
 	outline: none;
-	border-color: #ffcb1f;
-	box-shadow: 0 0 0 2px rgba(255, 203, 31, 0.2);
+	border-color: var(--cor-destaque);
+	box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.2);
 }
 
 .frota-form-actions {
@@ -139,7 +139,9 @@
 
 .frota-tabela-wrap {
 	margin-top: 16px;
+	max-width: 100%;
 	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 	background: #fff;
 	border: 1px solid #ececec;
 	border-radius: 8px;
@@ -520,8 +522,8 @@
 }
 
 .frota-icon-toggle:hover {
-	border-color: #ffcb1f;
-	background: #fff7db;
+	border-color: var(--cor-destaque);
+	background: #f1f5f9;
 }
 
 .frota-icon-toggle svg {
@@ -531,8 +533,8 @@
 }
 
 .frota-icon-toggle.ativo {
-	border-color: #d7a800;
-	background: #ffcb1f;
+	border-color: var(--cor-destaque-escura);
+	background: var(--cor-destaque);
 }
 
 .frota-icon-toggle.ativo svg {
@@ -603,7 +605,7 @@
 .frota-checklist-modal {
 	position: fixed;
 	inset: 0;
-	z-index: 1200;
+	z-index: var(--z-modal);
 	display: none;
 	align-items: center;
 	justify-content: center;
@@ -729,8 +731,8 @@
 
 .frota-checklist-modal-select:focus {
 	outline: none;
-	border-color: #ffcb1f;
-	box-shadow: 0 0 0 2px rgba(255, 203, 31, 0.35);
+	border-color: var(--cor-destaque);
+	box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.35);
 	background: rgba(255, 255, 255, 0.18);
 }
 
@@ -741,8 +743,8 @@
 }
 
 .frota-checklist-modal-salvar {
-	background: #ffcb1f !important;
-	color: #1c1c1c !important;
+	background: var(--cor-destaque) !important;
+	color: #fff !important;
 	border-color: transparent !important;
 }
 
@@ -789,7 +791,7 @@ body.frota-checklist-modal-aberto {
 	text-decoration: underline;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
 	.frota-form-grid {
 		grid-template-columns: repeat(2, minmax(150px, 1fr));
 	}
@@ -831,7 +833,7 @@ body.frota-checklist-modal-aberto {
 	}
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
 	.frota-form-grid {
 		grid-template-columns: 1fr;
 	}

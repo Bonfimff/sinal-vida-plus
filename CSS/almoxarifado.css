@@ -18,11 +18,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px solid #ffd5007b;
+  border: 1px solid #e2e8ea;
 }
-.inline-style-8e4862 { color: #2c5f14; margin-bottom: 12px; }
+.inline-style-8e4862 { color: #1F2D3D; margin-bottom: 12px; }
 .inline-style-0a04c9 { font-size: 1.1em; color:#222; }
-.inline-style-2698e9 { color: #5f2814; margin-bottom: 12px; }
+.inline-style-2698e9 { color: #1F2D3D; margin-bottom: 12px; }
 .inline-style-c6eee8 { color: #950a0a; margin-bottom: 12px; }
 .inline-style-3433e5 { margin:0; padding-left:18px; }
 .inline-style-a38518 { color: #a2440e; margin-bottom: 12px; }
@@ -38,7 +38,7 @@
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  border: 2px solid #ffd5007b;
+  border: 1px solid #e2e8ea;
 }
 .inline-style-5fd781 { color: #555; }
 .estilo-tabela {
@@ -61,10 +61,10 @@
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  border: 2px solid #ffd5007b;
+  border: 1px solid #e2e8ea;
   box-shadow: 0 2px 12px #0001;
 }
-.inline-style-7bbfe0 { color: #2d6a4f; margin-bottom: 18px; }
+.inline-style-7bbfe0 { color: #1F2D3D; margin-bottom: 18px; }
 .inline-style-e0e97b {
   width:100%;
   border-collapse: separate;
@@ -74,8 +74,8 @@
   font-size: 1.08em;
 }
 .inline-style-bfaa2f {
-  background: #f9a825;
-  color: #222;
+  background: var(--cor-destaque);
+  color: #fff;
   border: none;
   border-radius: 4px;
   padding: 6px 14px;
@@ -365,7 +365,7 @@
 }
 
 .tabela-produtos th, .tabela-produtos td {
-  border: 1px solid #877B66;
+  border: 1px solid var(--cor-destaque);
   padding: 8px; 
   text-align: left; 
 }
@@ -450,12 +450,12 @@
 
 .top-tab2.active {
   
-  color: #FFCB1F;
+  color: #12B5AC;
 }
 
 .top-tab2.active-requisitantes {
-  color: #FFCB1F;
-  border: 2px solid #FFCB1F;
+  color: #12B5AC;
+  border: 2px solid #12B5AC;
 }
 
 .top-tab2:hover {
@@ -465,8 +465,8 @@
 }
 
 .acao-btn {
-  background-color: #FFCB1F;
-  color: #060606;
+  background-color: var(--cor-destaque);
+  color: #fff;
   border: none;
   border-radius: 4px;
   padding: 10px 15px;
@@ -476,7 +476,7 @@
 }
 
 .acao-btn:hover {
-  background-color: #e0b71a;
+  background-color: var(--cor-destaque-escura);
 }
 
 /* Estilo para o botão "Editar" */
@@ -529,29 +529,41 @@
   }
 
   .opcoes-abas button {
-    width: auto; 
+    width: auto;
+  }
+
+  .inline-style-056c46 {
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .inline-style-5139a9 {
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 calc(50% - 10px);
+    padding: 14px;
   }
 }
 
 /* Estilo para o botão de alternar colunas */
 #toggle-colunas {
-  background-color: #ffffff; 
-  color: #000000; 
-  border: 2px solid #FFD700; 
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid var(--cor-destaque);
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
-  transition: all 0.3s ease; 
+  transition: all 0.3s ease;
   margin-bottom: 10px;
 }
 
 
 
 #toggle-colunas:hover {
-  background-color: #FFFBEA;
-  color: #606060; 
-  border-color: #FFC300; 
+  background-color: #f1f5f9;
+  color: #606060;
+  border-color: var(--cor-destaque-escura);
 }
 
 /* Estilo para a div que contém os checkboxes */
@@ -586,7 +598,7 @@
   border: none;
 }
 /* Responsividade para o container dos checkboxes e grid interno */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   #colunas-visiveis,
   #colunas-visiveis-busca,
   #colunas-visiveis-produtos {

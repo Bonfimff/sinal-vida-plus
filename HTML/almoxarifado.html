@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../CSS/geral.css" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=3" />
   <link rel="stylesheet" href="../CSS/almoxarifado.css" />
-  <link rel="icon" href="../IMG/logoSvplus.png" type="image/png">
+  <link rel="icon" href="../IMG/Icone.png" type="image/png">
   <title>Almoxarifado</title>
   <style>
     #colunas-visiveis {
@@ -31,7 +31,7 @@
 <body>
   <!-- Menu lateral Almoxarifado -->
   <div class="menu">
-    <button class="tab-btn active" data-tab="gerenciamento">Gerenciamento</button>
+    <button class="tab-btn active" data-tab="gerenciamento">Painel Geral</button>
     <button class="tab-btn" data-tab="busca">Busca</button>
 
     <!-- <button class="tab-btn" data-tab="consultas-produtos">Produtos</button> -->
@@ -64,7 +64,7 @@
       <button class="top-tab active" id="almoxarifado-tab">Almoxarifado</button>
       <button class="top-tab" id="frota-tab">Frota</button>
       <button class="top-tab" id="ordens-tab">Ordens de Serviço</button>
-      <button class="top-tab" id="nobreaks-tab">Nobreaks</button> 
+      <button class="top-tab" id="gestao-tab">Gestão</button>
     </div>
   </div>
 
@@ -72,7 +72,7 @@
   <div class="content">
     <!-- Painel principal: Gerenciamento -->
     <div id="gerenciamento" class="tab-content active">
-      <h2 class="aba-legenda">Gerenciamento</h2>
+      <h2 class="aba-legenda">Painel Geral</h2>
       <hr class="aba-linha">
       <div class="inline-style-056c46">
         <!-- Estoque Principal -->
@@ -145,7 +145,7 @@
       <!-- Confirmação de Utilização de Itens -->
       <div class="inline-style-5d47ce">
         <h3 class="inline-style-7bbfe0">Confirmação de Utilização de Itens</h3>
-        <div id="agendamento-entradas-info">
+        <div id="confirmacao-utilizacao-info">
         <table class="estilo-tabela">
           <thead>
             <tr class="inline-style-881bd5">
@@ -211,7 +211,7 @@
             </div>
           </div>
           <button type="submit" class="btn-primario">Buscar</button>
-          <button type="button" id="btn-baixar-tabela" class="btn-primario" style="background:#6c6c00;">Baixar Tabela</button>
+          <button type="button" id="btn-baixar-tabela" class="btn-primario" style="background:#475569;">Baixar Tabela</button>
         </div>
       </form>
 
@@ -429,7 +429,7 @@
       <div class="entrada-header">
         <h2 class="aba-legenda">Entrada ⮷</h2>
         <div class="opcoes-abas">
-          <button id="btn-entrada1" class="top-tab2" style="color: #FFCB1F; border: 2px solid #FFCB1F;">Entrada</button>
+          <button id="btn-entrada1" class="top-tab2" style="color: #12B5AC; border: 2px solid #12B5AC;">Entrada</button>
           <button id="btn-retirada1"class="top-tab2" data-tab="retiradas">Retirada</button>
           <button id="btn-devolucao1"class="top-tab2" data-tab="devolucao">Devolução</button>
           <button id="btn-transferencia1" class="top-tab2">Transferência</button>
@@ -438,7 +438,7 @@
         </div>
         <hr class="aba-linha">
       <!-- Conteúdo da antiga aba Entrada -->
-      <form id="form-produtos">
+      <form id="form-entrada-produto">
         <div class="form-group linha inline-style-f12ec8">
           <!-- Coluna 1: Identificação -->
           <div class="form-coluna">
@@ -560,7 +560,7 @@
         <button id="btn-entrada2" class="top-tab2">Entrada</button>
         <button id="btn-retirada2"class="top-tab2" data-tab="retiradas">Retirada</button>
         <button id="btn-devolucao2"class="top-tab2" data-tab="devolucao">Devolução</button>
-        <button id="btn-transferencia2" class="top-tab2"style=" color: #FFCB1F; border: 2px solid #FFCB1F;">Transferência</button>
+        <button id="btn-transferencia2" class="top-tab2"style=" color: #12B5AC; border: 2px solid #12B5AC;">Transferência</button>
         <button id="btn-baixa2" class="top-tab2">Baixa</button>
       </div>
       </div>
@@ -581,7 +581,7 @@
         <button id="btn-retirada3"class="top-tab2" data-tab="retiradas">Retirada</button>
         <button id="btn-devolucao3"class="top-tab2" data-tab="devolucao">Devolução</button>
         <button id="btn-transferencia3" class="top-tab2">Transferência</button>
-        <button id="btn-baixa3" class="top-tab2"style=" color: #FFCB1F; border: 2px solid #FFCB1F;">Baixa</button>
+        <button id="btn-baixa3" class="top-tab2"style=" color: #12B5AC; border: 2px solid #12B5AC;">Baixa</button>
       </div>
       </div>
       <hr class="aba-linha">
@@ -597,7 +597,7 @@
       <h2 class="aba-legenda">Retirada ⮷</h2>
         <div class="opcoes-abas">
           <button id="btn-entrada4" class="top-tab2" >Entrada</button>
-          <button id="btn-retirada4"class="top-tab2" data-tab="retiradas"style="color: #FFCB1F; border: 2px solid #FFCB1F;">Retirada</button>
+          <button id="btn-retirada4"class="top-tab2" data-tab="retiradas"style="color: #12B5AC; border: 2px solid #12B5AC;">Retirada</button>
           <button id="btn-devolucao4"class="top-tab2" data-tab="devolucao">Devolução</button>
           <button id="btn-transferencia4" class="top-tab2">Transferência</button>
           <button id="btn-baixa4" class="top-tab2">Baixa</button>
@@ -717,7 +717,7 @@
       <div class="opcoes-abas">
           <button id="btn-entrada5" class="top-tab2" >Entrada</button>
           <button id="btn-retirada5"class="top-tab2" data-tab="retiradas">Retirada</button>
-          <button id="btn-devolucao5"class="top-tab2" data-tab="devolucao"style="color: #FFCB1F; border: 2px solid #FFCB1F;">Devolução</button>
+          <button id="btn-devolucao5"class="top-tab2" data-tab="devolucao"style="color: #12B5AC; border: 2px solid #12B5AC;">Devolução</button>
           <button id="btn-transferencia5" class="top-tab2">Transferência</button>
           <button id="btn-baixa5" class="top-tab2">Baixa</button>
       </div>
@@ -808,7 +808,7 @@
   <div class="entrada-header">
     <h2 class="aba-legenda">Requisitantes ⮷</h2>
     <div class="opcoes-abas">
-      <button class="top-tab2" style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="requisitantes">Requisitantes</button>
+      <button class="top-tab2" style=" color: #12B5AC; border: 2px solid #12B5AC;" data-tab="requisitantes">Requisitantes</button>
       <button class="top-tab2" data-tab="fornecedores">Fornecedores</button>
       <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
       <button class="top-tab2" data-tab="outros">Parâmetros</button>
@@ -861,7 +861,7 @@
     <h2 class="aba-legenda">Fornecedores ⮷</h2>
     <div class="opcoes-abas">
     <button class="top-tab2" data-tab="requisitantes">Requisitantes</button>
-    <button class="top-tab2 " style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="fornecedores">Fornecedores</button>
+    <button class="top-tab2 " style=" color: #12B5AC; border: 2px solid #12B5AC;" data-tab="fornecedores">Fornecedores</button>
     <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
     <button class="top-tab2" data-tab="outros">Parâmetros</button>
     <button id="btn-kits-fornecedores" class="top-tab2" data-tab="consultas-kits" style="margin-left: 12px;">Kits</button>
@@ -938,18 +938,18 @@
     <div class="produtos-coluna-esquerda" style="flex: 1;">
       <form id="form-produtos-consulta">
         <div>
-          <label for="nome-produto-consulta">Nome do Produto</label>
-          <input type="text" id="nome-produto-consulta" name="nome-produto-consulta" />
+          <label for="cp-nome-produto-consulta">Nome do Produto</label>
+          <input type="text" id="cp-nome-produto-consulta" name="nome-produto-consulta" />
         </div>
 
         <div>
-          <label for="codigo-produto-consulta">Código</label>
-          <input type="text" id="codigo-produto-consulta" name="codigo-produto-consulta" />
+          <label for="cp-codigo-produto-consulta">Código</label>
+          <input type="text" id="cp-codigo-produto-consulta" name="codigo-produto-consulta" />
         </div>
 
         <div>
-          <label for="categoria-produto-consulta">Categoria</label>
-          <select id="categoria-produto-consulta" name="categoria-produto-consulta">
+          <label for="cp-categoria-produto-consulta">Categoria</label>
+          <select id="cp-categoria-produto-consulta" name="categoria-produto-consulta">
             <option value="">Selecione</option>
             <option value="MATERIAL DE ESCRITÓRIO">MATERIAL DE ESCRITÓRIO</option>
             <option value="EPI">EPI</option>
@@ -958,10 +958,10 @@
         </div>
 
         <div style="margin-top: 10px;">
-          <button type="button" id="toggle-colunas" class="btn-toggle-colunas">Escolha as colunas a serem exibidas</button>
+          <button type="button" id="cp-toggle-colunas" class="btn-toggle-colunas">Escolha as colunas a serem exibidas</button>
           <button type="button" id="toggle-colunas-kits" class="btn-toggle-colunas" style="display:none;">Escolha as colunas dos kits</button>
           <button type="submit" id="btn-listarProdutos">Buscar Produtos</button>
-          <button type="button" id="btn-baixar-tabela" class="acao-btn" style="background: #4CAF50; color: #fff;">Baixar Tabela</button>
+          <button type="button" id="cp-btn-baixar-tabela" class="acao-btn" style="background: #4CAF50; color: #fff;">Baixar Tabela</button>
         </div>
       </form>
 
@@ -998,7 +998,7 @@
       <div class="image-preview-container" style="
         width: 250px;
         height: 250px;
-        border: 2px solid #FFCB1F;
+        border: 2px solid #475569;
         border-radius: 8px;
         background-color: #f9f9f9;
         display: flex;
@@ -1041,7 +1041,7 @@
           <button class="top-tab2" data-tab="fornecedores">Fornecedores</button>
           <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
           <button class="top-tab2" data-tab="outros">Parâmetros</button>
-          <button class="top-tab2" style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="consultas-kits">Kits</button>
+          <button class="top-tab2" style=" color: #12B5AC; border: 2px solid #12B5AC;" data-tab="consultas-kits">Kits</button>
         </div>
       </div>
       <hr class="aba-linha">
@@ -1075,11 +1075,10 @@
     </div>
     <!-- Coluna 3: Imagem do kit (opcional) -->
     <div class="form-coluna" style="flex: 0 0 240px; min-width:220px; max-width:320px; align-items:center; justify-content:flex-start;">
-      <div class="image-preview-container" style="width: 180px; height: 180px; border: 2px solid #FFCB1F; border-radius: 8px; background-color: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px;">
+      <div class="image-preview-container" style="width: 180px; height: 180px; border: 2px solid #475569; border-radius: 8px; background-color: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px;">
        <img id="preview-kit-cadastro" src="../IMG/Sem imagem.png" alt="Imagem do Kit" style="max-width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; transition: transform 0.2s ease;" title="Clique para expandir" />
       </div>
-    <!-- Imagem do produto selecionado no cadastro de kit 
-    <img id="preview-kit-cadastro" src="../IMG/Sem imagem.png" alt="Imagem do produto" style="max-width: 180px; max-height: 180px; border-radius: 8px; border: 1.5px solid #bbb; margin-top: 8px; background: #f8f8f8;">-->
+    <!-- (removido) preview duplicado de imagem do produto no cadastro de kit -->
     </div>
   </div>
   <button id="btn-cancelar-kit" class="acao-btn">Cancelar</button>
@@ -1088,7 +1087,7 @@
 </form>
 
       <!-- Seletor de colunas para a tabela de kits -->
-      <div id="colunas-visiveis-kits" style="margin-bottom: 10px;"></div>
+      <div id="colunas-visiveis-kits-cadastro" style="margin-bottom: 10px;"></div>
 
       <!-- tabela exclusiva para exibir os itens dos kits -->
       <div class="tabela-kits">
@@ -1122,14 +1121,14 @@
         <div class="opcoes-abas">
           <button class="top-tab2" data-tab="requisitantes">Requisitantes</button>
           <button class="top-tab2"  data-tab="fornecedores">Fornecedores</button>
-          <button class="top-tab2" style=" color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="cadastro-produto">Produto</button>
+          <button class="top-tab2" style=" color: #12B5AC; border: 2px solid #12B5AC;" data-tab="cadastro-produto">Produto</button>
           <button class="top-tab2" data-tab="outros">Parâmetros</button>
           <button id="btn-kits-produtos" class="top-tab2" data-tab="consultas-kits" style="margin-left: 12px;">Kits</button>
         </div>
       </div>
       <hr class="aba-linha">
       <!-- Conteúdo da aba Cadastro de Produtos -->
-      <form id="form-produtos">
+      <form id="form-cadastro-produto">
         <div class="form-group linha inline-style-f12ec8">
           <!-- Coluna 1: Identificação -->
           <div class="form-coluna">
@@ -1281,7 +1280,7 @@
         <button class="top-tab2" data-tab="requisitantes">Requisitantes</button>
         <button class="top-tab2" data-tab="fornecedores">Fornecedores</button>
         <button class="top-tab2" data-tab="cadastro-produto">Produtos</button>
-        <button class="top-tab2" style="color: #FFCB1F; border: 2px solid #FFCB1F;" data-tab="outros">Parâmetros</button>
+        <button class="top-tab2" style="color: #12B5AC; border: 2px solid #12B5AC;" data-tab="outros">Parâmetros</button>
         <button id="btn-kits-parametros" class="top-tab2" data-tab="consultas-kits" style="margin-left: 12px;">Kits</button>
       </div>
     </div>

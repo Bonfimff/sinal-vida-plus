@@ -1,0 +1,740 @@
+(function () {
+  const MODULOS = [
+    { chave: 'painel_geral', label: 'Início (Dashboard Geral)' },
+    { chave: 'frotas', label: 'Frotas (Veículos, Checklists e Abastecimentos)' },
+    { chave: 'almoxarifado', label: 'Almoxarifado (Estoque e Movimentações)' },
+    { chave: 'os_campo', label: 'O.S. Campo (Operações e Bases)' },
+    { chave: 'gestao', label: 'Gestão (Usuários e Permissões)' },
+  ];
+
+  const RESTRICOES = [
+    { chave: 'bloquear_cadastro_veiculo', label: 'Bloquear cadastro de veículos' },
+    { chave: 'bloquear_nova_os', label: 'Bloquear nova O.S. (abertura)' },
+    { chave: 'finalizar_os_apenas', label: 'Restrição: só finalizar O.S. atribuída' },
+    { chave: 'bloquear_atividade_contrato', label: 'Bloquear atividades de contrato/bases' },
+  ];
+
+  let perfisCache = [];
+  let usuarioLogadoId = null;
+  let usuarioEditandoId = null;
+  let perfilEditandoId = null;
+  let contratoEditandoId = null;
+
+  function authHeaders(json = false) {
+    const h = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+  }
+
+  function pegarIdUsuarioLogado() {
+    try {
+      const token = localStorage.getItem('token');
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return String(payload.sub);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function listaDeString(texto) {
+    const partes = (texto || '').split(',').map(s => s.trim()).filter(Boolean);
+    return partes.length ? partes : null;
+  }
+
+  function stringDeLista(lista) {
+    return Array.isArray(lista) ? lista.join(', ') : '';
+  }
+
+  // ===== Matriz de permissões (usada no form de usuário e de perfil) =====
+  function renderMatrizPermissoes(containerId, valoresAtuais) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const v = valoresAtuais || {};
+    container.innerHTML = `
+      <div class="gestao-matriz-linha gestao-matriz-cabecalho">
+        <span>Módulo</span>
+        <span>Visualizar</span>
+        <span>Modificar dados</span>
+      </div>
+      ${MODULOS.map(m => {
+        const atual = v[m.chave] || {};
+        return `
+          <div class="gestao-matriz-linha" data-modulo="${m.chave}">
+            <span>${m.label}</span>
+            <input type="checkbox" class="gestao-perm-ver" ${atual.ver ? 'checked' : ''}>
+            <input type="checkbox" class="gestao-perm-executar" ${atual.executar ? 'checked' : ''}>
+          </div>
+        `;
+      }).join('')}
+    `;
+  }
+
+  function coletarMatrizPermissoes(containerId) {
+    const container = document.getElementById(containerId);
+    const resultado = {};
+    if (!container) return resultado;
+    container.querySelectorAll('.gestao-matriz-linha[data-modulo]').forEach(linha => {
+      const modulo = linha.dataset.modulo;
+      resultado[modulo] = {
+        ver: linha.querySelector('.gestao-perm-ver')?.checked ? 1 : 0,
+        executar: linha.querySelector('.gestao-perm-executar')?.checked ? 1 : 0,
+      };
+    });
+    return resultado;
+  }
+
+  function renderRestricoes(containerId, valoresAtuais) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const v = valoresAtuais || {};
+    container.innerHTML = RESTRICOES.map(r => `
+      <label class="gestao-restricao-item">
+        <input type="checkbox" class="gestao-restricao-check" data-restricao="${r.chave}" ${v[r.chave] ? 'checked' : ''}>
+        ${r.label}
+      </label>
+    `).join('');
+  }
+
+  function coletarRestricoes(containerId) {
+    const container = document.getElementById(containerId);
+    const resultado = {};
+    if (!container) return resultado;
+    container.querySelectorAll('.gestao-restricao-check').forEach(chk => {
+      resultado[chk.dataset.restricao] = chk.checked ? 1 : 0;
+    });
+    return resultado;
+  }
+
+  // ===== Aba Usuários =====
+  async function carregarUsuarios() {
+    const tbody = document.querySelector('#tabela-usuarios tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:0.75rem;">Carregando...</td></tr>';
+    try {
+      const resp = await fetch(window.apiUrl('/usuarios'), { headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        tbody.innerHTML = `<tr><td colspan="4" style="padding:0.75rem;">${dados.mensagem || 'Erro ao carregar usuários.'}</td></tr>`;
+        return;
+      }
+
+      document.getElementById('gestao-total-cadastros').textContent = dados.kpis.total;
+      document.getElementById('gestao-total-admins').textContent = dados.kpis.administradores;
+      document.getElementById('gestao-total-tecnicos').textContent = dados.kpis.tecnicos_operadores;
+
+      if (!dados.usuarios.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:0.75rem;">Nenhum usuário cadastrado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = dados.usuarios.map(u => {
+        const ehVoce = String(u.id) === usuarioLogadoId;
+        const avatarSrc = u.foto_url || '../IMG/user-icon.png';
+        return `
+          <tr data-usuario-id="${u.id}">
+            <td>
+              <div class="gestao-usuario-cell">
+                <img class="gestao-avatar" src="${avatarSrc}" alt="${u.usuario}" onerror="this.src='../IMG/user-icon.png'">
+                <div>
+                  <div class="gestao-usuario-nome">${u.usuario}${ehVoce ? '<span class="gestao-tag gestao-tag-voce">Você</span>' : ''}</div>
+                  <div class="gestao-usuario-id">ID #${u.id}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="gestao-cargo-badge">${u.credencial_acesso || 'Sem cargo definido'}</span>
+              <div class="gestao-perfil-linha">
+                ${u.perfil_nome || 'Sem perfil vinculado'}
+                ${u.usa_permissoes_customizadas ? '<span class="gestao-tag gestao-tag-customizado">Customizado</span>' : ''}
+              </div>
+            </td>
+            <td>${u.email || '-'}</td>
+            <td>
+              <div class="gestao-acoes-cell">
+                <button type="button" class="gestao-btn-icone gestao-editar-usuario" title="Editar">✎</button>
+                <button type="button" class="gestao-btn-icone gestao-excluir-usuario" title="${u.pode_excluir ? 'Excluir' : 'Não é possível excluir este usuário'}" ${u.pode_excluir ? '' : 'disabled'}>🗑</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.gestao-editar-usuario').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.closest('tr').dataset.usuarioId;
+          abrirModalUsuario(dados.usuarios.find(u => String(u.id) === id));
+        });
+      });
+      tbody.querySelectorAll('.gestao-excluir-usuario').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.closest('tr').dataset.usuarioId;
+          excluirUsuario(id);
+        });
+      });
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+      tbody.innerHTML = '<tr><td colspan="4" style="padding:0.75rem;">Erro de conexão ao carregar usuários.</td></tr>';
+    }
+  }
+
+  async function excluirUsuario(id) {
+    if (!confirm('Excluir este usuário? Essa ação não pode ser desfeita.')) return;
+    try {
+      const resp = await fetch(window.apiUrl(`/usuarios/${id}`), { method: 'DELETE', headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        alert(`Não foi possível excluir: ${dados.mensagem || resp.statusText}`);
+        return;
+      }
+      carregarUsuarios();
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
+      alert('Erro de conexão ao excluir o usuário.');
+    }
+  }
+
+  function popularSelectPerfis() {
+    const select = document.getElementById('usuario-perfil');
+    if (!select) return;
+    const atual = select.value;
+    select.innerHTML = '<option value="">Nenhum (sem acesso extra)</option>' +
+      perfisCache.map(p => `<option value="${p.id}">${p.nome}${p.fabrica ? ' (fábrica)' : ''}</option>`).join('');
+    if (atual) select.value = atual;
+  }
+
+  let contratosCacheUsuario = [];
+
+  async function popularChecklistContratosUsuario(contratosSelecionadosNomes = []) {
+    const lista = document.getElementById('usuario-contratos-lista');
+    if (!lista) return;
+    if (!contratosCacheUsuario.length) {
+      try {
+        const resp = await fetch(window.apiUrl('/contratos'), { headers: authHeaders() });
+        const dados = await resp.json();
+        if (dados.status === 'ok') contratosCacheUsuario = dados.contratos;
+      } catch (e) {
+        console.warn('Falha ao carregar contratos para o checklist do usuário:', e);
+      }
+    }
+    if (!contratosCacheUsuario.length) {
+      lista.innerHTML = '<p style="color:#999;font-size:13px;">Nenhum contrato cadastrado ainda.</p>';
+      return;
+    }
+    const selecionados = new Set(contratosSelecionadosNomes || []);
+    lista.innerHTML = contratosCacheUsuario.map(c => `
+      <label>
+        <input type="checkbox" class="usuario-contrato-checkbox" value="${escapeHtml(c.nome)}" ${selecionados.has(c.nome) ? 'checked' : ''}>
+        ${escapeHtml(c.nome)}
+      </label>
+    `).join('');
+  }
+
+  function coletarContratosSelecionadosUsuario() {
+    const marcados = Array.from(document.querySelectorAll('.usuario-contrato-checkbox:checked')).map(cb => cb.value);
+    return marcados.length ? marcados : null;
+  }
+
+  function abrirModalUsuario(usuario) {
+    usuarioEditandoId = usuario ? usuario.id : null;
+    document.getElementById('titulo-modal-usuario').textContent = usuario ? `Editar usuário [${usuario.usuario}]` : 'Novo usuário';
+    document.getElementById('usuario-id').value = usuario ? usuario.id : '';
+    document.getElementById('usuario-login').value = usuario ? usuario.usuario : '';
+    document.getElementById('usuario-login').disabled = !!usuario;
+    document.getElementById('usuario-nome').value = usuario ? (usuario.nome || '') : '';
+    document.getElementById('usuario-email').value = usuario ? (usuario.email || '') : '';
+    document.getElementById('usuario-cargo').value = usuario ? (usuario.credencial_acesso || '') : '';
+    document.getElementById('usuario-foto').value = usuario ? (usuario.foto_url || '') : '';
+    document.getElementById('usuario-perfil').value = usuario ? (usuario.perfil_id || '') : '';
+    document.getElementById('usuario-usa-customizadas').checked = usuario ? !!usuario.usa_permissoes_customizadas : false;
+    popularChecklistContratosUsuario(usuario ? (usuario.contratos_autorizados || []) : []);
+
+    document.getElementById('campo-senha-criacao').style.display = usuario ? 'none' : '';
+    document.getElementById('usuario-senha').required = !usuario;
+    document.getElementById('campo-redefinir-senha').style.display = usuario ? '' : 'none';
+    document.getElementById('usuario-redefinir-senha-toggle').checked = false;
+    document.getElementById('usuario-nova-senha').style.display = 'none';
+    document.getElementById('usuario-nova-senha').value = '';
+    document.getElementById('usuario-senha').value = '';
+
+    renderMatrizPermissoes('matriz-permissoes-usuario', usuario ? usuario.permissoes : {});
+    renderRestricoes('restricoes-usuario', usuario ? usuario.restricoes : {});
+    document.getElementById('bloco-permissoes-usuario').style.display = document.getElementById('usuario-usa-customizadas').checked ? '' : 'none';
+
+    const feedback = document.getElementById('usuario-form-feedback');
+    feedback.style.display = 'none';
+    feedback.textContent = '';
+
+    document.getElementById('modal-usuario').style.display = 'flex';
+  }
+
+  function fecharModalUsuario() {
+    document.getElementById('modal-usuario').style.display = 'none';
+    usuarioEditandoId = null;
+  }
+
+  async function salvarUsuario(event) {
+    event.preventDefault();
+    const feedback = document.getElementById('usuario-form-feedback');
+    feedback.style.display = 'none';
+
+    const usaCustomizadas = document.getElementById('usuario-usa-customizadas').checked;
+    const payload = {
+      nome: document.getElementById('usuario-nome').value,
+      email: document.getElementById('usuario-email').value,
+      foto_url: document.getElementById('usuario-foto').value,
+      credencial_acesso: document.getElementById('usuario-cargo').value,
+      perfil_id: document.getElementById('usuario-perfil').value || null,
+      usa_permissoes_customizadas: usaCustomizadas,
+      contratos_autorizados: coletarContratosSelecionadosUsuario(),
+    };
+
+    if (usaCustomizadas) {
+      payload.permissoes = coletarMatrizPermissoes('matriz-permissoes-usuario');
+      payload.restricoes = coletarRestricoes('restricoes-usuario');
+    }
+
+    let url, method;
+    if (usuarioEditandoId) {
+      url = `/usuarios/${usuarioEditandoId}`;
+      method = 'PUT';
+      if (document.getElementById('usuario-redefinir-senha-toggle').checked) {
+        payload.nova_senha = document.getElementById('usuario-nova-senha').value;
+      }
+    } else {
+      url = '/usuarios';
+      method = 'POST';
+      payload.usuario = document.getElementById('usuario-login').value;
+      payload.senha = document.getElementById('usuario-senha').value;
+    }
+
+    try {
+      const resp = await fetch(window.apiUrl(url), {
+        method,
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        feedback.className = 'gestao-feedback erro';
+        feedback.textContent = dados.mensagem || 'Erro ao salvar usuário.';
+        feedback.style.display = 'block';
+        return;
+      }
+      fecharModalUsuario();
+      carregarUsuarios();
+    } catch (error) {
+      console.error('Erro ao salvar usuário:', error);
+      feedback.className = 'gestao-feedback erro';
+      feedback.textContent = 'Erro de conexão ao salvar o usuário.';
+      feedback.style.display = 'block';
+    }
+  }
+
+  // ===== Aba Perfis de Acesso =====
+  async function carregarPerfis() {
+    const grid = document.getElementById('grid-perfis');
+    if (!grid) return;
+    grid.innerHTML = '<p style="padding:0.75rem;">Carregando...</p>';
+    try {
+      const resp = await fetch(window.apiUrl('/perfis'), { headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        grid.innerHTML = `<p style="padding:0.75rem;">${dados.mensagem || 'Erro ao carregar perfis.'}</p>`;
+        return;
+      }
+      perfisCache = dados.perfis;
+      popularSelectPerfis();
+
+      if (!perfisCache.length) {
+        grid.innerHTML = '<p style="padding:0.75rem;">Nenhum perfil cadastrado.</p>';
+        return;
+      }
+
+      grid.innerHTML = perfisCache.map(p => {
+        const restricoesAtivas = RESTRICOES.filter(r => p.restricoes[r.chave]);
+        return `
+          <div class="gestao-perfil-card" data-perfil-id="${p.id}">
+            <div class="gestao-perfil-card-header">
+              <h3>${p.nome}</h3>
+              ${p.fabrica ? '<span class="gestao-tag gestao-tag-fabrica">Fábrica</span>' : ''}
+            </div>
+            <div class="gestao-perfil-usuarios">${p.total_usuarios} usuário(s) vinculado(s)</div>
+            <div class="gestao-perfil-modulos">
+              ${MODULOS.map(m => {
+                const perm = p.permissoes[m.chave] || {};
+                const texto = perm.ver && perm.executar ? 'Ver e modificar' : (perm.ver ? 'Somente ver' : 'Sem acesso');
+                return `<div class="gestao-perfil-modulo-linha"><span>${m.label.split(' (')[0]}</span><span>${texto}</span></div>`;
+              }).join('')}
+            </div>
+            ${restricoesAtivas.length ? `<div class="gestao-perfil-restricoes">${restricoesAtivas.map(r => `<span class="gestao-restricao-pill">${r.label}</span>`).join('')}</div>` : ''}
+            <div class="gestao-perfil-card-acoes">
+              <button type="button" class="gestao-btn-icone gestao-editar-perfil" title="Editar">✎</button>
+              <button type="button" class="gestao-btn-icone gestao-excluir-perfil" title="${p.fabrica ? 'Perfis de fábrica não podem ser excluídos' : 'Excluir'}" ${p.fabrica ? 'disabled' : ''}>🗑</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.gestao-editar-perfil').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.closest('[data-perfil-id]').dataset.perfilId;
+          abrirModalPerfil(perfisCache.find(p => String(p.id) === id));
+        });
+      });
+      grid.querySelectorAll('.gestao-excluir-perfil').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.closest('[data-perfil-id]').dataset.perfilId;
+          excluirPerfil(id);
+        });
+      });
+    } catch (error) {
+      console.error('Erro ao carregar perfis:', error);
+      grid.innerHTML = '<p style="padding:0.75rem;">Erro de conexão ao carregar perfis.</p>';
+    }
+  }
+
+  async function excluirPerfil(id) {
+    if (!confirm('Excluir este perfil de acesso?')) return;
+    try {
+      const resp = await fetch(window.apiUrl(`/perfis/${id}`), { method: 'DELETE', headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        alert(`Não foi possível excluir: ${dados.mensagem || resp.statusText}`);
+        return;
+      }
+      carregarPerfis();
+    } catch (error) {
+      console.error('Erro ao excluir perfil:', error);
+      alert('Erro de conexão ao excluir o perfil.');
+    }
+  }
+
+  function abrirModalPerfil(perfil) {
+    perfilEditandoId = perfil ? perfil.id : null;
+    document.getElementById('titulo-modal-perfil').textContent = perfil ? `Editar perfil [${perfil.nome}]` : 'Novo perfil de acesso';
+    document.getElementById('perfil-id').value = perfil ? perfil.id : '';
+    document.getElementById('perfil-nome').value = perfil ? perfil.nome : '';
+    document.getElementById('perfil-contratos-autorizados').value = perfil ? stringDeLista(perfil.contratos_autorizados) : '';
+    document.getElementById('perfil-contratos-leitura').value = perfil ? stringDeLista(perfil.contratos_somente_leitura) : '';
+
+    renderMatrizPermissoes('matriz-permissoes-perfil', perfil ? perfil.permissoes : {});
+    renderRestricoes('restricoes-perfil', perfil ? perfil.restricoes : {});
+
+    const feedback = document.getElementById('perfil-form-feedback');
+    feedback.style.display = 'none';
+    feedback.textContent = '';
+
+    document.getElementById('modal-perfil').style.display = 'flex';
+  }
+
+  function fecharModalPerfil() {
+    document.getElementById('modal-perfil').style.display = 'none';
+    perfilEditandoId = null;
+  }
+
+  async function salvarPerfil(event) {
+    event.preventDefault();
+    const feedback = document.getElementById('perfil-form-feedback');
+    feedback.style.display = 'none';
+
+    const payload = {
+      nome: document.getElementById('perfil-nome').value,
+      permissoes: coletarMatrizPermissoes('matriz-permissoes-perfil'),
+      restricoes: coletarRestricoes('restricoes-perfil'),
+      contratos_autorizados: listaDeString(document.getElementById('perfil-contratos-autorizados').value),
+      contratos_somente_leitura: listaDeString(document.getElementById('perfil-contratos-leitura').value),
+    };
+
+    const url = perfilEditandoId ? `/perfis/${perfilEditandoId}` : '/perfis';
+    const method = perfilEditandoId ? 'PUT' : 'POST';
+
+    try {
+      const resp = await fetch(window.apiUrl(url), {
+        method,
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        feedback.className = 'gestao-feedback erro';
+        feedback.textContent = dados.mensagem || 'Erro ao salvar perfil.';
+        feedback.style.display = 'block';
+        return;
+      }
+      fecharModalPerfil();
+      carregarPerfis();
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error);
+      feedback.className = 'gestao-feedback erro';
+      feedback.textContent = 'Erro de conexão ao salvar o perfil.';
+      feedback.style.display = 'block';
+    }
+  }
+
+  // ===== Aba Contratos =====
+  function escapeHtml(texto) {
+    return String(texto ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function renderizarArquivosContrato(arquivos) {
+    const lista = document.getElementById('contrato-arquivos-lista');
+    if (!lista) return;
+    arquivos = arquivos || [];
+    if (!arquivos.length) {
+      lista.innerHTML = '<p style="color:#999;font-size:13px;">Nenhum arquivo anexado.</p>';
+      return;
+    }
+    lista.innerHTML = `
+      <table>
+        <thead><tr><th>Arquivo</th><th>Enviado em</th><th></th></tr></thead>
+        <tbody>
+          ${arquivos.map(a => `
+            <tr>
+              <td><a href="${a.arquivo_base64}" download="${escapeHtml(a.nome_arquivo || 'arquivo')}">${escapeHtml(a.nome_arquivo || 'arquivo')}</a></td>
+              <td>${a.criado_em || ''}</td>
+              <td><button type="button" class="gestao-btn-icone" data-remove-contrato-arquivo="${a.id}" title="Remover">🗑</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  function lerArquivoComoBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function enviarArquivosPendentesContrato(contratoId) {
+    const input = document.getElementById('contrato-arquivo-input');
+    const arquivos = input?.files ? Array.from(input.files) : [];
+    for (const arquivo of arquivos) {
+      const base64 = await lerArquivoComoBase64(arquivo);
+      await fetch(window.apiUrl(`/contratos/${contratoId}/arquivos`), {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify({ nome_arquivo: arquivo.name, mime_type: arquivo.type, arquivo_base64: base64 }),
+      });
+    }
+    if (input) input.value = '';
+  }
+
+  async function excluirArquivoContrato(arquivoId) {
+    if (!confirm('Remover este arquivo do contrato?')) return;
+    await fetch(window.apiUrl(`/contratos/arquivos/${arquivoId}`), { method: 'DELETE', headers: authHeaders() });
+    if (contratoEditandoId) await carregarContratoParaEdicao(contratoEditandoId);
+  }
+
+  function limparFormularioContrato() {
+    document.getElementById('form-contratos')?.reset();
+    contratoEditandoId = null;
+    document.getElementById('btn-salvar-contrato').textContent = 'Salvar Contrato';
+    document.getElementById('contrato-arquivo-aviso').style.display = 'block';
+    renderizarArquivosContrato([]);
+    const feedback = document.getElementById('contrato-form-feedback');
+    feedback.style.display = 'none';
+    feedback.textContent = '';
+  }
+
+  async function carregarContratos() {
+    const tbody = document.querySelector('#tabela-contratos tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:0.75rem;">Carregando...</td></tr>';
+    try {
+      const resp = await fetch(window.apiUrl('/contratos'), { headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:0.75rem;">${dados.mensagem || 'Erro ao carregar contratos.'}</td></tr>`;
+        return;
+      }
+      if (!dados.contratos.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:0.75rem;">Nenhum contrato cadastrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = dados.contratos.map(c => `
+        <tr data-contrato-id="${c.id}">
+          <td>${escapeHtml(c.nome)}</td>
+          <td>${escapeHtml(c.cnpj || '—')}</td>
+          <td>${(c.usuarios || []).map(u => escapeHtml(u.usuario)).join(', ') || '—'}</td>
+          <td>${(c.arquivos || []).length}</td>
+          <td>
+            <div class="gestao-acoes-cell">
+              <button type="button" class="gestao-btn-icone gestao-editar-contrato" title="Editar">✎</button>
+              <button type="button" class="gestao-btn-icone gestao-excluir-contrato" title="Excluir">🗑</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('.gestao-editar-contrato').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = Number(e.target.closest('tr').dataset.contratoId);
+          carregarContratoParaEdicao(id);
+        });
+      });
+      tbody.querySelectorAll('.gestao-excluir-contrato').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = Number(e.target.closest('tr').dataset.contratoId);
+          excluirContrato(id);
+        });
+      });
+    } catch (error) {
+      console.error('Erro ao carregar contratos:', error);
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:0.75rem;">Erro de conexão ao carregar contratos.</td></tr>';
+    }
+  }
+
+  async function carregarContratoParaEdicao(id) {
+    try {
+      const resp = await fetch(window.apiUrl(`/contratos/${id}`), { headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') return;
+      const c = dados.contrato;
+      contratoEditandoId = c.id;
+      document.getElementById('contrato-nome').value = c.nome || '';
+      document.getElementById('contrato-cnpj').value = c.cnpj || '';
+      document.getElementById('contrato-especificacoes').value = c.especificacoes || '';
+      document.getElementById('btn-salvar-contrato').textContent = 'Atualizar Contrato';
+      document.getElementById('contrato-arquivo-aviso').style.display = 'none';
+      renderizarArquivosContrato(c.arquivos || []);
+    } catch (error) {
+      console.error('Erro ao carregar contrato:', error);
+    }
+  }
+
+  async function excluirContrato(id) {
+    if (!confirm('Excluir este contrato? Os usuários vinculados a ele perderão o acesso.')) return;
+    try {
+      const resp = await fetch(window.apiUrl(`/contratos/${id}`), { method: 'DELETE', headers: authHeaders() });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        alert(dados.mensagem || 'Erro ao excluir contrato.');
+        return;
+      }
+      if (contratoEditandoId === id) limparFormularioContrato();
+      carregarContratos();
+    } catch (error) {
+      console.error('Erro ao excluir contrato:', error);
+      alert('Erro de conexão ao excluir o contrato.');
+    }
+  }
+
+  async function salvarContrato(event) {
+    event.preventDefault();
+    const feedback = document.getElementById('contrato-form-feedback');
+    feedback.style.display = 'none';
+
+    const nome = document.getElementById('contrato-nome').value.trim();
+    if (!nome) return;
+
+    const payload = {
+      nome,
+      cnpj: document.getElementById('contrato-cnpj').value.trim(),
+      especificacoes: document.getElementById('contrato-especificacoes').value.trim(),
+    };
+
+    const btn = document.getElementById('btn-salvar-contrato');
+    if (btn) btn.disabled = true;
+    try {
+      const url = contratoEditandoId ? `/contratos/${contratoEditandoId}` : '/contratos';
+      const method = contratoEditandoId ? 'PUT' : 'POST';
+      const resp = await fetch(window.apiUrl(url), {
+        method,
+        headers: authHeaders(true),
+        body: JSON.stringify(payload),
+      });
+      const dados = await resp.json();
+      if (dados.status !== 'ok') {
+        feedback.className = 'gestao-feedback erro';
+        feedback.textContent = dados.mensagem || 'Erro ao salvar contrato.';
+        feedback.style.display = 'block';
+        return;
+      }
+      const contratoId = dados.contrato?.id || contratoEditandoId;
+      await enviarArquivosPendentesContrato(contratoId);
+      limparFormularioContrato();
+      carregarContratos();
+    } catch (error) {
+      console.error('Erro ao salvar contrato:', error);
+      feedback.className = 'gestao-feedback erro';
+      feedback.textContent = 'Erro de conexão ao salvar o contrato.';
+      feedback.style.display = 'block';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // ===== Abas (Usuários / Perfis) =====
+  function inicializarAbas() {
+    const legendaPrincipal = document.getElementById('legenda-principal');
+    const tabs = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    const usuariosTab = document.querySelector('.tab-btn[data-tab="usuarios"]');
+    const usuariosContent = document.getElementById('usuarios');
+    if (usuariosTab && usuariosContent) {
+      usuariosTab.classList.add('active');
+      usuariosContent.classList.add('active');
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        const contentToShow = document.getElementById(tabId);
+        if (contentToShow) contentToShow.classList.add('active');
+        if (legendaPrincipal) {
+          legendaPrincipal.textContent = tabId === 'perfis' ? 'Perfis de Acesso' : (tabId === 'contratos' ? 'Contratos' : 'Usuários');
+        }
+
+        if (tabId === 'perfis') carregarPerfis();
+        if (tabId === 'usuarios') carregarUsuarios();
+        if (tabId === 'contratos') carregarContratos();
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    usuarioLogadoId = pegarIdUsuarioLogado();
+    inicializarAbas();
+    carregarUsuarios();
+    carregarPerfis();
+    document.getElementById('contrato-arquivo-aviso').style.display = 'block';
+    renderizarArquivosContrato([]);
+
+    document.getElementById('btn-novo-usuario')?.addEventListener('click', () => abrirModalUsuario(null));
+    document.getElementById('fechar-modal-usuario')?.addEventListener('click', fecharModalUsuario);
+    document.getElementById('cancelar-modal-usuario')?.addEventListener('click', fecharModalUsuario);
+    document.getElementById('form-usuario')?.addEventListener('submit', salvarUsuario);
+    document.getElementById('usuario-usa-customizadas')?.addEventListener('change', (e) => {
+      document.getElementById('bloco-permissoes-usuario').style.display = e.target.checked ? '' : 'none';
+    });
+    document.getElementById('usuario-redefinir-senha-toggle')?.addEventListener('change', (e) => {
+      document.getElementById('usuario-nova-senha').style.display = e.target.checked ? '' : 'none';
+    });
+
+    document.getElementById('btn-novo-perfil')?.addEventListener('click', () => abrirModalPerfil(null));
+    document.getElementById('fechar-modal-perfil')?.addEventListener('click', fecharModalPerfil);
+    document.getElementById('cancelar-modal-perfil')?.addEventListener('click', fecharModalPerfil);
+    document.getElementById('form-perfil')?.addEventListener('submit', salvarPerfil);
+
+    document.getElementById('modal-usuario')?.addEventListener('click', (e) => {
+      if (e.target.id === 'modal-usuario') fecharModalUsuario();
+    });
+    document.getElementById('modal-perfil')?.addEventListener('click', (e) => {
+      if (e.target.id === 'modal-perfil') fecharModalPerfil();
+    });
+
+    document.getElementById('form-contratos')?.addEventListener('submit', salvarContrato);
+    document.getElementById('btn-limpar-contrato')?.addEventListener('click', limparFormularioContrato);
+    document.getElementById('contrato-arquivos-lista')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-remove-contrato-arquivo]');
+      if (btn) excluirArquivoContrato(Number(btn.dataset.removeContratoArquivo));
+    });
+  });
+})();

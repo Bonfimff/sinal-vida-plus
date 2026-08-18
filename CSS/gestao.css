@@ -1,0 +1,438 @@
+/* ===================================================================
+   ABA GESTÃO DE USUÁRIOS E PERFIS DE ACESSO
+   =================================================================== */
+
+.gestao-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.gestao-card {
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-left: 4px solid var(--cor-destaque);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.gestao-card-label {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+}
+
+.gestao-card-value {
+  display: block;
+  color: #292929;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.gestao-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+/* ===== Tabela de usuários ===== */
+.gestao-usuario-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gestao-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--cor-destaque);
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.gestao-usuario-nome {
+  font-weight: 700;
+  color: #292929;
+}
+
+.gestao-usuario-id {
+  font-size: 12px;
+  color: #888;
+}
+
+.gestao-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.gestao-tag-voce {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.gestao-tag-customizado {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.gestao-tag-fabrica {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.gestao-cargo-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--cor-destaque);
+  color: #fff;
+}
+
+.gestao-perfil-linha {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.gestao-senha-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: monospace;
+  letter-spacing: 2px;
+}
+
+.gestao-acoes-cell {
+  display: flex;
+  gap: 6px;
+}
+
+.gestao-btn-icone {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.gestao-btn-icone:hover {
+  background: #f1f5f9;
+}
+
+.gestao-btn-icone:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gestao-btn-icone img {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== Cards de perfis de acesso ===== */
+.gestao-perfis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.gestao-perfil-card {
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.gestao-perfil-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.gestao-perfil-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #292929;
+}
+
+.gestao-perfil-usuarios {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.gestao-perfil-modulos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.gestao-perfil-modulo-linha {
+  display: flex;
+  justify-content: space-between;
+  color: #444;
+}
+
+.gestao-perfil-restricoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.gestao-restricao-pill {
+  font-size: 11px;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.gestao-perfil-card-acoes {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* ===== Modal maior pra formulário de usuário/perfil ===== */
+.gestao-modal-content {
+  width: 100%;
+  max-width: 640px;
+  text-align: left;
+  position: relative;
+}
+
+.gestao-modal-fechar {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+}
+
+.gestao-secao {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+
+.gestao-secao h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--cor-destaque-escura);
+}
+
+.gestao-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gestao-form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.gestao-form-item label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.gestao-form-full {
+  grid-column: 1 / -1;
+}
+
+.gestao-checkbox-item {
+  flex-direction: row;
+  align-items: center;
+}
+
+.gestao-checkbox-item label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+/* ===== Matriz de permissões (Ver / Executar por módulo) ===== */
+.gestao-matriz-permissoes {
+  width: 100%;
+  border: 1px solid #e2e8ea;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.gestao-matriz-linha {
+  display: grid;
+  grid-template-columns: 1fr 90px 130px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.gestao-matriz-linha:last-child {
+  border-bottom: none;
+}
+
+.gestao-matriz-cabecalho {
+  background: #f8fafc;
+  font-weight: 700;
+  color: #444;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.gestao-matriz-linha input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cor-destaque);
+  cursor: pointer;
+}
+
+/* ===== Restrições operacionais (checkboxes livres) ===== */
+.gestao-restricoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.gestao-restricao-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  background: #f8fafc;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.gestao-restricao-item input[type="checkbox"] {
+  accent-color: var(--cor-destaque);
+  cursor: pointer;
+}
+
+/* ===== Contratos: checklist de perfis e lista de arquivos ===== */
+.gestao-perfis-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 13px;
+}
+
+.gestao-perfis-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gestao-perfis-checklist input[type="checkbox"] {
+  accent-color: var(--cor-destaque);
+  cursor: pointer;
+}
+
+.gestao-arquivos-lista {
+  margin-top: 10px;
+}
+
+.gestao-arquivos-lista table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.gestao-arquivos-lista th,
+.gestao-arquivos-lista td {
+  padding: 8px 10px;
+  border: 1px solid #eee;
+  text-align: left;
+}
+
+.gestao-feedback {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.gestao-feedback.erro {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.gestao-feedback.sucesso {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.gestao-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 768px) {
+  .gestao-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .gestao-card {
+    padding: 8px 10px;
+  }
+  .gestao-card-label {
+    font-size: 10px;
+  }
+  .gestao-card-value {
+    font-size: 20px;
+  }
+  .gestao-form-grid,
+  .gestao-restricoes {
+    grid-template-columns: 1fr;
+  }
+  .gestao-matriz-linha {
+    grid-template-columns: 1fr 70px 100px;
+    font-size: 12px;
+  }
+}
