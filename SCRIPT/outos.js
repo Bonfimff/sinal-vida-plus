@@ -1317,7 +1317,7 @@ function atualizarImagemProdutoUniversal(produtoId, nomeProduto = '', inputId = 
     }
 
     if (!produtoId || produtoId === 'undefined' || produtoId === null) {
-        imgElement.src = '../IMG/Sem imagem.png';
+        imgElement.src = '../IMG/Sem_imagem.png';
         imgElement.alt = 'Imagem do Produto';
         imgElement.style.cursor = 'default';
         imgElement.onclick = null;
@@ -1423,13 +1423,17 @@ async function buscarImagemProdutoUniversal(produtoId, nomeProduto, tipo, imgEle
 //======================================================================================================
 function mostrarImagemUniversal(imagemSrc, produtoId, nomeProduto, tipo, imgElement) {
     if (imagemSrc) {
+        imgElement.onerror = () => {
+            imgElement.onerror = null;
+            imgElement.src = '../IMG/Sem_imagem.png';
+        };
         imgElement.src = imagemSrc;
         imgElement.alt = `Imagem do Produto ${produtoId} - ${nomeProduto}`;
         imgElement.style.cursor = 'pointer';
         imgElement.title = `Clique para expandir - ${nomeProduto}`;
         imgElement.onclick = () => expandirImagemUniversal(imagemSrc, produtoId, nomeProduto, tipo);
     } else {
-        imgElement.src = '../IMG/Sem imagem.png';
+        imgElement.src = '../IMG/Sem_imagem.png';
         imgElement.alt = `Produto ${produtoId} sem imagem`;
         imgElement.style.cursor = 'default';
         imgElement.title = nomeProduto || 'Produto sem imagem';

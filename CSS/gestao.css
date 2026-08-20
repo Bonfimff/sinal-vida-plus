@@ -2,38 +2,6 @@
    ABA GESTÃO DE USUÁRIOS E PERFIS DE ACESSO
    =================================================================== */
 
-.gestao-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.gestao-card {
-  background: #ffffff;
-  border: 1px solid #e6e6e6;
-  border-left: 4px solid var(--cor-destaque);
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.gestao-card-label {
-  display: block;
-  color: #666;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 6px;
-}
-
-.gestao-card-value {
-  display: block;
-  color: #292929;
-  font-size: 26px;
-  font-weight: 700;
-}
-
 .gestao-toolbar {
   display: flex;
   justify-content: flex-end;
@@ -349,29 +317,10 @@
   cursor: pointer;
 }
 
-/* ===== Contratos: checklist de perfis e lista de arquivos ===== */
-.gestao-perfis-checklist {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 24px;
-  padding: 10px 12px;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  background: #f8fafc;
-  font-size: 13px;
-}
-
-.gestao-perfis-checklist label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.gestao-perfis-checklist input[type="checkbox"] {
-  accent-color: var(--cor-destaque);
-  cursor: pointer;
-}
-
+/* ===== Contratos: checklist de perfis e lista de arquivos =====
+   O checklist de contratos (.checklist-contratos) agora é um componente
+   compartilhado em geral.css - outros módulos (Frota, Bases) usam o mesmo
+   visual pra vincular veículos/bases a contratos. */
 .gestao-arquivos-lista {
   margin-top: 10px;
 }
@@ -414,19 +363,6 @@
 }
 
 @media (max-width: 768px) {
-  .gestao-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-  .gestao-card {
-    padding: 8px 10px;
-  }
-  .gestao-card-label {
-    font-size: 10px;
-  }
-  .gestao-card-value {
-    font-size: 20px;
-  }
   .gestao-form-grid,
   .gestao-restricoes {
     grid-template-columns: 1fr;

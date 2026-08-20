@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../CSS/geral.css?v=3" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=4" />
   <link rel="stylesheet" href="../CSS/almoxarifado.css" />
   <link rel="icon" href="../IMG/Icone.png" type="image/png">
   <title>Almoxarifado</title>
@@ -31,12 +31,12 @@
 <body>
   <!-- Menu lateral Almoxarifado -->
   <div class="menu">
-    <button class="tab-btn active" data-tab="gerenciamento">Painel Geral</button>
-    <button class="tab-btn" data-tab="busca">Busca</button>
+    <button class="tab-btn active" data-tab="gerenciamento" data-nav-label="Painel" data-nav-icone="painel">Painel Geral</button>
+    <button class="tab-btn" data-tab="busca" data-nav-label="Busca" data-nav-icone="busca">Busca</button>
 
     <!-- <button class="tab-btn" data-tab="consultas-produtos">Produtos</button> -->
-    <button class="tab-btn" data-tab="movimentacoes">Movimentações</button>
-    <button class="tab-btn" data-tab="requisitantes">Cadastros</button>
+    <button class="tab-btn" data-tab="movimentacoes" data-nav-label="Movimentações" data-nav-icone="movimentacoes">Movimentações</button>
+    <button class="tab-btn" data-tab="requisitantes" data-nav-label="Cadastros" data-nav-icone="cadastros">Cadastros</button>
     <!-- <button class="tab-btn" data-tab="consultas-relatorio">Relatório</button> -->
     <div class="menu-bottom">
       <button class="menu-icon-btn" id="btn-config">
@@ -54,6 +54,8 @@
   <!-- Barra superior com informações da conta e navegação rápida -->
   <div class="top-bar">
     <div class="top-bar-left">
+      <!-- Marca no topo: só aparece em celular/tablet (ver geral.css) -->
+      <img src="../IMG/Logoescura.png" alt="ORBITA" class="top-bar-logo">
       <span class="account-info">
         <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
         <span id="logged-user"></span>
@@ -74,37 +76,65 @@
     <div id="gerenciamento" class="tab-content active">
       <h2 class="aba-legenda">Painel Geral</h2>
       <hr class="aba-linha">
-      <div class="inline-style-056c46">
+      <div class="painel-cards painel-cards-largos">
         <!-- Estoque Principal -->
-        <div class="inline-style-5139a9">
-          <h3 class="inline-style-8e4862">Estoque Principal</h3>
-          <div id="estoque-principal-info" class="inline-style-0a04c9">
-            <p>Quantidade atual: <b>0</b></p>
-            <p>Capacidade máxima: <b>0</b></p>
+        <div class="painel-card">
+          <div class="painel-card-topo">
+            <span class="painel-card-icone painel-icone-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5M12 13v8"/>
+              </svg>
+            </span>
+            <h3 class="painel-card-titulo">Estoque Principal</h3>
+          </div>
+          <div id="estoque-principal-info" class="painel-card-corpo">
+            <p><span class="painel-card-label">Quantidade atual</span><b class="painel-card-valor painel-card-valor-compacto">0</b></p>
+            <p><span class="painel-card-label">Capacidade máxima</span><b class="painel-card-valor painel-card-valor-compacto">0</b></p>
           </div>
         </div>
         <!-- Estoque Secundário -->
-        <div class="inline-style-5139a9">
-          <h3 class="inline-style-2698e9">Estoque Secundário</h3>
-          <div id="estoque-secundario-info" class="inline-style-0a04c9">
-            <p>Quantidade atual: <b>0</b></p>
-            <p>Capacidade máxima: <b>0</b></p>
+        <div class="painel-card">
+          <div class="painel-card-topo">
+            <span class="painel-card-icone painel-icone-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5M12 13v8"/>
+              </svg>
+            </span>
+            <h3 class="painel-card-titulo">Estoque Secundário</h3>
+          </div>
+          <div id="estoque-secundario-info" class="painel-card-corpo">
+            <p><span class="painel-card-label">Quantidade atual</span><b class="painel-card-valor painel-card-valor-compacto">0</b></p>
+            <p><span class="painel-card-label">Capacidade máxima</span><b class="painel-card-valor painel-card-valor-compacto">0</b></p>
           </div>
         </div>
         <!-- Pendências -->
-        <div class="inline-style-5139a9">
-          <h3 class="inline-style-c6eee8">Pendências</h3>
-          <div id="pendencias-info" class="inline-style-0a04c9">
-            <ul class="inline-style-3433e5">
+        <div class="painel-card">
+          <div class="painel-card-topo">
+            <span class="painel-card-icone painel-icone-vermelho">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 2.5h6v3H9zM9 11h6M9 15h4"/>
+              </svg>
+            </span>
+            <h3 class="painel-card-titulo">Pendências</h3>
+          </div>
+          <div id="pendencias-info" class="painel-card-corpo">
+            <ul >
               <li>Nenhuma pendência no momento.</li>
             </ul>
           </div>
         </div>
         <!-- Alertas -->
-        <div class="inline-style-5139a9">
-          <h3 class="inline-style-a38518">Alertas</h3>
-          <div id="alertas-info" class="inline-style-0a04c9">
-            <ul class="inline-style-3433e5">
+        <div class="painel-card">
+          <div class="painel-card-topo">
+            <span class="painel-card-icone painel-icone-ambar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 8.5a6 6 0 1 0-12 0c0 6-2 7.5-2 7.5h16s-2-1.5-2-7.5z"/><path d="M10.5 20a2 2 0 0 0 3 0"/>
+              </svg>
+            </span>
+            <h3 class="painel-card-titulo">Alertas</h3>
+          </div>
+          <div id="alertas-info" class="painel-card-corpo">
+            <ul >
               <li>Nenhum alerta no momento.</li>
             </ul>
           </div>
@@ -113,7 +143,16 @@
 
       <!-- Agendamento de Entradas no Estoque -->
       <div class="inline-style-40a339">
-        <h3 class="inline-style-5fd781">Agendamento de Entradas</h3>
+        <div class="painel-secao-topo">
+          <h3 class="inline-style-5fd781">
+            <span class="painel-card-icone painel-card-icone-pequeno painel-icone-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
+              </svg>
+            </span>
+            Agendamento de Entradas
+          </h3>
+        </div>
         <div id="agendamento-entradas-info">
           <table class="estilo-tabela">
             <thead>
@@ -126,16 +165,16 @@
             </thead>
             <tbody class="inline-style-b82c65">
               <tr>
-                <td class="inline-style-f91e21">10/06/2025</td>
-                <td class="inline-style-f91e21">123456</td>
-                <td class="inline-style-f91e21">12/06/2025</td>
-                <td class="inline-style-f91e21">Almoxarifado Central</td>
+                <td class="inline-style-f91e21" data-label="Data agendada">10/06/2025</td>
+                <td class="inline-style-f91e21" data-label="Nº Nota">123456</td>
+                <td class="inline-style-f91e21" data-label="Entrega prevista">12/06/2025</td>
+                <td class="inline-style-f91e21" data-label="Destinação">Almoxarifado Central</td>
               </tr>
               <tr>
-                <td class="inline-style-f91e21">15/06/2025</td>
-                <td class="inline-style-f91e21">654321</td>
-                <td class="inline-style-f91e21">18/06/2025</td>
-                <td class="inline-style-f91e21">Obra Setor B</td>
+                <td class="inline-style-f91e21" data-label="Data agendada">15/06/2025</td>
+                <td class="inline-style-f91e21" data-label="Nº Nota">654321</td>
+                <td class="inline-style-f91e21" data-label="Entrega prevista">18/06/2025</td>
+                <td class="inline-style-f91e21" data-label="Destinação">Obra Setor B</td>
               </tr>
             </tbody>
           </table>
@@ -144,7 +183,16 @@
 
       <!-- Confirmação de Utilização de Itens -->
       <div class="inline-style-5d47ce">
-        <h3 class="inline-style-7bbfe0">Confirmação de Utilização de Itens</h3>
+        <div class="painel-secao-topo">
+          <h3 class="inline-style-7bbfe0">
+            <span class="painel-card-icone painel-card-icone-pequeno painel-icone-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 12 2.5 2.5L16 9"/>
+              </svg>
+            </span>
+            Confirmação de Utilização de Itens
+          </h3>
+        </div>
         <div id="confirmacao-utilizacao-info">
         <table class="estilo-tabela">
           <thead>
@@ -157,21 +205,21 @@
           </thead>
           <tbody class="inline-style-b82c65">
             <tr>
-              <td class="inline-style-f91e21">OS-2025-0012</td>
-              <td class="inline-style-f91e21">145</td>
-              <td class="inline-style-f91e21">
+              <td class="inline-style-f91e21" data-label="Nº OS">OS-2025-0012</td>
+              <td class="inline-style-f91e21" data-label="ID Retirada">145</td>
+              <td class="inline-style-f91e21" data-label="Itens utilizados">
                 <button type="button" onclick="mostrarDetalhesItens(this)" class="inline-style-bfaa2f">
                   +
                 </button>
                 <div class="detalhes-itens inline-style-ccc240">
                   <b>Itens usados:</b>
-                  <ul class="inline-style-3433e5">
+                  <ul >
                     <li>Parafuso M10 (ID: 101) - Qtde: 12</li>
                     <li>Fita Isolante (ID: 102) - Qtde: 2</li>
                   </ul>
                 </div>
               </td>
-              <td class="inline-style-f91e21">
+              <td class="inline-style-f91e21" data-label="Ações">
                 <button type="button" class="inline-style-940163">
                   Confirmar Retirada
                 </button>
@@ -179,6 +227,49 @@
             </tr>
           </tbody>
         </table>
+        </div>
+      </div>
+
+      <!-- Resumo Rápido -->
+      <div class="inline-style-5d47ce almox-resumo">
+        <div class="painel-secao-topo">
+          <h3 class="inline-style-7bbfe0">
+            <span class="painel-card-icone painel-card-icone-pequeno painel-icone-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 17l5-5 4 4 8-8"/><path d="M15 8h5v5"/>
+              </svg>
+            </span>
+            Resumo Rápido
+          </h3>
+        </div>
+        <div class="almox-resumo-grid">
+          <div class="almox-resumo-item">
+            <span class="almox-resumo-icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5M12 13v8"/>
+              </svg>
+            </span>
+            <span class="almox-resumo-label">Total Produtos</span>
+            <b class="almox-resumo-valor" id="resumo-total-produtos">245</b>
+          </div>
+          <div class="almox-resumo-item">
+            <span class="almox-resumo-icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+              </svg>
+            </span>
+            <span class="almox-resumo-label">Vencendo em 30 dias</span>
+            <b class="almox-resumo-valor" id="resumo-vencendo-30-dias">12</b>
+          </div>
+          <div class="almox-resumo-item">
+            <span class="almox-resumo-icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 10.5 12 4l9 6.5V21H3z"/><path d="M9 21v-6h6v6"/>
+              </svg>
+            </span>
+            <span class="almox-resumo-label">Média Estoque</span>
+            <b class="almox-resumo-valor" id="resumo-media-estoque">38 unid</b>
+          </div>
         </div>
       </div>
     </div>
@@ -425,7 +516,7 @@
     </div>
 
     <!-- Aba Movimentações -->
-    <div id="movimentacoes" class="tab-content">
+    <div id="movimentacoes" data-secao="Movimentações" class="tab-content">
       <div class="entrada-header">
         <h2 class="aba-legenda">Entrada ⮷</h2>
         <div class="opcoes-abas">
@@ -524,7 +615,7 @@
           <!-- Coluna 3: Financeiro + Imagem -->
           <div class="form-coluna">
             <div class="image-preview-container">
-              <img id="preview-entrada" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
+              <img id="preview-entrada" src="../IMG/Sem_imagem.png" alt="Ícone de imagem" class="image-preview-img"  onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';" />
             </div>
             <div>
               <label for="custo">CUSTO</label>
@@ -553,7 +644,7 @@
 
 
         <!-- Aba Transferência -->
-    <div id="transferencia" class="tab-content">
+    <div id="transferencia" data-secao="Movimentações" class="tab-content">
       <div class="entrada-header">
         <h2 class="aba-legenda">Transferência ⮷</h2>
         <div class="opcoes-abas">
@@ -573,7 +664,7 @@
 
 
             <!-- Aba Baixa -->
-    <div id="baixa" class="tab-content">
+    <div id="baixa" data-secao="Movimentações" class="tab-content">
       <div class="entrada-header">
         <h2 class="aba-legenda">Baixa ⮷</h2>
         <div class="opcoes-abas">
@@ -592,7 +683,7 @@
     </div>
 
     <!-- Aba Retiradas -->
-    <div id="retiradas" class="tab-content">
+    <div id="retiradas" data-secao="Movimentações" class="tab-content">
       <div class="entrada-header">
       <h2 class="aba-legenda">Retirada ⮷</h2>
         <div class="opcoes-abas">
@@ -662,7 +753,7 @@
           </div>
           <!-- Coluna direita: Imagem e Produto -->
           <div class="form-coluna">
-            <img id="retirada-produto-img" src="../IMG/Sem imagem.png" alt="Imagem do Produto" class="inline-style-9c7011">
+            <img id="retirada-produto-img" src="../IMG/Sem_imagem.png" alt="Imagem do Produto" class="inline-style-9c7011" onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';">
             <div class="inline-style-199b6f">
               <label for="retirada-produto">PRODUTO</label>
               <input type="text" id="retirada-produto" name="retirada-produto" list="lista-produtos" class="inline-style-199b6f" />
@@ -711,7 +802,7 @@
     </div>
 
     <!-- Aba Devolução -->
-    <div id="devolucao" class="tab-content">
+    <div id="devolucao" data-secao="Movimentações" class="tab-content">
       <div class="entrada-header">
       <h2 class="aba-legenda">Devolução ⮷</h2>
       <div class="opcoes-abas">
@@ -758,7 +849,7 @@
                 <textarea id="devolucao-observacao" name="devolucao-observacao" class="inline-style-28ae09"></textarea>
               </div>
               <div class="image-preview-container inline-style-fdf84b" id="devolucao-image-preview-container">
-                <img id="devolucao-produto-img" src="../IMG/Sem imagem.png" alt="Imagem do Produto" class="image-preview inline-style-72b195" />
+                <img id="devolucao-produto-img" src="../IMG/Sem_imagem.png" alt="Imagem do Produto" class="image-preview inline-style-72b195"  onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';" />
               </div>
             </div>
             <div>
@@ -804,7 +895,7 @@
     </div>
 
     <!-- Aba Requisitantes -->
-    <div id="requisitantes" class="tab-content">
+    <div id="requisitantes" data-secao="Cadastros" class="tab-content">
   <div class="entrada-header">
     <h2 class="aba-legenda">Requisitantes ⮷</h2>
     <div class="opcoes-abas">
@@ -856,7 +947,7 @@
 </div>
 
     <!-- Aba Fornecedores -->
-    <div id="fornecedores" class="tab-content">
+    <div id="fornecedores" data-secao="Cadastros" class="tab-content">
   <div class="entrada-header">
     <h2 class="aba-legenda">Fornecedores ⮷</h2>
     <div class="opcoes-abas">
@@ -927,7 +1018,7 @@
     </div>
 
     <!-- Aba Produtos -->
-<div id="consultas-produtos" class="tab-content">
+<div id="consultas-produtos" data-secao="Cadastros" class="tab-content">
   <h2 class="aba-legenda">Produtos</h2>
   <hr class="aba-linha">
 
@@ -1008,7 +1099,7 @@
         margin-bottom: 15px;
       ">
         <img id="preview-produto-consulta" 
-             src="../IMG/Sem imagem.png" 
+             src="../IMG/Sem_imagem.png" 
              alt="Imagem do Produto" 
              style="
                max-width: 100%;
@@ -1016,8 +1107,9 @@
                object-fit: contain;
                cursor: pointer;
                transition: transform 0.2s ease;
-             " 
+             "
              title="Clique para expandir"
+             onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';"
         />
       </div>
       
@@ -1033,7 +1125,7 @@
 
 
     <!-- Aba cadastro de Kits -->
-    <div id="consultas-kits" class="tab-content">
+    <div id="consultas-kits" data-secao="Cadastros" class="tab-content">
       <div class="entrada-header">
         <h2 class="aba-legenda">Kits</h2>
         <div class="opcoes-abas">
@@ -1076,7 +1168,7 @@
     <!-- Coluna 3: Imagem do kit (opcional) -->
     <div class="form-coluna" style="flex: 0 0 240px; min-width:220px; max-width:320px; align-items:center; justify-content:flex-start;">
       <div class="image-preview-container" style="width: 180px; height: 180px; border: 2px solid #475569; border-radius: 8px; background-color: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px;">
-       <img id="preview-kit-cadastro" src="../IMG/Sem imagem.png" alt="Imagem do Kit" style="max-width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; transition: transform 0.2s ease;" title="Clique para expandir" />
+       <img id="preview-kit-cadastro" src="../IMG/Sem_imagem.png" alt="Imagem do Kit" style="max-width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; transition: transform 0.2s ease;" title="Clique para expandir"  onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';" />
       </div>
     <!-- (removido) preview duplicado de imagem do produto no cadastro de kit -->
     </div>
@@ -1115,7 +1207,7 @@
 
     <!-- ======================= Aba Cadastro de Produtos ========================================== -->
 
-     <div id="cadastro-produto"  class="tab-content">
+     <div id="cadastro-produto"  data-secao="Cadastros" class="tab-content">
       <div class="entrada-header">
         <h2 class="aba-legenda">Produtos ⮷</h2>
         <div class="opcoes-abas">
@@ -1215,7 +1307,7 @@
           <!-- Coluna 3: Financeiro + Imagem -->
           <div class="form-coluna">
             <div class="image-preview-container">
-              <img id="preview" src="../IMG/Sem imagem.png" alt="Ícone de imagem" class="image-preview-img" />
+              <img id="preview" src="../IMG/Sem_imagem.png" alt="Ícone de imagem" class="image-preview-img"  onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';" />
               <input type="file" id="input-carregar-img-cadastro" accept=".xml" style="display: none;">
             </div>
             <div>
@@ -1273,7 +1365,7 @@
     </div>
 
     <!-- Aba Outros -->
-   <div id="outros" class="tab-content">
+   <div id="outros" data-secao="Cadastros" class="tab-content">
     <div class="entrada-header">
       <h2 class="aba-legenda">Outros ⮷</h2>
       <div class="opcoes-abas">
@@ -1366,7 +1458,7 @@ document.addEventListener('DOMContentLoaded', function() {
   mostrarCamposProdutos();
 });
 </script>
-  <script src="../SCRIPT/geral.js"></script>
+  <script src="../SCRIPT/geral.js?v=2"></script>
   <script src="../SCRIPT/outos.js"></script>
   <script src="../SCRIPT/pre-tranferencia.js"></script>
 

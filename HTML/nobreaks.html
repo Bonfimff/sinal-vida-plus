@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../CSS/geral.css?v=3" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=4" />
   <link rel="stylesheet" href="../CSS/nobreaks.css" />
   <link rel="icon" href="../IMG/Icone.png" type="image/png">
   <title>Nobreaks</title>
@@ -12,6 +12,8 @@
   <!-- Top Bar -->
   <div class="top-bar">
     <div class="top-bar-left">
+      <!-- Marca no topo: so aparece em celular/tablet (ver geral.css) -->
+      <img src="../IMG/Logoescura.png" alt="ORBITA" class="top-bar-logo">
       <span class="account-info">
         <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
         <span id="logged-user"></span>
@@ -28,10 +30,10 @@
 
   <!-- Menu lateral Nobreaks -->
   <div class="menu menu-nobreaks">
-    <button class="tab-btn active" data-tab="gerenciamento">Painel Geral</button>
-    <button class="tab-btn" data-tab="monitoramento">Monitoramento</button>
-    <button class="tab-btn" data-tab="log-eventos">Log de Eventos</button>
-    <button class="tab-btn" data-tab="relatorios">Relatórios</button>
+    <button class="tab-btn active" data-tab="gerenciamento" data-nav-label="Painel" data-nav-icone="painel">Painel Geral</button>
+    <button class="tab-btn" data-tab="monitoramento" data-nav-label="Monitorar" data-nav-icone="relatorio">Monitoramento</button>
+    <button class="tab-btn" data-tab="log-eventos" data-nav-label="Eventos" data-nav-icone="cadastros">Log de Eventos</button>
+    <button class="tab-btn" data-tab="relatorios" data-nav-label="Relatórios" data-nav-icone="relatorio">Relatórios</button>
     <div class="menu-bottom">
       <button class="menu-icon-btn" id="btn-config">
         <img src="../IMG/configuracoes.png">
@@ -95,7 +97,7 @@
 
   <script src="../SCRIPT/config.js"></script>
   <script src="../SCRIPT/nobreaks.js?v=2"></script>
-  <script src="../SCRIPT/geral.js"></script>
+  <script src="../SCRIPT/geral.js?v=2"></script>
   <!-- Painel notificação -->
 <div id="info-modal" class="modal" style="display: none;">
   <div class="modal-content">

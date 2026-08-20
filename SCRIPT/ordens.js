@@ -5,7 +5,6 @@
 (function () {
 
 const OS_API_BASE = window.TUNNEL_API_URL || (window.API_BASE_URL + '/');
-const BASES_STORAGE_KEY = 'svplus_bases_cadastradas';
 const BASES_GEO_CACHE_KEY = 'svplus_bases_geocodificadas';
 const STATUS_EM_ATENDIMENTO = ['Em Andamento', 'Em Deslocamento', 'Chegada no Local'];
 
@@ -249,6 +248,77 @@ async function geocodificarBase(base, cache) {
   return null;
 }
 
+// Centro de referência quando um veículo não tem posição real (mesma
+// convenção usada no mapa da Frota, pra estimativa cair na mesma região).
+const VEICULOS_MAPA_CENTRO = [-22.9068, -43.1729];
+
+function hashTextoVeiculo(valor) {
+  const texto = String(valor || 'SVPLUS');
+  let hash = 0;
+  for (let i = 0; i < texto.length; i += 1) {
+    hash = ((hash << 5) - hash) + texto.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+// Sem GPS real integrado, a posição do veículo no mapa é estimada a partir
+// da placa (determinística: a mesma placa sempre cai no mesmo ponto), do
+// jeito que já era feito no mapa da Frota - aqui replicado porque aquela
+// lógica vive isolada dentro da IIFE de frota.js.
+function coordenadaEstimativaVeiculo(placa, indice) {
+  const hash = hashTextoVeiculo(`${placa || ''}-${indice}`);
+  const deltaLat = ((hash % 900) / 10000) - 0.045;
+  const deltaLng = (((Math.floor(hash / 1000)) % 900) / 10000) - 0.045;
+  return [
+    VEICULOS_MAPA_CENTRO[0] + deltaLat,
+    VEICULOS_MAPA_CENTRO[1] + deltaLng,
+  ];
+}
+
+function corMarcadorVeiculo(status) {
+  const st = String(status || '').trim();
+  if (st === 'Em manutenção') return '#f39c12';
+  if (st === 'Inativo') return '#8d99ae';
+  return '#1a9e55';
+}
+
+async function listarBases() {
+  try {
+    const resp = await fetch(osApiUrl('bases'), { headers: authHeaders() });
+    const dados = await resp.json();
+    return (dados.status === 'ok' && Array.isArray(dados.bases)) ? dados.bases : [];
+  } catch (error) {
+    console.warn('Falha ao carregar bases:', error);
+    return [];
+  }
+}
+
+async function listarVeiculosParaMapa() {
+  try {
+    const resp = await fetch(osApiUrl('frota/veiculos'), { headers: authHeaders() });
+    const dados = await resp.json();
+    return (dados.status === 'ok' && Array.isArray(dados.veiculos)) ? dados.veiculos : [];
+  } catch (error) {
+    console.warn('Falha ao carregar veículos para o mapa:', error);
+    return [];
+  }
+}
+
+// Persiste a posição geocodificada na base (best-effort: se falhar, o mapa
+// ainda funciona nesta sessão, só volta a geocodificar na próxima carga).
+async function salvarCoordenadasBase(baseId, lat, lng) {
+  try {
+    await fetch(osApiUrl(`bases/${encodeURIComponent(baseId)}`), {
+      method: 'PUT',
+      headers: authHeaders(true),
+      body: JSON.stringify({ latitude: lat, longitude: lng }),
+    });
+  } catch (error) {
+    console.warn('Falha ao salvar coordenadas geocodificadas da base:', baseId, error);
+  }
+}
+
 async function renderizarMapaBasesGerenciamento() {
   const mapaContainer = document.getElementById('bases-mapa-container');
   const mapaEl = document.getElementById('bases-mapa');
@@ -256,11 +326,12 @@ async function renderizarMapaBasesGerenciamento() {
   const contagemEl = document.getElementById('bases-mapa-contagem');
   if (!mapaContainer || !mapaEl || !legendaEl || !contagemEl) return;
 
-  const bases = obterBasesCadastradas();
-  if (bases.length === 0) {
+  const [bases, veiculos] = await Promise.all([listarBases(), listarVeiculosParaMapa()]);
+
+  if (bases.length === 0 && veiculos.length === 0) {
     mapaContainer.style.display = 'none';
     legendaEl.innerHTML = '';
-    contagemEl.textContent = 'Nenhuma base cadastrada ainda.';
+    contagemEl.textContent = 'Nenhum veículo ou base cadastrado ainda (ou nenhum dentro dos contratos autorizados).';
     if (basesMapaLeaflet) {
       basesMapaLeaflet.remove();
       basesMapaLeaflet = null;
@@ -270,19 +341,14 @@ async function renderizarMapaBasesGerenciamento() {
   }
 
   mapaContainer.style.display = 'block';
-  contagemEl.textContent = `${bases.length} base(s) cadastrada(s)`;
-  legendaEl.innerHTML = bases.map((base, index) => {
-    const id = String(base.id || base.base_id || `Base ${index + 1}`).trim();
-    const localizacao = construirEnderecoMapaBase(base) || construirLocalizacaoBase(base);
-    return `<div class="pontos-mapa-legenda-item"><strong>${escapeHtml(id)}</strong> - ${escapeHtml(localizacao)}</div>`;
-  }).join('');
+  contagemEl.textContent = `${veiculos.length} veículo(s) · ${bases.length} base(s)`;
 
   if (!window.L) {
     await carregarLeafletSeNecessario();
   }
 
   if (!window.L) {
-    contagemEl.textContent = `${bases.length} base(s) cadastrada(s) - mapa indisponível.`;
+    contagemEl.textContent += ' - mapa indisponível.';
     return;
   }
 
@@ -307,38 +373,65 @@ async function renderizarMapaBasesGerenciamento() {
 
   basesMapaLeafletCamada = L.featureGroup().addTo(basesMapaLeaflet);
 
+  // ---- Bases: usa lat/long já salvo; só geocodifica o que ainda não tem ----
   const cacheGeo = carregarCacheGeocodificacaoBases();
-  const resultados = await Promise.all(bases.map(async (base) => ({
-    base,
-    posicao: await geocodificarBase(base, cacheGeo),
-  })));
+  const basesComPosicao = await Promise.all(bases.map(async (base) => {
+    if (Number.isFinite(base.latitude) && Number.isFinite(base.longitude)) {
+      return { base, posicao: { lat: base.latitude, lng: base.longitude } };
+    }
+    const posicao = await geocodificarBase(base, cacheGeo);
+    if (posicao) salvarCoordenadasBase(base.id, posicao.lat, posicao.lng);
+    return { base, posicao };
+  }));
 
   if (tokenRenderizacao !== basesMapaRenderToken || !basesMapaLeaflet || !basesMapaLeafletCamada) return;
 
   salvarCacheGeocodificacaoBases(cacheGeo);
 
-  const pontosValidos = resultados.filter(item => item.posicao);
-  if (pontosValidos.length === 0) {
-    contagemEl.textContent = `${bases.length} base(s) cadastrada(s) - nenhuma base foi localizada no mapa.`;
-    return;
-  }
+  const basesValidas = basesComPosicao.filter(item => item.posicao);
+  const itensLegenda = [];
 
-  pontosValidos.forEach(({ base, posicao }) => {
-    const id = String(base.id || base.base_id || '').trim() || 'Base';
+  basesValidas.forEach(({ base, posicao }) => {
+    const id = String(base.id || '').trim() || 'Base';
     const enderecoExibicao = construirEnderecoMapaBase(base) || construirLocalizacaoBase(base);
     const marcador = L.marker([posicao.lat, posicao.lng]).addTo(basesMapaLeafletCamada);
     marcador.bindPopup(`
       <div style="min-width:180px;">
-        <strong>${escapeHtml(id)}</strong><br>
+        <strong>📍 ${escapeHtml(id)}</strong><br>
         <span>${escapeHtml(enderecoExibicao)}</span>
       </div>
     `);
+    itensLegenda.push(`<div class="pontos-mapa-legenda-item"><strong>📍 ${escapeHtml(id)}</strong> - ${escapeHtml(enderecoExibicao)}</div>`);
   });
+
+  // ---- Veículos: posição estimada (sem GPS real integrado ainda) ----
+  veiculos.forEach((veiculo, indice) => {
+    const [lat, lng] = coordenadaEstimativaVeiculo(veiculo.placa, indice);
+    const cor = corMarcadorVeiculo(veiculo.status);
+    const marcador = L.circleMarker([lat, lng], {
+      radius: 8,
+      color: '#ffffff',
+      weight: 2,
+      fillColor: cor,
+      fillOpacity: 0.92,
+    }).addTo(basesMapaLeafletCamada);
+    marcador.bindPopup(`
+      <div style="min-width:180px;">
+        <strong>🚗 ${escapeHtml(veiculo.placa || 'Sem placa')}</strong><br>
+        ${escapeHtml([veiculo.marca, veiculo.modelo].filter(Boolean).join(' ') || 'Veículo')}<br>
+        Status: ${escapeHtml(veiculo.status || '—')}<br>
+        <em style="font-size:11px;color:#888;">Posição estimada</em>
+      </div>
+    `);
+    itensLegenda.push(`<div class="pontos-mapa-legenda-item"><strong>🚗 ${escapeHtml(veiculo.placa || 'Sem placa')}</strong> - ${escapeHtml(veiculo.status || '—')} (posição estimada)</div>`);
+  });
+
+  legendaEl.innerHTML = itensLegenda.join('') || '<div class="pontos-mapa-legenda-item">Nenhum ponto localizado no mapa.</div>';
 
   const bounds = basesMapaLeafletCamada.getBounds();
   if (bounds.isValid()) {
     basesMapaLeaflet.fitBounds(bounds, { padding: [30, 30] });
-    if (pontosValidos.length === 1) {
+    if (basesValidas.length + veiculos.length === 1) {
       basesMapaLeaflet.setZoom(Math.min(basesMapaLeaflet.getZoom(), 15));
     }
   }
@@ -2087,25 +2180,6 @@ function montarUrlMapaDirecoesEmbed(pontos) {
   return `https://maps.google.com/maps?${params.toString()}`;
 }
 
-function obterBasesCadastradas() {
-  try {
-    const raw = localStorage.getItem(BASES_STORAGE_KEY);
-    const dados = raw ? JSON.parse(raw) : [];
-    return Array.isArray(dados) ? dados : [];
-  } catch (e) {
-    console.warn('Falha ao ler bases cadastradas do localStorage:', e);
-    return [];
-  }
-}
-
-function salvarBasesCadastradas(bases) {
-  try {
-    localStorage.setItem(BASES_STORAGE_KEY, JSON.stringify(Array.isArray(bases) ? bases : []));
-  } catch (e) {
-    console.warn('Falha ao salvar bases cadastradas no localStorage:', e);
-  }
-}
-
 function construirLocalizacaoBase(base) {
   const endereco = String(base.endereco || '').trim();
   const complemento = String(base.complemento || '').trim();
@@ -2119,33 +2193,47 @@ async function cadastrarBase(event) {
   if (event && event.preventDefault) event.preventDefault();
 
   const id = String(document.getElementById('base-id')?.value || '').trim();
-  const contratoNome = String(document.getElementById('base-contrato-nome')?.value || '').trim();
   const linkLocalizacao = String(document.getElementById('base-link-localizacao')?.value || '').trim();
   const endereco = String(document.getElementById('base-endereco')?.value || '').trim();
   const complemento = String(document.getElementById('base-complemento')?.value || '').trim();
   const obs = String(document.getElementById('base-obs')?.value || '').trim();
+  const contratos = window.coletarContratosSelecionados(document.getElementById('base-contratos-lista'));
 
   if (!id || !endereco) {
     alert('Preencha os campos obrigatórios: ID da base e endereço.');
     return;
   }
 
-  const bases = obterBasesCadastradas();
-  bases.push({
-    id,
-    contratoNome,
-    link_localizacao: linkLocalizacao,
-    endereco,
-    complemento,
-    obs,
-    materiais: materiaisBasesAdicionados.slice(),
-    criado_em: new Date().toISOString(),
-  });
-  salvarBasesCadastradas(bases);
+  try {
+    const resp = await fetch(osApiUrl('bases'), {
+      method: 'POST',
+      headers: authHeaders(true),
+      body: JSON.stringify({
+        id,
+        contratos,
+        link_localizacao: linkLocalizacao,
+        endereco,
+        complemento,
+        obs,
+        materiais: materiaisBasesAdicionados.slice(),
+      }),
+    });
+    const dados = await resp.json();
+    if (dados.status !== 'ok') {
+      alert(dados.mensagem || 'Erro ao cadastrar base.');
+      return;
+    }
+  } catch (error) {
+    console.error('Erro ao cadastrar base:', error);
+    alert('Erro ao cadastrar base. Verifique sua conexão.');
+    return;
+  }
+
   materiaisBasesAdicionados = [];
 
   const formBases = document.getElementById('form-bases');
   if (formBases) formBases.reset();
+  window.popularChecklistContratos(document.getElementById('base-contratos-lista'), []);
 
   const listaMateriaisBases = document.getElementById('base-materiais-lista');
   if (listaMateriaisBases) listaMateriaisBases.innerHTML = '';
@@ -2165,6 +2253,7 @@ function limparCadastroBases() {
 
   const formBases = document.getElementById('form-bases');
   if (formBases) formBases.reset();
+  window.popularChecklistContratos(document.getElementById('base-contratos-lista'), []);
 
   const listaMateriaisBases = document.getElementById('base-materiais-lista');
   if (listaMateriaisBases) listaMateriaisBases.innerHTML = '';
@@ -3224,6 +3313,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   document.getElementById('form-bases')?.addEventListener('submit', cadastrarBase);
   document.getElementById('btn-limpar-bases')?.addEventListener('click', limparCadastroBases);
+  window.popularChecklistContratos(document.getElementById('base-contratos-lista'), []);
   renderizarMapaBasesGerenciamento().catch((error) => {
     console.error('Erro ao renderizar mapa de bases na inicialização:', error);
   });

@@ -900,6 +900,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     window.fecharDrawer = fechar;
+    window.abrirDrawer = abrir;
   }
 
   //====================================================================================================
@@ -932,13 +933,386 @@ document.addEventListener('DOMContentLoaded', function () {
       new MutationObserver(() => {
         if (agendado) return;
         agendado = true;
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           agendado = false;
           tornarTabelasResponsivas(alvo);
-        });
+        }, 0);
       }).observe(alvo, { childList: true, subtree: true });
     }
   });
 
   window.tornarTabelasResponsivas = tornarTabelasResponsivas;
+})();
+
+//======================================================================================================
+// MÓDULO: Barra de navegação inferior (celular/tablet)
+// Espelha as abas do menu lateral numa tab bar fixa no rodapé, no padrão de app nativo.
+// Não duplica lógica: cada botão apenas dispara o clique da .tab-btn original, e o
+// estado "ativo" é espelhado por MutationObserver. O botão "Mais" abre o drawer, onde
+// ficam as abas restantes, os módulos e as ações de configuração/sair.
+// Cada página escolhe rótulo e ícone via data-nav-label / data-nav-icone na .tab-btn.
+//======================================================================================================
+(function () {
+  // Traços dos ícones (24x24, herdam a cor via currentColor)
+  const ICONES = {
+    inicio: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+    painel: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>',
+    busca: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    movimentacoes: '<path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/>',
+    cadastros: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+    relatorio: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    veiculo: '<path d="M3 13l2-5h11l3 5"/><path d="M2 13h19v4H2z"/><circle cx="7" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/>',
+    mapa: '<path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/>',
+    agenda: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M17 8.5a3 3 0 0 1 0 5"/><path d="M18 20a6 6 0 0 0-2-4.5"/>',
+    sino: '<path d="M18 8.5a6 6 0 1 0-12 0c0 6-2 7.5-2 7.5h16s-2-1.5-2-7.5z"/><path d="M10.5 20a2 2 0 0 0 3 0"/>',
+    mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+    padrao: '<circle cx="12" cy="12" r="8"/>'
+  };
+
+  function svg(nome) {
+    const traco = ICONES[nome] || ICONES.padrao;
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '
+      + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + traco + '</svg>';
+  }
+
+  function iniciarNavInferior() {
+    const menu = document.querySelector('.menu');
+    if (!menu || document.querySelector('.nav-inferior')) return;
+
+    const abas = Array.from(menu.querySelectorAll('.tab-btn'));
+    if (!abas.length) return;
+
+    const nav = document.createElement('nav');
+    nav.className = 'nav-inferior';
+    nav.setAttribute('aria-label', 'Navegação principal');
+
+    // Cabendo todas em 4 posicoes, a barra mostra so as abas. Se houver mais,
+    // a quarta posicao vira "Mais" e o excedente fica no drawer - senao alguma
+    // aba ficaria inalcancavel pela barra.
+    const cabemTodas = abas.length <= 4;
+    const principais = cabemTodas ? abas : abas.slice(0, 4);
+    principais.forEach(aba => {
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.className = 'nav-inferior-item';
+      botao.dataset.abaRef = aba.dataset.tab || '';
+      const rotulo = aba.dataset.navLabel || aba.textContent.trim();
+      botao.innerHTML = svg(aba.dataset.navIcone) + '<span>' + rotulo + '</span>';
+      botao.addEventListener('click', () => aba.click());
+      nav.appendChild(botao);
+    });
+
+    // Destaque da barra: o botao do menu nem sempre acompanha (clicar numa
+    // sub-aba troca o .tab-content sem mexer no menu), entao o estado sai da
+    // tela ativa - direto pelo id, ou pela secao declarada em data-secao.
+    const refPorNome = {};
+    abas.forEach(aba => {
+      refPorNome[aba.textContent.trim()] = aba.dataset.tab || '';
+    });
+
+    function sincronizarDestaque() {
+      const tela = document.querySelector('.tab-content.active');
+      if (!tela) return;
+      const refSecao = tela.dataset.secao ? refPorNome[tela.dataset.secao] : '';
+      nav.querySelectorAll('.nav-inferior-item[data-aba-ref]').forEach(item => {
+        const ref = item.dataset.abaRef;
+        item.classList.toggle('active', !!ref && (ref === tela.id || ref === refSecao));
+      });
+    }
+
+    const conteudo = document.querySelector('.content');
+    if (conteudo) {
+      let agendado = false;
+      new MutationObserver(() => {
+        if (agendado) return;
+        agendado = true;
+        setTimeout(() => {
+          agendado = false;
+          sincronizarDestaque();
+        }, 0);
+      }).observe(conteudo, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+    sincronizarDestaque();
+
+    if (!cabemTodas) {
+      const mais = document.createElement('button');
+      mais.type = 'button';
+      mais.className = 'nav-inferior-item';
+      mais.innerHTML = svg('mais') + '<span>Mais</span>';
+      mais.addEventListener('click', () => {
+        if (typeof window.abrirDrawer === 'function') window.abrirDrawer();
+      });
+      nav.appendChild(mais);
+    }
+
+    document.body.appendChild(nav);
+    document.body.classList.add('tem-nav-inferior');
+  }
+
+  //====================================================================================================
+  // Cabecalho do painel em celular/tablet: titulo grande da aba + trilha de navegacao
+  // ("Almoxarifado > Movimentacoes > Retirada"). Substitui a faixa escura .aba-legenda,
+  // que fica pesada demais em tela pequena (o CSS a esconde nesse tamanho).
+  // O titulo e espelhado da propria .aba-legenda, entao acompanha a troca de aba em
+  // qualquer modulo - inclusive nos que reescrevem a legenda por JS (frota/gestao).
+  //====================================================================================================
+  function iniciarCabecalhoPainel() {
+    const conteudo = document.querySelector('.content');
+    if (!conteudo || document.querySelector('.painel-cabecalho')) return;
+
+    const bloco = document.createElement('div');
+    bloco.className = 'painel-cabecalho';
+    bloco.innerHTML =
+      '<h1 class="painel-titulo"></h1>'
+      + '<nav class="painel-trilha" aria-label="Trilha de navegacao"></nav>';
+    conteudo.insertBefore(bloco, conteudo.firstChild);
+
+    const elTitulo = bloco.querySelector('.painel-titulo');
+    const elTrilha = bloco.querySelector('.painel-trilha');
+    const moduloAtivo = document.getElementById('modulo-ativo');
+    const nomeModulo = moduloAtivo ? moduloAtivo.textContent.trim() : '';
+
+    // A legenda pode trazer setas/simbolos decorativos ("Entrada ⭷") que nao
+    // fazem sentido como titulo.
+    function limpar(texto) {
+      return (texto || '').replace(/[⬀-⯿←-⇿■-◿]/g, '').trim();
+    }
+
+    // A sub-aba ativa (Entrada/Retirada/...) e marcada de dois jeitos no projeto:
+    // por classe .active ou por style inline com o teal da marca. Cobre os dois.
+    // Trata como o mesmo nome variacoes de caixa/plural ("Busca" x "Buscas"),
+    // para a trilha nao repetir o mesmo nivel duas vezes.
+    function mesmoNome(a, b) {
+      const na = (a || '').toLowerCase();
+      const nb = (b || '').toLowerCase();
+      if (!na || !nb) return false;
+      return na === nb || na.indexOf(nb) === 0 || nb.indexOf(na) === 0;
+    }
+
+    function pillAtiva(pill) {
+      return pill.classList.contains('active')
+        || pill.classList.contains('active-requisitantes')
+        || /12B5AC/i.test(pill.getAttribute('style') || '');
+    }
+
+    function atualizar() {
+      const aba = document.querySelector('.tab-content.active');
+
+      const legenda = (aba && aba.querySelector('.aba-legenda'))
+        || document.getElementById('legenda-principal')
+        || document.querySelector('.aba-legenda');
+
+      // Nome da secao, em ordem de confiabilidade:
+      // 1) data-secao na propria tela (declarado no HTML para sub-abas, que
+      //    trocam o .tab-content sem mexer no botao do menu);
+      // 2) o botao do menu correspondente ao id da tela ativa;
+      // 3) o botao do menu ativo; 4) a legenda.
+      let nomeAba = '';
+      if (aba && aba.dataset.secao) {
+        nomeAba = aba.dataset.secao;
+      } else {
+        const btnDaTela = aba && document.querySelector('.menu .tab-btn[data-tab="' + aba.id + '"]');
+        const btnMenu = btnDaTela || document.querySelector('.menu .tab-btn.active');
+        nomeAba = limpar(btnMenu ? btnMenu.textContent : (legenda ? legenda.textContent : ''));
+      }
+
+      let subAba = '';
+      if (aba) {
+        const pill = Array.from(aba.querySelectorAll('.opcoes-abas .top-tab2')).find(pillAtiva);
+        if (pill) subAba = limpar(pill.textContent);
+      }
+      // Sem sub-aba explicita, a legenda ainda pode nomear a tela atual - mas
+      // so quando acrescenta informacao ("Busca" x "Buscas" nao acrescenta).
+      if (!subAba && legenda) {
+        const daLegenda = limpar(legenda.textContent);
+        if (daLegenda && !mesmoNome(daLegenda, nomeAba)) subAba = daLegenda;
+      }
+
+      elTitulo.textContent = subAba || nomeAba;
+
+      const partes = [];
+      if (nomeModulo) partes.push(nomeModulo);
+      if (nomeAba) partes.push(nomeAba);
+      if (subAba && !mesmoNome(subAba, nomeAba)) partes.push(subAba);
+
+      elTrilha.innerHTML = partes.map((parte, i) => {
+        const classe = i === partes.length - 1 ? 'painel-trilha-atual' : 'painel-trilha-item';
+        const sep = i ? '<span class="painel-trilha-sep" aria-hidden="true">&rsaquo;</span>' : '';
+        return sep + '<span class="' + classe + '"></span>';
+      }).join('');
+      // textContent (e nao innerHTML) para nao interpretar o texto vindo da pagina
+      elTrilha.querySelectorAll('span:not(.painel-trilha-sep)').forEach((el, i) => {
+        el.textContent = partes[i];
+      });
+    }
+
+    atualizar();
+
+    // Reage a troca de aba, de sub-aba e a reescrita da legenda pelo JS do modulo.
+    // Usa setTimeout (e nao requestAnimationFrame) porque rAF nao roda com a aba
+    // em segundo plano, e o titulo ficaria travado.
+    let agendado = false;
+    new MutationObserver(() => {
+      if (agendado) return;
+      agendado = true;
+      setTimeout(() => {
+        agendado = false;
+        atualizar();
+      }, 0);
+    }).observe(conteudo, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    });
+  }
+
+  //====================================================================================================
+  // Sino de notificacoes (celular/tablet).
+  // Nao inventa conteudo: mostra exatamente o painel "Status do Sistema" que ja existe
+  // na barra lateral direita do desktop (#sidebar-content), que some em tela pequena.
+  // O contador e o numero de itens desse painel.
+  //====================================================================================================
+  function iniciarSinoNotificacoes() {
+    const topBar = document.querySelector('.top-bar');
+    const fonte = document.getElementById('sidebar-content');
+    if (!topBar || !fonte || document.querySelector('.sino-notificacoes')) return;
+
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'sino-notificacoes';
+    botao.setAttribute('aria-label', 'Notificacoes');
+    botao.setAttribute('aria-expanded', 'false');
+    botao.innerHTML = svg('sino') + '<span class="sino-contador" hidden></span>';
+    topBar.appendChild(botao);
+
+    const painel = document.createElement('div');
+    painel.className = 'sino-painel';
+    painel.hidden = true;
+    painel.innerHTML = '<div class="sino-painel-corpo"></div>';
+    topBar.appendChild(painel);
+
+    const contador = botao.querySelector('.sino-contador');
+    const corpo = painel.querySelector('.sino-painel-corpo');
+
+    function contarItens() {
+      const itens = fonte.querySelectorAll('li').length
+        || fonte.querySelectorAll('p').length;
+      contador.textContent = itens > 9 ? '9+' : String(itens);
+      contador.hidden = itens === 0;
+    }
+
+    function abrir() {
+      // Reclona a cada abertura para refletir o estado atual do painel
+      corpo.innerHTML = '';
+      corpo.appendChild(fonte.cloneNode(true));
+      corpo.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      painel.hidden = false;
+      botao.setAttribute('aria-expanded', 'true');
+    }
+
+    function fechar() {
+      painel.hidden = true;
+      botao.setAttribute('aria-expanded', 'false');
+    }
+
+    botao.addEventListener('click', e => {
+      e.stopPropagation();
+      if (painel.hidden) abrir(); else fechar();
+    });
+
+    document.addEventListener('click', e => {
+      if (!painel.hidden && !painel.contains(e.target)) fechar();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') fechar();
+    });
+
+    contarItens();
+    new MutationObserver(contarItens).observe(fonte, { childList: true, subtree: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    iniciarNavInferior();
+    iniciarCabecalhoPainel();
+    iniciarSinoNotificacoes();
+  });
+})();
+
+//======================================================================================================
+// MÓDULO: Checklist de contratos (componente compartilhado)
+// Preenche e lê uma lista de checkboxes de contratos (.checklist-contratos),
+// usada em qualquer formulário que vincule um recurso a um ou mais
+// contratos (usuário, veículo, base). Cacheia a lista de contratos entre
+// chamadas pra não repetir o fetch a cada abertura de modal/formulário.
+//======================================================================================================
+(function () {
+  let contratosCache = null;
+  let contratosCachePromise = null;
+
+  function apiUrlContratos() {
+    if (typeof window.apiUrl === 'function') return window.apiUrl('/contratos');
+    const base = window.TUNNEL_API_URL || window.API_BASE_URL || '';
+    return base.replace(/\/$/, '') + '/contratos';
+  }
+
+  function authHeadersContratos() {
+    return { Authorization: 'Bearer ' + localStorage.getItem('token') };
+  }
+
+  async function obterContratosCache() {
+    if (contratosCache) return contratosCache;
+    if (contratosCachePromise) return contratosCachePromise;
+    contratosCachePromise = fetch(apiUrlContratos(), { headers: authHeadersContratos() })
+      .then(r => r.json())
+      .then(dados => {
+        contratosCache = (dados && dados.status === 'ok' && Array.isArray(dados.contratos)) ? dados.contratos : [];
+        return contratosCache;
+      })
+      .catch(erro => {
+        console.warn('Falha ao carregar contratos:', erro);
+        contratosCache = [];
+        return contratosCache;
+      })
+      .finally(() => { contratosCachePromise = null; });
+    return contratosCachePromise;
+  }
+
+  function escaparHtmlContratos(texto) {
+    const div = document.createElement('div');
+    div.textContent = String(texto == null ? '' : texto);
+    return div.innerHTML;
+  }
+
+  // Preenche um container .checklist-contratos com um checkbox por contrato.
+  // `selecionados` é a lista de nomes já vinculados (marca os checkboxes correspondentes).
+  async function popularChecklistContratos(container, selecionados) {
+    if (!container) return;
+    const contratos = await obterContratosCache();
+    if (!contratos.length) {
+      container.innerHTML = '<p style="color:#999;font-size:13px;margin:0;">Nenhum contrato cadastrado ainda.</p>';
+      return;
+    }
+    const marcados = new Set(selecionados || []);
+    container.innerHTML = contratos.map(c => `
+      <label>
+        <input type="checkbox" class="checklist-contratos-item" value="${escaparHtmlContratos(c.nome)}" ${marcados.has(c.nome) ? 'checked' : ''}>
+        ${escaparHtmlContratos(c.nome)}
+      </label>
+    `).join('');
+  }
+
+  // Lê os contratos marcados num container .checklist-contratos.
+  // Retorna null quando nada está marcado (= recurso geral, sem vínculo).
+  function coletarContratosSelecionados(container) {
+    if (!container) return null;
+    const marcados = Array.from(container.querySelectorAll('.checklist-contratos-item:checked')).map(cb => cb.value);
+    return marcados.length ? marcados : null;
+  }
+
+  window.popularChecklistContratos = popularChecklistContratos;
+  window.coletarContratosSelecionados = coletarContratosSelecionados;
 })();

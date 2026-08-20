@@ -3341,7 +3341,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Volta a imagem para o padrão
             const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
             if (imgKit) {
-              imgKit.src = '../IMG/Sem imagem.png';
+              imgKit.src = '../IMG/Sem_imagem.png';
               imgKit.alt = 'Imagem do Produto';
               imgKit.style.cursor = 'default';
               imgKit.title = 'Clique para selecionar uma imagem';
@@ -3436,7 +3436,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Volta a imagem para o padrão
       const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
       if (imgKit) {
-        imgKit.src = '../IMG/Sem imagem.png';
+        imgKit.src = '../IMG/Sem_imagem.png';
         imgKit.alt = 'Imagem do Produto';
         imgKit.style.cursor = 'default';
         imgKit.title = 'Clique para selecionar uma imagem';
@@ -4136,7 +4136,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         const imgKit = document.getElementById('preview-produto-kit') || document.getElementById('preview-kit') || document.getElementById('imagem-kit');
         if (imgKit) {
-          imgKit.src = '../IMG/Sem imagem.png';
+          imgKit.src = '../IMG/Sem_imagem.png';
           imgKit.alt = 'Imagem do Produto';
           imgKit.style.cursor = 'default';
           imgKit.title = 'Clique para selecionar uma imagem';

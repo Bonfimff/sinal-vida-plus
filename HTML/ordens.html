@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../CSS/geral.css?v=3" />
-  <link rel="stylesheet" href="../CSS/ordens.css" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=4" />
+  <link rel="stylesheet" href="../CSS/ordens.css?v=2" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="icon" href="../IMG/Icone.png" type="image/png">
   <title>Ordens de Serviço</title>
@@ -13,10 +13,10 @@
 
   <!-- Menu lateral -->
   <div class="menu">
-    <button class="tab-btn active" data-tab="gerenciamento">Painel Geral</button>
-    <button class="tab-btn" data-tab="bases">Bases</button>
-    <button class="tab-btn" data-tab="cronograma">Cronograma</button>
-    <button class="tab-btn" data-tab="abertura">Nova O.S.</button>
+    <button class="tab-btn active" data-tab="gerenciamento" data-nav-label="Painel" data-nav-icone="painel">Painel Geral</button>
+    <button class="tab-btn" data-tab="bases" data-nav-label="Bases" data-nav-icone="mapa">Bases</button>
+    <button class="tab-btn" data-tab="cronograma" data-nav-label="Cronograma" data-nav-icone="agenda">Cronograma</button>
+    <button class="tab-btn" data-tab="abertura" data-nav-label="Nova O.S." data-nav-icone="cadastros">Nova O.S.</button>
     <button class="tab-btn" data-tab="busca">Busca</button>
     <div class="menu-bottom">
       <button class="menu-icon-btn" id="btn-config">
@@ -34,6 +34,8 @@
   <!-- Barra superior -->
   <div class="top-bar">
     <div class="top-bar-left">
+      <!-- Marca no topo: so aparece em celular/tablet (ver geral.css) -->
+      <img src="../IMG/Logoescura.png" alt="ORBITA" class="top-bar-logo">
       <span class="account-info">
         <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
         <span id="logged-user"></span>
@@ -57,22 +59,42 @@
       <hr class="aba-linha">
 
       <!-- Cards de totalizadores -->
-      <div class="os-cards">
-        <div class="os-card os-card-abertas">
-          <span class="os-card-numero" id="total-abertas">0</span>
-          <span class="os-card-label">Abertas</span>
+      <div class="painel-cards">
+        <div class="painel-card">
+          <span class="painel-card-icone painel-icone-laranja">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 4h9l5 5v11H5z"/><path d="M14 4v5h5"/><path d="M9 13h6M9 17h4"/>
+            </svg>
+          </span>
+          <span class="painel-card-label">Abertas</span>
+          <span class="painel-card-valor" id="total-abertas">0</span>
         </div>
-        <div class="os-card os-card-andamento">
-          <span class="os-card-numero" id="total-andamento">0</span>
-          <span class="os-card-label">Em Andamento</span>
+        <div class="painel-card">
+          <span class="painel-card-icone painel-icone-azul">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+            </svg>
+          </span>
+          <span class="painel-card-label">Em Andamento</span>
+          <span class="painel-card-valor" id="total-andamento">0</span>
         </div>
-        <div class="os-card os-card-finalizadas">
-          <span class="os-card-numero" id="total-finalizadas">0</span>
-          <span class="os-card-label">Finalizadas</span>
+        <div class="painel-card">
+          <span class="painel-card-icone painel-icone-verde">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>
+            </svg>
+          </span>
+          <span class="painel-card-label">Finalizadas</span>
+          <span class="painel-card-valor" id="total-finalizadas">0</span>
         </div>
-        <div class="os-card os-card-canceladas">
-          <span class="os-card-numero" id="total-canceladas">0</span>
-          <span class="os-card-label">Canceladas</span>
+        <div class="painel-card">
+          <span class="painel-card-icone painel-icone-cinza">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>
+            </svg>
+          </span>
+          <span class="painel-card-label">Canceladas</span>
+          <span class="painel-card-valor" id="total-canceladas">0</span>
         </div>
       </div>
 
@@ -97,7 +119,7 @@
 
       <div id="bases-mapa-container" class="pontos-mapa-unico" style="display:none; margin-top:18px;">
         <div class="pontos-mapa-legenda" style="padding:0 0 10px 0; border-bottom:1px solid #ddd; margin-bottom:10px;">
-          <strong>Mapa das bases cadastradas</strong>
+          <strong>Mapa de veículos e bases</strong>
           <div id="bases-mapa-contagem" style="font-size:12px; color:#555; margin-top:4px;"></div>
         </div>
         <div id="bases-mapa" class="ponto-mapa-preview bases-mapa-leaflet"></div>
@@ -118,11 +140,6 @@
           </div>
 
           <div class="os-form-item">
-            <label for="base-contrato-nome">Nome do contrato</label>
-            <input type="text" id="base-contrato-nome" placeholder="Nome do contrato">
-          </div>
-
-          <div class="os-form-item">
             <label for="base-link-localizacao">Link de localização</label>
             <input type="text" id="base-link-localizacao" placeholder="https://maps.google.com/...">
           </div>
@@ -135,6 +152,12 @@
           <div class="os-form-item">
             <label for="base-complemento">Complemento</label>
             <input type="text" id="base-complemento" placeholder="Apto, bloco, ponto de referência">
+          </div>
+
+          <div class="os-form-item os-form-full">
+            <label>Contratos com acesso a esta base</label>
+            <small class="os-campo-ajuda">Sem nenhum marcado, a base fica visível para todos os usuários com acesso a Ordens de Serviço.</small>
+            <div id="base-contratos-lista" class="checklist-contratos"></div>
           </div>
 
           <div class="os-form-item os-form-full">
@@ -479,9 +502,9 @@
   </div>
 
   <script src="../SCRIPT/config.js"></script>
-  <script src="../SCRIPT/geral.js"></script>
+  <script src="../SCRIPT/geral.js?v=2"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="../SCRIPT/ordens.js"></script>
+  <script src="../SCRIPT/ordens.js?v=2"></script>
 
   <!-- Modal de informações -->
   <div id="info-modal" class="modal" style="display: none;">

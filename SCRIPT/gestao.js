@@ -202,36 +202,15 @@
     if (atual) select.value = atual;
   }
 
-  let contratosCacheUsuario = [];
-
-  async function popularChecklistContratosUsuario(contratosSelecionadosNomes = []) {
-    const lista = document.getElementById('usuario-contratos-lista');
-    if (!lista) return;
-    if (!contratosCacheUsuario.length) {
-      try {
-        const resp = await fetch(window.apiUrl('/contratos'), { headers: authHeaders() });
-        const dados = await resp.json();
-        if (dados.status === 'ok') contratosCacheUsuario = dados.contratos;
-      } catch (e) {
-        console.warn('Falha ao carregar contratos para o checklist do usuário:', e);
-      }
-    }
-    if (!contratosCacheUsuario.length) {
-      lista.innerHTML = '<p style="color:#999;font-size:13px;">Nenhum contrato cadastrado ainda.</p>';
-      return;
-    }
-    const selecionados = new Set(contratosSelecionadosNomes || []);
-    lista.innerHTML = contratosCacheUsuario.map(c => `
-      <label>
-        <input type="checkbox" class="usuario-contrato-checkbox" value="${escapeHtml(c.nome)}" ${selecionados.has(c.nome) ? 'checked' : ''}>
-        ${escapeHtml(c.nome)}
-      </label>
-    `).join('');
+  // O checklist de contratos (popular/coletar) é um componente compartilhado
+  // em geral.js - window.popularChecklistContratos / coletarContratosSelecionados -
+  // usado aqui e também em Frota/Bases pra vincular recursos a contratos.
+  function popularChecklistContratosUsuario(contratosSelecionadosNomes = []) {
+    return window.popularChecklistContratos(document.getElementById('usuario-contratos-lista'), contratosSelecionadosNomes);
   }
 
   function coletarContratosSelecionadosUsuario() {
-    const marcados = Array.from(document.querySelectorAll('.usuario-contrato-checkbox:checked')).map(cb => cb.value);
-    return marcados.length ? marcados : null;
+    return window.coletarContratosSelecionados(document.getElementById('usuario-contratos-lista'));
   }
 
   function abrirModalUsuario(usuario) {

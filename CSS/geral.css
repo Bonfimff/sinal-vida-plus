@@ -1136,3 +1136,895 @@ button[type="submit"]:hover, .btn-primario:hover {
     min-width: 900px;
   }
 }
+
+/* ===================================================================
+   NAVEGAÇÃO INFERIOR (celular/tablet)
+   Tab bar fixa no rodapé, injetada por geral.js a partir das .tab-btn
+   do menu lateral. Só existe até 768px - no desktop o menu lateral
+   continua sendo a navegação.
+   =================================================================== */
+.nav-inferior {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-inferior {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #e8edf0;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    z-index: var(--z-sidebar);
+  }
+
+  .nav-inferior-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 2px;
+    color: #8a97a3;
+    font-family: inherit;
+    font-size: 11px;
+    line-height: 1.2;
+    border-radius: 8px;
+    transition: color 0.15s;
+  }
+
+  .nav-inferior-item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav-inferior-item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-inferior-item.active {
+    color: var(--cor-primaria);
+    font-weight: 700;
+  }
+
+  /* Espaço para a barra não cobrir o fim do conteúdo */
+  body.tem-nav-inferior .content {
+    padding-bottom: 78px;
+  }
+
+  /* O drawer também precisa parar acima da barra */
+  body.tem-nav-inferior .menu {
+    padding-bottom: 78px;
+  }
+}
+
+/* ===================================================================
+   SISTEMA DE DESIGN MOBILE/TABLET
+   Aplica em telas <= 1024px o padrão da referência de design: topo
+   escuro com marca centralizada e sino, título grande com trilha de
+   navegação, sub-abas em pílula, cartões brancos, campos e botões
+   padronizados e barra de navegação inferior.
+   No desktop nada disso entra em cena - o layout segue como sempre foi.
+   =================================================================== */
+
+/* ---------- Topo: marca centralizada + sino ---------- */
+.top-bar-logo,
+.sino-notificacoes,
+.sino-painel {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Hambúrguer à esquerda e marca centralizada na barra inteira - por isso
+     o logo sai do fluxo do .top-bar-left, que é estreito e recorta. */
+  .top-bar {
+    position: relative;
+  }
+
+  .top-bar-left {
+    overflow: visible;
+    flex: 1 1 100%;
+    width: 100%;
+    margin: 0;
+    justify-content: flex-start;
+  }
+
+  .top-bar-logo {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 44px;
+    width: auto;
+    max-width: 50vw;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  /* Com a trilha de navegação no painel, o topo não repete nome/módulo */
+  .top-bar .account-info {
+    display: none;
+  }
+
+  .sino-notificacoes {
+    display: inline-flex;
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: #fff;
+    border-radius: 8px;
+  }
+
+  .sino-notificacoes svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sino-contador {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--cor-primaria);
+    color: #06312e;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 17px;
+    text-align: center;
+  }
+
+  .sino-painel {
+    display: block;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 10px;
+    left: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #fff;
+    color: var(--cor-texto);
+    border: 1px solid #e8edf0;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18);
+    padding: 14px 16px;
+    z-index: var(--z-topbar);
+  }
+
+  .sino-painel[hidden] {
+    display: none;
+  }
+
+  .sino-painel h3,
+  .sino-painel h4 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a97a3;
+    margin-bottom: 8px;
+  }
+
+  .sino-painel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 14px;
+  }
+
+  .sino-painel li,
+  .sino-painel p {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #1F2D3D;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f4f6;
+  }
+
+  .sino-painel li:last-child,
+  .sino-painel p:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ---------- Cabeçalho do painel: título + trilha ---------- */
+.painel-cabecalho {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .painel-cabecalho {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .painel-titulo {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: #1F2D3D;
+  }
+
+  .painel-trilha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .painel-trilha-item {
+    color: var(--cor-primaria);
+    font-weight: 600;
+  }
+
+  .painel-trilha-atual {
+    color: #8a97a3;
+  }
+
+  .painel-trilha-sep {
+    color: #c4ced6;
+  }
+
+  /* A faixa escura .aba-legenda é substituída pelo título acima */
+  .aba-legenda,
+  .aba-linha {
+    display: none;
+  }
+}
+
+/* ---------- Sub-abas em pílula (Entrada / Retirada / ...) ---------- */
+@media (max-width: 1024px) {
+  .opcoes-abas {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin: 0 0 16px;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .opcoes-abas::-webkit-scrollbar {
+    display: none;
+  }
+
+  .opcoes-abas .top-tab2 {
+    flex: 0 0 auto;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a97a3;
+    white-space: nowrap;
+  }
+
+  .opcoes-abas .top-tab2.active,
+  .opcoes-abas .top-tab2.active-requisitantes {
+    color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    background: #fff;
+  }
+
+  .entrada-header {
+    display: block;
+  }
+}
+
+/* ---------- Cartões, campos e botões ---------- */
+@media (max-width: 1024px) {
+  /* Cada bloco de formulário vira um cartão branco de cantos suaves */
+  .content form {
+    background: #fff;
+    border: 1px solid #edf1f3;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(16, 24, 40, 0.05);
+    padding: 16px 14px;
+    margin-bottom: 14px;
+  }
+
+  .content form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1F2D3D;
+    margin: 0 0 5px;
+    text-transform: none;
+  }
+
+  .content form input,
+  .content form select,
+  .content form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1F2D3D;
+    background: #fff;
+    border: 1px solid #dfe6ea;
+    border-radius: 8px;
+  }
+
+  .content form input::placeholder,
+  .content form textarea::placeholder {
+    color: #aab6c0;
+  }
+
+  .content form input:focus,
+  .content form select:focus,
+  .content form textarea:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(18, 181, 172, 0.15);
+  }
+
+  /* Botões: primário sólido escuro, secundário contornado */
+  .content button[type="submit"],
+  .content .btn-primario,
+  .content .acao-btn {
+    padding: 11px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .content .btn-secundario {
+    background: #fff;
+    color: #1F2D3D;
+    border: 1px solid #dfe6ea;
+    padding: 11px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .content .btn-secundario:hover {
+    background: #f5f8fa;
+  }
+
+  /* Estado vazio de listas */
+  .estado-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 28px 16px;
+    color: #8a97a3;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+/* ---------- Tabelas compactas ---------- */
+@media (max-width: 1024px) {
+  .content table {
+    font-size: 13px;
+  }
+
+  .content table th {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .content table td {
+    padding: 10px 12px;
+  }
+}
+
+/* ===================================================================
+   NAVEGAÇÃO INFERIOR (celular/tablet)
+   Tab bar fixa no rodapé, injetada por geral.js a partir das .tab-btn
+   do menu lateral. Só existe até 768px - no desktop o menu lateral
+   continua sendo a navegação.
+   =================================================================== */
+.nav-inferior {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-inferior {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #e8edf0;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    z-index: var(--z-sidebar);
+  }
+
+  .nav-inferior-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 2px;
+    color: #8a97a3;
+    font-family: inherit;
+    font-size: 11px;
+    line-height: 1.2;
+    border-radius: 8px;
+    transition: color 0.15s;
+  }
+
+  .nav-inferior-item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav-inferior-item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-inferior-item.active {
+    color: var(--cor-primaria);
+    font-weight: 700;
+  }
+
+  /* Espaço para a barra não cobrir o fim do conteúdo */
+  body.tem-nav-inferior .content {
+    padding-bottom: 78px;
+  }
+
+  body.tem-nav-inferior .menu {
+    padding-bottom: 78px;
+  }
+}
+
+/* ---------- Blocos de filtro e seletor de colunas como cartão ---------- */
+@media (max-width: 1024px) {
+  /* Os filtros não estão dentro de <form>, então não pegam o cartão padrão */
+  .busca-filtros,
+  .busca-produtos-campos {
+    background: #fff;
+    border: 1px solid #edf1f3;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(16, 24, 40, 0.05);
+    padding: 16px 14px;
+    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .busca-filtro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .busca-filtro-item label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1F2D3D;
+  }
+
+  .busca-filtros input,
+  .busca-filtros select,
+  .busca-produtos-campos input,
+  .busca-produtos-campos select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1F2D3D;
+    background: #fff;
+    border: 1px solid #dfe6ea;
+    border-radius: 8px;
+  }
+
+  .busca-filtros input::placeholder {
+    color: #aab6c0;
+  }
+
+  .busca-filtros input:focus,
+  .busca-filtros select:focus,
+  .busca-produtos-campos input:focus,
+  .busca-produtos-campos select:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(18, 181, 172, 0.15);
+  }
+
+  /* Seletor de colunas: linha de cartão com o rótulo à esquerda */
+  .btn-toggle-colunas {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid #edf1f3;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(16, 24, 40, 0.05);
+    padding: 14px;
+    margin-bottom: 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1F2D3D;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  /* O indicador aberto/fechado já vem do ::before existente (.ativo), que
+     reflete o estado real - não duplicar com outra seta aqui. */
+  .btn-toggle-colunas::before {
+    order: 1;
+    margin-left: auto;
+    color: #8a97a3;
+  }
+
+  .colunas-selector-container {
+    background: #fff;
+    border: 1px solid #edf1f3;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  /* Barra de ações da busca (Buscar / Baixar Tabela) */
+  .busca-controles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .busca-controle-item {
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .busca-controles .btn-primario {
+    flex: 1 1 calc(50% - 5px);
+  }
+}
+
+/* ===================================================================
+   CARTÕES DE INDICADOR DO PAINEL GERAL - componente único do sistema
+   Fonte de verdade para os cards de KPI de todos os módulos. Antes cada
+   módulo tinha a sua versão (.frota-card, .os-card, .gestao-card,
+   .nobreaks-card), o que gerava quatro aparências diferentes para o
+   mesmo elemento. A cor deixa de ser uma barra na lateral e passa a
+   viver no quadrado do ícone, como no padrão do Almoxarifado.
+   =================================================================== */
+.painel-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.painel-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 14px;
+  padding: 16px 14px;
+  box-shadow: 0 1px 6px rgba(16, 24, 40, 0.05);
+}
+
+.painel-card-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.painel-card-icone svg {
+  width: 20px;
+  height: 20px;
+}
+
+.painel-card-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.painel-card-titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1F2D3D;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.painel-card-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: #7A8794;
+  line-height: 1.3;
+}
+
+.painel-card-valor {
+  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1F2D3D;
+  line-height: 1.15;
+}
+
+.painel-card-corpo {
+  width: 100%;
+}
+
+.painel-card-corpo p + p {
+  margin-top: 8px;
+}
+
+.painel-card-corpo ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  font-size: 13px;
+  color: #7A8794;
+}
+
+/* Paleta dos quadrados de ícone - a cor carrega o significado
+   (status da O.S., natureza do indicador) que antes ficava na barra lateral */
+.painel-icone-teal {
+  background: #E6F7F5;
+  color: var(--cor-primaria);
+}
+
+.painel-icone-azul {
+  background: #E7F0FD;
+  color: #1565c0;
+}
+
+.painel-icone-verde {
+  background: #E6F6EA;
+  color: #2e7d32;
+}
+
+.painel-icone-laranja {
+  background: #FEF0E2;
+  color: #e65100;
+}
+
+.painel-icone-ambar {
+  background: #FEF3E2;
+  color: #B26A0B;
+}
+
+.painel-icone-vermelho {
+  background: #FDECEC;
+  color: #C0392B;
+}
+
+.painel-icone-cinza {
+  background: #EEF1F4;
+  color: #5b6b7a;
+}
+
+.painel-icone-roxo {
+  background: #F0EBFB;
+  color: #6b46c1;
+}
+
+/* Em celular/tablet os cards ficam lado a lado e mais compactos, para
+   caber mais informação sem rolagem (mesmo comportamento do Almoxarifado) */
+@media (max-width: 768px) {
+  .painel-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .painel-card {
+    padding: 14px 12px;
+    border-radius: 16px;
+  }
+
+  .painel-card-icone {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .painel-card-icone svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .painel-card-titulo {
+    font-size: 14px;
+  }
+
+  .painel-card-label {
+    font-size: 12px;
+  }
+
+  .painel-card-valor {
+    font-size: 22px;
+  }
+}
+
+/* Variações do componente de card -------------------------------------- */
+
+/* Card com título + várias métricas (ex.: Estoque Principal, no Almoxarifado):
+   o valor é menor que o de um card de KPI, que exibe um número só. */
+.painel-card-valor-compacto {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+/* Cabeçalho de seção (Agendamento de Entradas, Resumo Rápido...) */
+.painel-secao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.painel-secao-topo h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
+  color: #1F2D3D;
+}
+
+.painel-card-icone-pequeno {
+  width: 30px;
+  height: 30px;
+}
+
+.painel-card-icone-pequeno svg {
+  width: 17px;
+  height: 17px;
+}
+
+@media (max-width: 768px) {
+  /* Ícone acima do título, como na referência de design */
+  .painel-card-topo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .painel-card-valor-compacto {
+    font-size: 17px;
+  }
+
+  .painel-card-icone-pequeno {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* ===================================================================
+   CABEÇALHO DE TABELA - padrão único
+   Antes o cabeçalho escuro vinha de `.tabela-produtos thead`, um
+   contêiner que só alguns módulos usam, então tabelas iguais apareciam
+   com cabeçalhos diferentes (a de Usuários, por exemplo, ficava branca).
+   Passa a valer para toda tabela .estilo-tabela, que todos os módulos usam.
+   =================================================================== */
+.estilo-tabela thead {
+  background-color: var(--cor-escura);
+  color: #fff;
+}
+
+.estilo-tabela th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.estilo-tabela td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.estilo-tabela tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===================================================================
+   BLOCOS DE FILTRO - mesmo cartão em todos os módulos
+   .busca-filtros já era compartilhado entre Almoxarifado e O.S.;
+   .cronograma-filtros é do Cronograma e ficava de fora do padrão.
+   =================================================================== */
+@media (max-width: 1024px) {
+  .cronograma-filtros {
+    background: #fff;
+    border: 1px solid #edf1f3;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(16, 24, 40, 0.05);
+    padding: 16px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .cronograma-filtros label {
+    flex: 1 1 100%;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1F2D3D;
+  }
+
+  .cronograma-filtros input {
+    flex: 1 1 140px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1F2D3D;
+    border: 1px solid #dfe6ea;
+    border-radius: 8px;
+  }
+}
+
+/* ===================================================================
+   CHECKLIST DE CONTRATOS - componente compartilhado
+   Usado em qualquer formulário que vincula um recurso (usuário, veículo,
+   base) a um ou mais contratos - a lista vem sempre de GET /contratos.
+   =================================================================== */
+.checklist-contratos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 13px;
+}
+
+.checklist-contratos label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.checklist-contratos input[type="checkbox"] {
+  accent-color: var(--cor-destaque);
+  cursor: pointer;
+}

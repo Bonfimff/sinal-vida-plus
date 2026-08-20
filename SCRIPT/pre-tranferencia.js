@@ -31,7 +31,7 @@ document.getElementById('btn-adicionar-item-kit')?.addEventListener('click', fun
   if (imgPreview && imgPreview.src) {
     imagemSrc = imgPreview.src;
   } else {
-    imagemSrc = '../IMG/Sem imagem.png';
+    imagemSrc = '../IMG/Sem_imagem.png';
   }
 
 
@@ -42,7 +42,7 @@ document.getElementById('btn-adicionar-item-kit')?.addEventListener('click', fun
     <td>${categoria}</td>
     <td>${observacao}</td>
     <td style="text-align:center;vertical-align:middle;">
-      <img src="${imagemSrc}" alt="Imagem do Produto" style="max-width:60px;max-height:60px;border-radius:6px;box-shadow:0 1.5px 6px #0002;cursor:pointer;" onclick="expandirImagemProduto && expandirImagemProduto('${imagemSrc.replace(/'/g, '\'')}', '${produto}')">
+      <img src="${imagemSrc}" alt="Imagem do Produto" style="max-width:60px;max-height:60px;border-radius:6px;box-shadow:0 1.5px 6px #0002;cursor:pointer;" onerror="this.onerror=null;this.src='../IMG/Sem_imagem.png';" onclick="expandirImagemProduto && expandirImagemProduto('${imagemSrc.replace(/'/g, '\'')}', '${produto}')">
     </td>
     <td style="text-align:center;vertical-align:middle;">
       <button class="btn-editar-kit-item" title="Editar" style="background:#475569;color:#222;border:none;border-radius:4px;padding:4px 8px;margin-right:4px;cursor:pointer;font-size:1em;">✎</button>
@@ -94,7 +94,7 @@ document.getElementById('btn-adicionar-item-kit')?.addEventListener('click', fun
   // Limpa a imagem do preview
   const imgPreviewLimpar = document.getElementById('preview-kit-cadastro');
   if (imgPreviewLimpar) {
-    imgPreviewLimpar.src = '../IMG/Sem imagem.png';
+    imgPreviewLimpar.src = '../IMG/Sem_imagem.png';
     imgPreviewLimpar.alt = 'Imagem do Produto';
     imgPreviewLimpar.style.cursor = 'default';
     imgPreviewLimpar.onclick = null;
@@ -169,7 +169,7 @@ document.getElementById('btn-salvar-kit')?.addEventListener('click', async funct
       document.getElementById('observacao-kit-cadastro').value = '';
       const imgPreview = document.getElementById('preview-kit-cadastro');
       if (imgPreview) {
-        imgPreview.src = '../IMG/Sem imagem.png';
+        imgPreview.src = '../IMG/Sem_imagem.png';
         imgPreview.alt = 'Imagem do Produto';
         imgPreview.style.cursor = 'default';
         imgPreview.onclick = null;

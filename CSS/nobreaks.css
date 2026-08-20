@@ -4,47 +4,6 @@
    Este arquivo guarda apenas o que e especifico do modulo.
    =================================================================== */
 
-.nobreaks-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.nobreaks-card {
-  background: var(--cor-fundo-alt);
-  border: 1px solid var(--cor-borda);
-  border-left: 4px solid var(--cor-primaria);
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.nobreaks-card-label {
-  font-size: 13px;
-  color: #555;
-}
-
-.nobreaks-card-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--cor-escura);
-}
-
-@media (max-width: 480px) {
-  .nobreaks-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-  .nobreaks-card {
-    padding: 10px;
-  }
-  .nobreaks-card-label {
-    font-size: 11px;
-  }
-  .nobreaks-card-value {
-    font-size: 18px;
-  }
-}
+/* Os cartões de indicador usam o componente .painel-card de geral.css
+   (mesmo padrão dos demais módulos). Este arquivo mantém só o que é
+   específico do Nobreaks. */

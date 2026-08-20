@@ -427,6 +427,7 @@
       itens_checklist_especificos: normalizarTextoLista(document.getElementById('frota-itens-checklist').value) || null,
       equipamentos_ferramentas: normalizarTextoLista(document.getElementById('frota-equipamentos').value) || null,
       obs: document.getElementById('frota-obs').value.trim() || null,
+      contratos: window.coletarContratosSelecionados(document.getElementById('veiculo-contratos-lista')),
     };
   }
 
@@ -469,6 +470,7 @@
       preview.style.display = 'none';
       placeholder.style.display = 'block';
     }
+    window.popularChecklistContratos(document.getElementById('veiculo-contratos-lista'), []);
   }
 
   function sairModoEdicaoVeiculo() {
@@ -494,6 +496,7 @@
     document.getElementById('frota-itens-checklist').value = Array.isArray(veiculo.itens_checklist_especificos) ? veiculo.itens_checklist_especificos.join(', ') : veiculo.itens_checklist_especificos || '';
     document.getElementById('frota-equipamentos').value = Array.isArray(veiculo.equipamentos_ferramentas) ? veiculo.equipamentos_ferramentas.join(', ') : veiculo.equipamentos_ferramentas || '';
     document.getElementById('frota-obs').value = veiculo.obs || '';
+    window.popularChecklistContratos(document.getElementById('veiculo-contratos-lista'), veiculo.contratos || []);
     veiculoEditandoPlaca = formatPlaca(veiculo.placa || '');
     const botaoSalvar = document.getElementById('frota-veiculo-salvar');
     if (botaoSalvar) {
@@ -1924,6 +1927,7 @@
 
     const listaInicial = await listarVeiculos();
     renderTabela(listaInicial);
+    window.popularChecklistContratos(document.getElementById('veiculo-contratos-lista'), []);
 
     preencherSelectPlacasAbastecimento(listaInicial);
     preencherSelectPlacasCartoesAbastecimento(listaInicial);
