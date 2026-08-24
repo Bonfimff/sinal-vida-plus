@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     almoxarifado: 'almoxarifado.html',
     frota: 'frota.html',
     ordens: 'ordens.html',
-    gestao: 'gestao.html'
+    gestao: 'gestao.html',
+    relatorios: 'relatorios.html',
+    cadastros: 'cadastros.html'
   };
 
   const userNameElement = document.getElementById('logged-user');
@@ -702,6 +704,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     Object.keys(modules).forEach(modulo => {
       const tab = document.getElementById(`${modulo}-tab`);
+      if (!tab) return;
       if (modulos && modulos[modulo]) {
         tab.classList.remove('modulo-oculto');
         tab.addEventListener('click', () => {
@@ -733,6 +736,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         Object.keys(modules).forEach(modulo => {
           const tab = document.getElementById(`${modulo}-tab`);
+          if (!tab) return;
           if (modulos[modulo]) {
             tab.classList.remove('modulo-oculto');
             tab.addEventListener('click', () => {
@@ -1316,3 +1320,29 @@ document.addEventListener('DOMContentLoaded', function () {
   window.popularChecklistContratos = popularChecklistContratos;
   window.coletarContratosSelecionados = coletarContratosSelecionados;
 })();
+
+
+//======================================================================================================
+// MÓDULO: Troca de abas padrão (opt-in)
+// Hoje cada módulo reimplementa o mesmo laço de .tab-btn/.tab-content
+// (ordens.js, gestao.js, frota.js...). Esta função é a versão única dessa
+// lógica, mas NÃO roda sozinha: as páginas existentes continuam com o código
+// delas para não haver duas ligações no mesmo botão (que alternariam a aba
+// duas vezes por clique). Páginas novas chamam window.inicializarAbasPadrao().
+//======================================================================================================
+window.inicializarAbasPadrao = function inicializarAbasPadrao() {
+  const abas = document.querySelectorAll('.menu .tab-btn[data-tab]');
+  const telas = document.querySelectorAll('.content > .tab-content');
+  if (!abas.length || !telas.length) return;
+
+  abas.forEach(aba => {
+    aba.addEventListener('click', function () {
+      abas.forEach(b => b.classList.remove('active'));
+      telas.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      const alvo = document.getElementById(this.dataset.tab);
+      if (alvo) alvo.classList.add('active');
+      if (typeof window.fecharDrawer === 'function') window.fecharDrawer();
+    });
+  });
+};

@@ -1,0 +1,753 @@
+/* ===================================================================
+   RELATORIOS - Analise de Chamados
+   Reaproveita os tokens e componentes ja existentes em geral.css
+   (.painel-cards, .painel-card, .top-tab2, .aba-legenda, .tabela-responsiva).
+   Aqui so entram os componentes que ainda nao existiam.
+
+   Breakpoints do sistema: 480 / 768 / 1024 / 1280
+     <=767   celular  - cards, bottom sheet, graficos simplificados
+     768-1023 tablet  - blocos empilhados, filtros em drawer
+     >=1024  desktop  - tabelas completas, graficos lado a lado
+   =================================================================== */
+
+/* O atributo `hidden` do HTML e aplicado pela folha do navegador como
+   [hidden]{display:none}, que perde para QUALQUER `display` declarado aqui.
+   Sem esta linha, elementos como .rel-detalhe (display:flex) continuavam
+   capturando cliques mesmo depois de "fechados". */
+[hidden] { display: none !important; }
+
+/* ---------------------------------------------------- BARRA DE FILTROS */
+.rel-filtros-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.rel-filtros-abrir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-destaque-escura);
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.rel-filtros-abrir:hover {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 1px 6px rgba(16, 24, 40, .07);
+}
+
+.rel-filtros-abrir svg { width: 18px; height: 18px; }
+
+.rel-filtros-contador {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.rel-periodo-resumo {
+  font-size: 13px;
+  color: #64748b;
+  margin-right: auto;
+}
+
+/* Em desktop o formulario fica aberto; no celular vira bottom sheet. */
+.rel-filtros {
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 6px rgba(16, 24, 40, .05);
+}
+
+.rel-filtros-cabecalho { display: none; }
+
+.rel-filtros-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.rel-campo { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.rel-campo-largo { grid-column: 1 / -1; }
+
+.rel-campo label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-destaque);
+}
+
+.rel-campo select,
+.rel-campo input {
+  padding: 8px 10px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--cor-texto);
+  min-height: 38px;
+  width: 100%;
+}
+
+.rel-campo select:focus,
+.rel-campo input:focus {
+  outline: 2px solid rgba(18, 181, 172, .25);
+  border-color: var(--cor-primaria);
+}
+
+.rel-periodo-chips,
+.rel-granularidade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rel-chip {
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-destaque);
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.rel-chip:hover { background: #e2e8f0; }
+
+.rel-chip-ativo {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: #fff;
+}
+
+.rel-filtros-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* -------------------------------------------------------------- BOTOES */
+.rel-btn {
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .2s;
+  min-height: 38px;
+}
+
+.rel-btn-primario { background: var(--cor-primaria); color: #fff; }
+.rel-btn-primario:hover { background: var(--cor-primaria-escura); }
+
+.rel-btn-secundario {
+  background: #fff;
+  color: var(--cor-destaque-escura);
+  border-color: var(--cor-borda);
+}
+.rel-btn-secundario:hover { background: #f8fafc; border-color: var(--cor-destaque); }
+.rel-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.rel-btn-mini {
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-destaque-escura);
+  cursor: pointer;
+}
+.rel-btn-mini:hover { background: #e2e8f0; }
+.rel-btn-mini-perigo { color: var(--cor-erro); }
+.rel-btn-mini-perigo:hover { background: #fee2e2; }
+
+/* ---------------------------------------------------------------- KPIs */
+.rel-kpi-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.rel-kpi-icone svg { width: 20px; height: 20px; }
+
+.rel-kpi-primario { background: rgba(18, 181, 172, .12); color: var(--cor-primaria-escura); }
+.rel-kpi-neutro   { background: rgba(71, 85, 105, .10);  color: var(--cor-destaque); }
+.rel-kpi-sucesso  { background: rgba(46, 125, 50, .12);  color: var(--cor-sucesso); }
+.rel-kpi-aviso    { background: rgba(237, 108, 2, .12);  color: var(--cor-aviso); }
+.rel-kpi-erro     { background: rgba(198, 40, 40, .12);  color: var(--cor-erro); }
+
+.rel-kpi-detalhe { color: #94a3b8; font-size: 11px; line-height: 1.3; }
+
+.rel-kpi-clicavel { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.rel-kpi-clicavel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(16, 24, 40, .10);
+}
+.rel-kpi-clicavel:focus-visible { outline: 2px solid var(--cor-primaria); }
+
+/* -------------------------------------------------------------- BLOCOS */
+.rel-bloco {
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 6px rgba(16, 24, 40, .05);
+}
+
+.rel-bloco-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.rel-bloco-cabecalho h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cor-destaque-escura);
+}
+
+.rel-ajuda { font-size: 12px; color: #64748b; line-height: 1.5; }
+.rel-ajuda-bloco { margin-bottom: 14px; }
+
+/* Duas colunas só quando há largura real para elas. Em tablet, dois
+   gráficos lado a lado ficam ilegíveis - por isso o corte é em 1024. */
+.rel-duas-colunas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 18px;
+}
+
+@media (min-width: 1024px) {
+  .rel-duas-colunas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ------------------------------------------------------------ GRAFICOS */
+.rel-grafico { width: 100%; overflow: hidden; }
+.rel-svg { width: 100%; height: auto; display: block; }
+
+.rel-svg-grade { stroke: #eef2f6; stroke-width: 1; }
+.rel-svg-eixo { font-size: 11px; fill: #94a3b8; }
+.rel-svg-rotulo { font-size: 12px; fill: var(--cor-destaque-escura); }
+.rel-svg-valor { font-size: 12px; font-weight: 700; fill: var(--cor-destaque-escura); }
+.rel-svg-centro { font-size: 22px; font-weight: 700; fill: var(--cor-destaque-escura); }
+.rel-svg-clicavel { cursor: pointer; }
+.rel-svg-clicavel:hover rect { opacity: .82; }
+
+.rel-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--cor-destaque);
+}
+
+.rel-legenda-coluna { flex-direction: column; gap: 6px; }
+
+.rel-legenda-item { display: inline-flex; align-items: center; gap: 6px; }
+.rel-legenda-item i {
+  width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+}
+
+.rel-rosca { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.rel-rosca .rel-svg { flex: 1 1 260px; max-width: 340px; }
+
+/* Ranking em card - formato usado no celular */
+.rel-barras-lista { list-style: none; display: grid; gap: 12px; }
+.rel-barra-card { display: grid; gap: 6px; }
+.rel-barra-card-topo {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+}
+.rel-barra-card-rotulo {
+  font-size: 13px; font-weight: 600; color: var(--cor-destaque-escura);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rel-barra-card strong { font-size: 15px; color: var(--cor-destaque-escura); }
+.rel-barra-card small { font-size: 11px; color: #94a3b8; }
+.rel-barra-trilho {
+  background: #f1f5f9; border-radius: 999px; height: 8px; overflow: hidden;
+}
+.rel-barra-trilho span { display: block; height: 100%; border-radius: 999px; }
+
+/* ------------------------------------------------------------- TABELAS */
+.rel-tabela-area { width: 100%; }
+
+.rel-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+}
+
+.rel-tabela th {
+  text-align: left;
+  padding: 11px 12px;
+  background: var(--cor-escura);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky-thead);
+}
+
+.rel-tabela th:first-child { border-top-left-radius: 10px; }
+.rel-tabela th:last-child  { border-top-right-radius: 10px; }
+
+.rel-tabela td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #eef2f6;
+  vertical-align: top;
+  color: var(--cor-texto);
+}
+
+.rel-tabela tbody tr:hover { background: #f8fafc; }
+.rel-tabela small { color: #94a3b8; font-size: 11px; }
+.rel-num { text-align: right; font-variant-numeric: tabular-nums; }
+.rel-acoes { white-space: nowrap; display: flex; gap: 6px; }
+
+.rel-linha-clicavel { cursor: pointer; }
+.rel-linha-inativa { opacity: .55; }
+
+.rel-tag {
+  display: inline-block;
+  background: #f1f5f9;
+  color: var(--cor-destaque);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.rel-tag-erro { background: #fee2e2; color: var(--cor-erro); }
+
+/* Cards - versão celular das tabelas */
+.rel-cards { list-style: none; display: grid; gap: 10px; }
+
+.rel-card {
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, .04);
+}
+
+.rel-card-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.rel-card-titulo { font-size: 14px; color: var(--cor-destaque-escura); }
+.rel-card-destaque { font-size: 18px; color: var(--cor-primaria-escura); }
+
+.rel-card-dados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+}
+
+.rel-card-dados dt { font-size: 11px; color: #94a3b8; margin-bottom: 1px; }
+.rel-card-dados dd { font-size: 13px; color: var(--cor-texto); }
+
+/* A tabela rola dentro do proprio container. Sem isto ela seria cortada pelo
+   `overflow-x: hidden` do .content e as ultimas colunas ficariam inalcancaveis
+   em tablet - a pagina nao ganha scroll lateral, mas o dado some. */
+.rel-so-desktop { display: block; overflow-x: auto; }
+.rel-so-celular { display: none; }
+
+.rel-so-desktop .rel-tabela { min-width: 720px; }
+
+.rel-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------- SUGESTOES */
+.rel-sugestoes { list-style: none; display: grid; gap: 10px; }
+
+.rel-sugestao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.rel-sugestao-texto { display: grid; gap: 3px; min-width: 0; }
+.rel-sugestao-texto strong { font-size: 14px; color: var(--cor-destaque-escura); }
+.rel-sugestao-texto small { font-size: 12px; color: #92400e; }
+.rel-sugestao-acoes { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ---------------------------------------------------------- AVISOS */
+.rel-aviso {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #1e40af;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.rel-aviso-inline { margin: 10px 0 0; }
+
+.rel-feedback {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.rel-feedback-ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.rel-feedback-erro { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* ---------------------------------------------------------- ESTADOS */
+.rel-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 34px 18px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.rel-estado strong { color: var(--cor-destaque); font-size: 14px; }
+.rel-estado-carregando { flex-direction: row; }
+.rel-estado-erro strong { color: var(--cor-erro); }
+
+.rel-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e2e8f0;
+  border-top-color: var(--cor-primaria);
+  border-radius: 50%;
+  animation: rel-girar .7s linear infinite;
+}
+
+@keyframes rel-girar { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rel-spinner { animation-duration: 2.4s; }
+  .rel-kpi-clicavel { transition: none; }
+}
+
+/* --------------------------------------------------- FORM DE CATALOGO */
+.rel-form-catalogo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.rel-form-acoes {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.rel-subabas { margin-bottom: 14px; }
+
+/* ------------------------------------------------- DETALHE DO PONTO */
+.rel-detalhe-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .45);
+  z-index: var(--z-drawer-overlay);
+}
+
+.rel-detalhe {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(460px, 100%);
+  height: 100vh;
+  background: #fff;
+  z-index: var(--z-drawer);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 24px rgba(16, 24, 40, .16);
+}
+
+.rel-detalhe-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef2f6;
+  background: var(--cor-escura);
+  color: #fff;
+}
+
+.rel-detalhe-cabecalho strong { font-size: 15px; }
+
+.rel-filtros-fechar {
+  background: none;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 4px;
+}
+
+.rel-detalhe-corpo { flex: 1; overflow-y: auto; padding: 18px; }
+.rel-detalhe-secao { margin-bottom: 22px; }
+
+.rel-detalhe-secao h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.rel-detalhe-resumo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rel-detalhe-resumo div {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 2px;
+}
+
+.rel-detalhe-resumo span { font-size: 11px; color: #94a3b8; }
+.rel-detalhe-resumo strong { font-size: 17px; color: var(--cor-destaque-escura); }
+.rel-detalhe-endereco { font-size: 12px; color: #64748b; margin-top: 10px; }
+
+.rel-detalhe-lista { list-style: none; display: grid; gap: 8px; }
+
+.rel-detalhe-lista li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.rel-detalhe-lista li span { flex: 1; min-width: 0; }
+.rel-detalhe-lista li b { color: var(--cor-primaria-escura); }
+.rel-detalhe-lista li small { color: #94a3b8; font-size: 11px; }
+
+.rel-cronologia { list-style: none; display: grid; gap: 12px; }
+
+.rel-cronologia li {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  padding-left: 12px;
+  border-left: 2px solid #e2e8f0;
+}
+
+.rel-cronologia-data {
+  color: #94a3b8;
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 74px;
+}
+
+.rel-cronologia strong { color: var(--cor-destaque-escura); }
+.rel-cronologia small { display: block; color: #94a3b8; font-size: 11px; }
+
+/* ===================================================================
+   TABLET - 768 a 1023
+   Conteudo ganha respiro: filtros viram drawer e nada fica lado a lado.
+   =================================================================== */
+@media (max-width: 1023px) {
+  .rel-filtros-grade { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .rel-detalhe { width: min(420px, 100%); }
+}
+
+/* ===================================================================
+   CELULAR - ate 767
+   Tabela vira card, filtro vira bottom sheet, drill-down em tela cheia.
+   A barra de navegacao inferior existente NAO e alterada - apenas
+   reservamos espaco para ela no rodape dos elementos fixos.
+   =================================================================== */
+@media (max-width: 767px) {
+  .rel-so-desktop { display: none; }
+  .rel-so-celular { display: block; }
+
+  .rel-filtros-barra {
+    position: sticky;
+    top: var(--altura-topbar);
+    background: var(--cor-fundo);
+    padding: 8px 0;
+    z-index: var(--z-sticky-thead);
+    margin-bottom: 12px;
+  }
+
+  .rel-periodo-resumo { width: 100%; order: 3; font-size: 12px; }
+
+  /* Bottom sheet */
+  .rel-filtros {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 82vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    margin: 0;
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+    transform: translateY(101%);
+    transition: transform .25s ease;
+    z-index: var(--z-drawer);
+    box-shadow: 0 -6px 24px rgba(16, 24, 40, .18);
+  }
+
+  body.rel-filtros-aberto .rel-filtros { transform: translateY(0); }
+  body.rel-filtros-aberto { overflow: hidden; }
+
+  .rel-filtros-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .45);
+    z-index: var(--z-drawer-overlay);
+  }
+
+  .rel-filtros-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 16px 0 12px;
+    border-bottom: 1px solid #eef2f6;
+    margin-bottom: 14px;
+    color: var(--cor-destaque-escura);
+  }
+
+  .rel-filtros-grade { grid-template-columns: 1fr; }
+
+  .rel-filtros-acoes {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 12px 0;
+    margin-top: 16px;
+  }
+
+  .rel-filtros-acoes .rel-btn { flex: 1; }
+
+  /* Alvo de toque confortável */
+  .rel-campo select,
+  .rel-campo input,
+  .rel-btn { min-height: 44px; }
+
+  .rel-chip { padding: 9px 14px; font-size: 13px; }
+
+  .rel-bloco { padding: 14px 12px; border-radius: 16px; }
+  .rel-bloco-cabecalho h3 { font-size: 15px; }
+
+  .rel-card-dados { grid-template-columns: 1fr 1fr; }
+  .rel-card { padding: 12px; }
+
+  /* Drill-down ocupa a tela inteira: painel lateral em 375px é ilegível */
+  .rel-detalhe {
+    width: 100%;
+    height: 100%;
+    inset: 0;
+  }
+
+  .rel-detalhe-corpo {
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .rel-sugestao { flex-direction: column; align-items: stretch; }
+  .rel-sugestao-acoes .rel-btn { flex: 1; }
+
+  .rel-rosca { flex-direction: column; }
+  .rel-rosca .rel-svg { max-width: 100%; }
+
+  .rel-form-catalogo { grid-template-columns: 1fr; padding: 14px 12px; }
+  .rel-form-acoes .rel-btn { flex: 1; }
+
+  .rel-paginacao .rel-btn { flex: 1; }
+}
+
+/* Telas muito estreitas: uma coluna também nos dados do card */
+@media (max-width: 380px) {
+  .rel-card-dados { grid-template-columns: 1fr; }
+  .rel-detalhe-resumo { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------- pontos cronicos */
+.rel-cronicos-parametros {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.rel-cronicos-parametros .rel-campo { flex: 1 1 180px; }
+
+.rel-kpi-erro-texto { color: var(--cor-erro); }
+.rel-kpi-aviso-texto { color: var(--cor-aviso); }
+.rel-kpi-sucesso-texto { color: var(--cor-sucesso); }
+.rel-kpi-neutro-texto { color: var(--cor-destaque-escura); }
+
+.rel-pendencia-nota { grid-column: 1 / -1; }
+
+@media (max-width: 767px) {
+  .rel-cronicos-parametros { flex-direction: column; align-items: stretch; }
+  .rel-cronicos-parametros .rel-btn { width: 100%; }
+}

@@ -2631,6 +2631,12 @@ async function abrirModalEdicao(id) {
 
     document.getElementById('modal-editar-os').style.display = 'flex';
     aplicarModoVisualizacaoOS(modoVisualizacao);
+
+    // Secao "Analise da ocorrencia" (modulo de Relatorios). Falha aqui nao
+    // pode derrubar a tela de O.S.: a secao simplesmente nao aparece.
+    if (window.AnaliseOS && typeof window.AnaliseOS.carregar === 'function') {
+      window.AnaliseOS.carregar(os.id);
+    }
   } catch (e) {
     console.error('Erro ao carregar OS para edição:', e);
   }

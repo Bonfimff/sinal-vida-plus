@@ -1586,3 +1586,319 @@ body.modal-foto-ponto-aberto {
   font-size: 12px;
   margin-bottom: 6px;
 }
+
+/* ===================================================================
+   ALERTAS DE RECORRENCIA NO PAINEL GERAL
+   Bloco alimentado pelo modulo de Relatorios (alertas-dashboard.js).
+   Fica oculto quando nao ha reincidencia - alerta que vive vazio deixa
+   de ser lido.
+   =================================================================== */
+.os-alertas {
+  margin-top: 22px;
+  background: #fff;
+  border: 1px solid #fde68a;
+  border-left: 4px solid var(--cor-aviso);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.os-alertas-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.os-alertas-cabecalho h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.os-alertas-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-primaria-escura);
+  text-decoration: none;
+}
+
+.os-alertas-link:hover { text-decoration: underline; }
+
+.os-alertas-itens { list-style: none; display: grid; gap: 8px; }
+
+.os-alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fffbeb;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.os-alerta:hover { background: #fef3c7; }
+
+.os-alerta-bolinha {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cor-aviso);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.os-alerta-critico .os-alerta-bolinha { background: var(--cor-erro); }
+.os-alerta-critico { background: #fef2f2; }
+.os-alerta-critico:hover { background: #fee2e2; }
+
+.os-alerta-texto { display: grid; gap: 2px; min-width: 0; }
+.os-alerta-texto strong { font-size: 13px; color: var(--cor-destaque-escura); }
+.os-alerta-texto span { font-size: 13px; color: var(--cor-texto); }
+.os-alerta-texto small { font-size: 11px; color: #94a3b8; }
+
+.os-alertas-resumo {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #92400e;
+}
+
+@media (max-width: 767px) {
+  .os-alertas { padding: 12px; border-radius: 14px; }
+  .os-alerta { padding: 12px; }
+  .os-alertas-cabecalho h3 { font-size: 14px; }
+}
+
+/* ===================================================================
+   ANALISE DA OCORRENCIA (dentro do modal de O.S.)
+   Campos estruturados que alimentam os relatorios. Convivem com os
+   textos livres: o catalogo agrupa, o texto contextualiza.
+   =================================================================== */
+.os-analise {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.os-analise-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.os-analise-cabecalho h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cor-destaque-escura);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.os-analise-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.os-analise-status-ok { background: #ecfdf5; color: #065f46; }
+.os-analise-status-pendente { background: #fffbeb; color: #92400e; }
+
+.os-analise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.os-analise-grid .os-form-item { display: flex; flex-direction: column; gap: 5px; }
+
+.os-analise-grid label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-destaque);
+}
+
+.os-analise-grid select,
+.os-analise-grid textarea {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  background: #fff;
+  min-height: 38px;
+}
+
+.os-analise-grid textarea { resize: vertical; }
+
+.os-analise-check {
+  justify-content: center;
+  gap: 8px !important;
+}
+
+.os-check-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--cor-texto);
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.os-check-inline input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cor-primaria);
+  flex-shrink: 0;
+}
+
+.os-analise-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.os-analise-ajuda { font-size: 11px; color: #94a3b8; }
+
+.os-analise-feedback {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.os-analise-feedback-ok { background: #ecfdf5; color: #065f46; }
+.os-analise-feedback-erro { background: #fef2f2; color: #991b1b; }
+
+/* ------------------------------------------------ possivel reincidencia */
+.os-reincidencia { display: grid; gap: 8px; margin-bottom: 14px; }
+
+.os-reincidencia-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 4px solid var(--cor-aviso);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.os-reincidencia-texto { display: grid; gap: 2px; min-width: 0; }
+.os-reincidencia-texto strong { font-size: 13px; color: #92400e; }
+.os-reincidencia-texto span { font-size: 13px; color: var(--cor-texto); }
+.os-reincidencia-texto small { font-size: 12px; color: #64748b; }
+.os-reincidencia-acoes { display: flex; gap: 8px; flex-shrink: 0; }
+
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+
+@media (max-width: 767px) {
+  .os-analise { padding: 12px; }
+  .os-analise-grid { grid-template-columns: 1fr; }
+  .os-analise-grid select,
+  .os-analise-grid textarea { min-height: 44px; font-size: 16px; }
+  .os-analise-acoes { flex-direction: column; align-items: stretch; }
+  .os-analise-acoes .btn-primario { width: 100%; min-height: 44px; }
+  .os-reincidencia-item { flex-direction: column; align-items: stretch; }
+  .os-reincidencia-acoes .btn-primario,
+  .os-reincidencia-acoes .btn-secundario { flex: 1; min-height: 40px; }
+}
+
+/* ------------------------------------------- blocos de analise no painel */
+.os-painel-blocos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+/* Lado a lado só a partir de 1024px: em tablet dois blocos de lista ficam
+   estreitos demais para o rótulo do problema caber. */
+@media (min-width: 1024px) {
+  .os-painel-blocos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.os-painel-bloco {
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 6px rgba(16, 24, 40, .05);
+}
+
+.os-painel-bloco-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.os-painel-bloco-topo h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cor-destaque-escura);
+}
+
+.os-mini-lista { list-style: none; display: grid; gap: 2px; }
+
+.os-mini-lista li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.os-mini-lista li:hover { background: #f8fafc; }
+
+.os-mini-rotulo {
+  font-size: 13px;
+  color: var(--cor-texto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.os-mini-lista b { font-size: 15px; color: var(--cor-primaria-escura); }
+.os-mini-lista small { grid-column: 1 / -1; font-size: 11px; color: #94a3b8; }
+
+.os-pendencia-total {
+  font-size: 13px;
+  color: var(--cor-texto);
+  margin-bottom: 8px;
+}
+
+.os-pendencia-total strong { font-size: 20px; color: var(--cor-aviso); }
+
+.os-pendencia-nota {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .os-painel-bloco { padding: 12px; border-radius: 14px; }
+  .os-mini-lista li { padding: 10px; }
+}

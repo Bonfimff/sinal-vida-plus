@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=5" />
+  <link rel="stylesheet" href="../CSS/relatorios.css?v=5" />
+  <link rel="icon" href="../IMG/Icone.png" type="image/png">
+  <title>Relatórios</title>
+</head>
+<body>
+
+  <!-- Menu lateral -->
+  <div class="menu">
+    <button class="tab-btn active" data-tab="analise" data-nav-label="Análise" data-nav-icone="relatorio">Análise de Chamados</button>
+    <button class="tab-btn" data-tab="ranking-pontos" data-nav-label="Pontos" data-nav-icone="mapa">Ranking de Pontos</button>
+    <button class="tab-btn" data-tab="ranking-problemas" data-nav-label="Problemas" data-nav-icone="busca">Ranking de Problemas</button>
+    <button class="tab-btn" data-tab="reincidencia" data-nav-label="Reincidência" data-nav-icone="movimentacoes">Reincidência</button>
+    <button class="tab-btn" data-tab="cronicos" data-nav-label="Crônicos" data-nav-icone="relatorio">Pontos Crônicos</button>
+    <button class="tab-btn" data-tab="dimensoes" data-nav-label="Dimensões" data-nav-icone="busca">Causas e Soluções</button>
+    <button class="tab-btn" data-tab="pendentes" data-nav-label="Pendentes" data-nav-icone="cadastros">Classificação Pendente</button>
+    <div class="menu-bottom">
+      <button class="menu-icon-btn" id="btn-config">
+        <img src="../IMG/configuracoes.png" alt="Configurações">
+      </button>
+      <button class="menu-icon-btn" id="btn-info">
+        <img src="../IMG/info.png" alt="Informações">
+      </button>
+      <button class="menu-icon-btn" id="btn-logout">
+        <img src="../IMG/sair.png" alt="Sair">
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <img src="../IMG/Logoescura.png" alt="ORBITA" class="top-bar-logo">
+      <span class="account-info">
+        <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
+        <span id="logged-user"></span>
+        <span id="modulo-ativo">Relatórios</span>
+      </span>
+    </div>
+    <div class="top-bar-right">
+      <button class="top-tab" id="almoxarifado-tab">Almoxarifado</button>
+      <button class="top-tab" id="frota-tab">Frota</button>
+      <button class="top-tab" id="ordens-tab">Ordens de Serviço</button>
+      <button class="top-tab active" id="relatorios-tab">Relatórios</button>
+      <button class="top-tab" id="cadastros-tab">Cadastros</button>
+      <button class="top-tab" id="gestao-tab">Gestão</button>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="content">
+
+    <!-- ============================================================
+         BARRA DE FILTROS - compartilhada por todas as abas
+         Em celular vira um botão que abre o bottom sheet.
+         ============================================================ -->
+    <div class="rel-filtros-barra">
+      <button type="button" class="rel-filtros-abrir" id="rel-filtros-abrir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" aria-hidden="true">
+          <path d="M3 5h18M6 12h12M10 19h4"/>
+        </svg>
+        <span>Filtros</span>
+        <span class="rel-filtros-contador" id="rel-filtros-contador" hidden>0</span>
+      </button>
+      <span class="rel-periodo-resumo" id="rel-periodo-resumo"></span>
+      <button type="button" class="rel-btn rel-btn-secundario" id="rel-atualizar">Atualizar</button>
+    </div>
+
+    <div class="rel-filtros-overlay" id="rel-filtros-overlay" hidden></div>
+    <form class="rel-filtros" id="rel-filtros">
+      <div class="rel-filtros-cabecalho">
+        <strong>Filtros</strong>
+        <button type="button" class="rel-filtros-fechar" id="rel-filtros-fechar" aria-label="Fechar">&times;</button>
+      </div>
+
+      <div class="rel-filtros-grade">
+        <div class="rel-campo rel-campo-largo">
+          <label>Período</label>
+          <div class="rel-periodo-chips" id="rel-periodo-chips">
+            <button type="button" class="rel-chip" data-periodo="hoje">Hoje</button>
+            <button type="button" class="rel-chip" data-periodo="7d">7 dias</button>
+            <button type="button" class="rel-chip rel-chip-ativo" data-periodo="30d">30 dias</button>
+            <button type="button" class="rel-chip" data-periodo="90d">90 dias</button>
+            <button type="button" class="rel-chip" data-periodo="12m">12 meses</button>
+            <button type="button" class="rel-chip" data-periodo="custom">Personalizado</button>
+          </div>
+        </div>
+
+        <div class="rel-campo rel-campo-custom" id="rel-campo-inicio" hidden>
+          <label for="rel-inicio">De</label>
+          <input type="date" id="rel-inicio">
+        </div>
+        <div class="rel-campo rel-campo-custom" id="rel-campo-fim" hidden>
+          <label for="rel-fim">Até</label>
+          <input type="date" id="rel-fim">
+        </div>
+
+        <div class="rel-campo">
+          <label for="rel-contrato">Contrato</label>
+          <select id="rel-contrato"><option value="">Todos</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-base">Base</label>
+          <select id="rel-base"><option value="">Todas</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-ponto">Ponto</label>
+          <select id="rel-ponto"><option value="">Todos</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-categoria">Categoria</label>
+          <select id="rel-categoria"><option value="">Todas</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-problema">Problema</label>
+          <select id="rel-problema"><option value="">Todos</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-causa">Causa</label>
+          <select id="rel-causa"><option value="">Todas</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-equipamento">Equipamento</label>
+          <select id="rel-equipamento"><option value="">Todos</option></select>
+        </div>
+        <div class="rel-campo">
+          <label for="rel-status">Status da O.S.</label>
+          <select id="rel-status">
+            <option value="">Todos</option>
+            <option value="Aberta">Aberta</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Em Deslocamento">Em Deslocamento</option>
+            <option value="Aguardando Despacho de Equipamentos">Aguardando Despacho</option>
+            <option value="Chegada no Local">Chegada no Local</option>
+            <option value="Finalizada">Finalizada</option>
+            <option value="Cancelada">Cancelada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rel-filtros-acoes">
+        <button type="button" class="rel-btn rel-btn-secundario" id="rel-limpar">Limpar</button>
+        <button type="submit" class="rel-btn rel-btn-primario">Aplicar</button>
+      </div>
+    </form>
+
+    <!-- ===== ABA: ANÁLISE DE CHAMADOS ===== -->
+    <div id="analise" class="tab-content active" data-secao="Análise de Chamados">
+      <h2 class="aba-legenda">Análise de Chamados</h2>
+      <hr class="aba-linha">
+
+      <div class="painel-cards" id="rel-kpis"></div>
+
+      <div class="rel-aviso" id="rel-aviso-classificacao" hidden></div>
+
+      <section class="rel-bloco">
+        <div class="rel-bloco-cabecalho">
+          <h3>Evolução dos chamados</h3>
+          <div class="rel-granularidade" id="rel-granularidade">
+            <button type="button" class="rel-chip" data-granularidade="dia">Dia</button>
+            <button type="button" class="rel-chip" data-granularidade="semana">Semana</button>
+            <button type="button" class="rel-chip rel-chip-ativo" data-granularidade="mes">Mês</button>
+          </div>
+        </div>
+        <div class="rel-grafico" id="rel-gr-evolucao"></div>
+      </section>
+
+      <div class="rel-duas-colunas">
+        <section class="rel-bloco">
+          <div class="rel-bloco-cabecalho"><h3>Problemas mais recorrentes</h3></div>
+          <div class="rel-grafico" id="rel-gr-problemas"></div>
+        </section>
+        <section class="rel-bloco">
+          <div class="rel-bloco-cabecalho"><h3>Pontos com mais chamados</h3></div>
+          <div class="rel-grafico" id="rel-gr-pontos"></div>
+        </section>
+      </div>
+
+      <div class="rel-duas-colunas">
+        <section class="rel-bloco">
+          <div class="rel-bloco-cabecalho"><h3>Distribuição por categoria</h3></div>
+          <div class="rel-grafico" id="rel-gr-categorias"></div>
+        </section>
+        <section class="rel-bloco">
+          <div class="rel-bloco-cabecalho"><h3>Evolução das reincidências</h3></div>
+          <div class="rel-grafico" id="rel-gr-reincidencias"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ===== ABA: RANKING DE PONTOS ===== -->
+    <div id="ranking-pontos" class="tab-content" data-secao="Ranking de Pontos">
+      <h2 class="aba-legenda">Ranking de Pontos</h2>
+      <hr class="aba-linha">
+      <div class="rel-tabela-area" id="rel-tabela-pontos"></div>
+      <div class="rel-paginacao" id="rel-paginacao-pontos"></div>
+    </div>
+
+    <!-- ===== ABA: RANKING DE PROBLEMAS ===== -->
+    <div id="ranking-problemas" class="tab-content" data-secao="Ranking de Problemas">
+      <h2 class="aba-legenda">Ranking de Problemas</h2>
+      <hr class="aba-linha">
+      <div class="rel-tabela-area" id="rel-tabela-problemas"></div>
+      <div class="rel-paginacao" id="rel-paginacao-problemas"></div>
+    </div>
+
+    <!-- ===== ABA: REINCIDÊNCIA ===== -->
+    <div id="reincidencia" class="tab-content" data-secao="Reincidência">
+      <h2 class="aba-legenda">Reincidência</h2>
+      <hr class="aba-linha">
+
+      <section class="rel-bloco" id="rel-bloco-sugestoes">
+        <div class="rel-bloco-cabecalho">
+          <h3>Sugestões aguardando revisão</h3>
+          <small class="rel-ajuda">O sistema apenas sugere. Só as confirmadas entram nos indicadores de reincidência vinculada.</small>
+        </div>
+        <div id="rel-sugestoes"></div>
+      </section>
+
+      <section class="rel-bloco">
+        <div class="rel-bloco-cabecalho">
+          <h3>Pontos com problemas repetidos</h3>
+          <small class="rel-ajuda">Derivado do histórico: mesmo ponto e mesmo problema mais de uma vez no período.</small>
+        </div>
+        <div class="rel-tabela-area" id="rel-tabela-reincidencia"></div>
+        <div class="rel-paginacao" id="rel-paginacao-reincidencia"></div>
+      </section>
+    </div>
+
+    <!-- ===== ABA: PONTOS CRÔNICOS ===== -->
+    <div id="cronicos" class="tab-content" data-secao="Pontos Crônicos">
+      <h2 class="aba-legenda">Pontos Crônicos</h2>
+      <hr class="aba-linha">
+
+      <div class="rel-bloco">
+        <div class="rel-bloco-cabecalho">
+          <h3>Critério</h3>
+        </div>
+        <div class="rel-cronicos-parametros">
+          <div class="rel-campo">
+            <label for="cr-min">Mínimo de ocorrências</label>
+            <input type="number" id="cr-min" value="3" min="2" max="50">
+          </div>
+          <div class="rel-campo">
+            <label for="cr-intervalo">Intervalo médio máximo (dias)</label>
+            <input type="number" id="cr-intervalo" value="30" min="1" max="365">
+          </div>
+          <button type="button" class="rel-btn rel-btn-primario" id="cr-aplicar">Aplicar</button>
+        </div>
+        <p class="rel-ajuda" id="cr-criterio-texto"></p>
+      </div>
+
+      <div class="rel-tabela-area" id="rel-tabela-cronicos"></div>
+    </div>
+
+    <!-- ===== ABA: CAUSAS E SOLUÇÕES ===== -->
+    <div id="dimensoes" class="tab-content" data-secao="Causas e Soluções">
+      <h2 class="aba-legenda">Causas, Soluções, Resultados e Equipamentos</h2>
+      <hr class="aba-linha">
+
+      <div class="opcoes-abas rel-subabas" id="rel-subabas-dimensao">
+        <button type="button" class="top-tab2 ativo" data-dimensao="causa">Causas</button>
+        <button type="button" class="top-tab2" data-dimensao="solucao">Soluções</button>
+        <button type="button" class="top-tab2" data-dimensao="resultado">Resultados</button>
+        <button type="button" class="top-tab2" data-dimensao="equipamento">Equipamentos</button>
+        <button type="button" class="top-tab2" data-dimensao="categoria">Categorias</button>
+      </div>
+
+      <section class="rel-bloco">
+        <div class="rel-bloco-cabecalho"><h3 id="rel-dimensao-titulo">Causas mais recorrentes</h3></div>
+        <div class="rel-grafico" id="rel-gr-dimensao"></div>
+      </section>
+
+      <div class="rel-tabela-area" id="rel-tabela-dimensao"></div>
+      <div class="rel-paginacao" id="rel-paginacao-dimensao"></div>
+    </div>
+
+    <!-- ===== ABA: CLASSIFICAÇÃO PENDENTE ===== -->
+    <div id="pendentes" class="tab-content" data-secao="Classificação Pendente">
+      <h2 class="aba-legenda">Classificação Pendente</h2>
+      <hr class="aba-linha">
+
+      <p class="rel-ajuda rel-ajuda-bloco">
+        Ocorrências que ainda não têm todos os campos analíticos preenchidos.
+        Ausência de equipamento não conta como pendência — equipamento pode
+        simplesmente não se aplicar ao atendimento.
+      </p>
+
+      <div class="painel-cards" id="rel-pendencias-kpis"></div>
+
+      <div class="opcoes-abas rel-subabas" id="rel-subabas-motivo">
+        <button type="button" class="top-tab2 ativo" data-motivo="">Todas</button>
+        <button type="button" class="top-tab2" data-motivo="sem_problema">Sem problema</button>
+        <button type="button" class="top-tab2" data-motivo="sem_causa">Sem causa</button>
+        <button type="button" class="top-tab2" data-motivo="sem_solucao">Sem solução</button>
+        <button type="button" class="top-tab2" data-motivo="sem_resultado">Sem resultado</button>
+      </div>
+
+      <div class="rel-tabela-area" id="rel-tabela-pendentes"></div>
+      <div class="rel-paginacao" id="rel-paginacao-pendentes"></div>
+    </div>
+
+    <!-- A aba de Catálogos que existia aqui foi promovida para a página
+         Cadastros (HTML/cadastros.html), com autoria, auditoria, busca,
+         ativar/desativar e mais catálogos. A versão antiga foi removida para
+         não haver duas telas editando o mesmo dado. -->
+
+  </div>
+
+  <!-- Sidebar direita -->
+  <div class="sidebar-right">
+    <img src="../IMG/Logo.png" alt="Logo" class="logo">
+    <hr class="logo-divider">
+    <div id="sidebar-content"></div>
+  </div>
+
+  <!-- Painel de detalhe do ponto (drill-down) -->
+  <div class="rel-detalhe-overlay" id="rel-detalhe-overlay" hidden></div>
+  <aside class="rel-detalhe" id="rel-detalhe" hidden aria-label="Detalhe do ponto">
+    <div class="rel-detalhe-cabecalho">
+      <strong id="rel-detalhe-titulo">Ponto</strong>
+      <button type="button" class="rel-filtros-fechar" id="rel-detalhe-fechar" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="rel-detalhe-corpo" id="rel-detalhe-corpo"></div>
+  </aside>
+
+  <script src="../SCRIPT/config.js?v=2"></script>
+  <script src="../SCRIPT/geral.js?v=4"></script>
+  <script src="../SCRIPT/relatorios/api.js?v=1"></script>
+  <script src="../SCRIPT/relatorios/graficos.js?v=1"></script>
+  <script src="../SCRIPT/relatorios/filtros.js?v=2"></script>
+  <script src="../SCRIPT/relatorios/painel.js?v=5"></script>
+  <script src="../SCRIPT/relatorios/extras.js?v=1"></script>
+
+  <div id="info-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <p>Versão de desenvolvimento: 1.0.0</p>
+      <button id="modal-ok-btn">OK</button>
+    </div>
+  </div>
+</body>
+</html>

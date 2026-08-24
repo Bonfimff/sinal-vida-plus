@@ -372,3 +372,47 @@
     font-size: 12px;
   }
 }
+
+/* ===================================================================
+   MATRIZ DE PERMISSOES - modulos com acoes granulares
+   Modulos com ver/executar seguem na matriz de 2 colunas. Um modulo com
+   4 acoes ganha um bloco proprio, para nao alargar a tabela inteira.
+   =================================================================== */
+.gestao-matriz-detalhada {
+  padding: 12px 10px;
+  border-top: 1px solid #eef2f6;
+  display: grid;
+  gap: 8px;
+}
+
+.gestao-matriz-detalhada-titulo {
+  font-size: 13px;
+  color: var(--cor-texto);
+}
+
+.gestao-matriz-detalhada-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.gestao-matriz-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--cor-destaque);
+  cursor: pointer;
+}
+
+.gestao-matriz-acao input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cor-primaria);
+}
+
+@media (max-width: 767px) {
+  .gestao-matriz-detalhada-acoes { gap: 10px 14px; }
+  .gestao-matriz-acao { font-size: 13px; }
+  .gestao-matriz-acao input { width: 18px; height: 18px; }
+}

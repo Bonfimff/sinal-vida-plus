@@ -5,7 +5,20 @@
     { chave: 'almoxarifado', label: 'Almoxarifado (Estoque e Movimentações)' },
     { chave: 'os_campo', label: 'O.S. Campo (Operações e Bases)' },
     { chave: 'gestao', label: 'Gestão (Usuários e Permissões)' },
+    // Cadastros de Análise Operacional têm 4 ações em vez de ver/executar:
+    // quem consulta relatório não necessariamente pode mexer no catálogo, e
+    // alterar um catálogo reescreve o significado do histórico inteiro.
+    { chave: 'analise_cadastros',
+      label: 'Cadastros (Problemas, Causas, Soluções, Equipamentos)',
+      acoes: ['ver', 'criar', 'editar', 'ativar'] },
   ];
+
+  // Ações padrão de um módulo, quando ele não declara as próprias.
+  const ACOES_PADRAO = ['ver', 'executar'];
+  const ROTULO_ACAO = {
+    ver: 'Visualizar', executar: 'Modificar dados',
+    criar: 'Criar', editar: 'Editar', ativar: 'Ativar/desativar',
+  };
 
   const RESTRICOES = [
     { chave: 'bloquear_cadastro_veiculo', label: 'Bloquear cadastro de veículos' },
@@ -50,19 +63,43 @@
     const container = document.getElementById(containerId);
     if (!container) return;
     const v = valoresAtuais || {};
+    // Módulos com o conjunto padrão de ações continuam na matriz de 2 colunas;
+    // os que declaram `acoes` viram uma linha própria com um rótulo por ação,
+    // para não alargar a tabela inteira por causa de um único módulo.
+    const padrao = MODULOS.filter(m => !m.acoes);
+    const especiais = MODULOS.filter(m => m.acoes);
+
     container.innerHTML = `
       <div class="gestao-matriz-linha gestao-matriz-cabecalho">
         <span>Módulo</span>
         <span>Visualizar</span>
         <span>Modificar dados</span>
       </div>
-      ${MODULOS.map(m => {
+      ${padrao.map(m => {
         const atual = v[m.chave] || {};
         return `
           <div class="gestao-matriz-linha" data-modulo="${m.chave}">
             <span>${m.label}</span>
             <input type="checkbox" class="gestao-perm-ver" ${atual.ver ? 'checked' : ''}>
             <input type="checkbox" class="gestao-perm-executar" ${atual.executar ? 'checked' : ''}>
+          </div>
+        `;
+      }).join('')}
+      ${especiais.map(m => {
+        const atual = v[m.chave] || {};
+        return `
+          <div class="gestao-matriz-detalhada" data-modulo="${m.chave}"
+               data-acoes="${m.acoes.join(',')}">
+            <span class="gestao-matriz-detalhada-titulo">${m.label}</span>
+            <div class="gestao-matriz-detalhada-acoes">
+              ${m.acoes.map(acao => `
+                <label class="gestao-matriz-acao">
+                  <input type="checkbox" class="gestao-perm-acao" data-acao="${acao}"
+                         ${atual[acao] ? 'checked' : ''}>
+                  <span>${ROTULO_ACAO[acao] || acao}</span>
+                </label>
+              `).join('')}
+            </div>
           </div>
         `;
       }).join('')}
@@ -79,6 +116,13 @@
         ver: linha.querySelector('.gestao-perm-ver')?.checked ? 1 : 0,
         executar: linha.querySelector('.gestao-perm-executar')?.checked ? 1 : 0,
       };
+    });
+    container.querySelectorAll('.gestao-matriz-detalhada[data-modulo]').forEach(bloco => {
+      const permissoes = {};
+      bloco.querySelectorAll('.gestao-perm-acao').forEach(campo => {
+        permissoes[campo.dataset.acao] = campo.checked ? 1 : 0;
+      });
+      resultado[bloco.dataset.modulo] = permissoes;
     });
     return resultado;
   }

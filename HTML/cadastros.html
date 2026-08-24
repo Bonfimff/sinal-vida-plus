@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../CSS/geral.css?v=5" />
+  <link rel="stylesheet" href="../CSS/relatorios.css?v=5" />
+  <link rel="stylesheet" href="../CSS/cadastros.css?v=1" />
+  <link rel="icon" href="../IMG/Icone.png" type="image/png">
+  <title>Cadastros</title>
+</head>
+<body>
+
+  <!-- Menu lateral -->
+  <div class="menu">
+    <button class="tab-btn active" data-tab="analise-operacional" data-nav-label="Análise" data-nav-icone="cadastros">Análise Operacional</button>
+    <button class="tab-btn" data-tab="ativos" data-nav-label="Ativos" data-nav-icone="veiculo">Equipamentos</button>
+    <button class="tab-btn" data-tab="locais" data-nav-label="Locais" data-nav-icone="mapa">Pontos e Regiões</button>
+    <button class="tab-btn" data-tab="auditoria" data-nav-label="Auditoria" data-nav-icone="relatorio">Auditoria</button>
+    <div class="menu-bottom">
+      <button class="menu-icon-btn" id="btn-config">
+        <img src="../IMG/configuracoes.png" alt="Configurações">
+      </button>
+      <button class="menu-icon-btn" id="btn-info">
+        <img src="../IMG/info.png" alt="Informações">
+      </button>
+      <button class="menu-icon-btn" id="btn-logout">
+        <img src="../IMG/sair.png" alt="Sair">
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <img src="../IMG/Logoescura.png" alt="ORBITA" class="top-bar-logo">
+      <span class="account-info">
+        <img src="../IMG/user-icon.png" alt="Usuário" class="user-icon">
+        <span id="logged-user"></span>
+        <span id="modulo-ativo">Cadastros</span>
+      </span>
+    </div>
+    <div class="top-bar-right">
+      <button class="top-tab" id="almoxarifado-tab">Almoxarifado</button>
+      <button class="top-tab" id="frota-tab">Frota</button>
+      <button class="top-tab" id="ordens-tab">Ordens de Serviço</button>
+      <button class="top-tab" id="relatorios-tab">Relatórios</button>
+      <button class="top-tab active" id="cadastros-tab">Cadastros</button>
+      <button class="top-tab" id="gestao-tab">Gestão</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== ABA: ANÁLISE OPERACIONAL ===== -->
+    <div id="analise-operacional" class="tab-content active" data-secao="Análise Operacional">
+      <h2 class="aba-legenda">Análise Operacional</h2>
+      <hr class="aba-linha">
+
+      <p class="rel-ajuda rel-ajuda-bloco">
+        Estes catálogos definem o vocabulário que a análise usa para agrupar
+        chamados. Eles começam vazios de propósito — o vocabulário é da sua
+        operação, não do sistema.
+      </p>
+
+      <div class="opcoes-abas cad-subabas" id="cad-subabas">
+        <button type="button" class="top-tab2 ativo" data-catalogo="categorias">Categorias</button>
+        <button type="button" class="top-tab2" data-catalogo="problemas">Problemas</button>
+        <button type="button" class="top-tab2" data-catalogo="causas">Causas</button>
+        <button type="button" class="top-tab2" data-catalogo="solucoes">Soluções</button>
+        <button type="button" class="top-tab2" data-catalogo="resultados">Resultados</button>
+        <button type="button" class="top-tab2" data-catalogo="tipos-equipamento">Tipos de equipamento</button>
+      </div>
+
+      <div class="cad-cabecalho">
+        <div class="cad-busca">
+          <input type="search" id="cad-busca" placeholder="Pesquisar..." autocomplete="off">
+        </div>
+        <label class="cad-check-inline">
+          <input type="checkbox" id="cad-incluir-inativos"> Mostrar inativos
+        </label>
+        <select id="cad-filtro-categoria" class="cad-filtro" hidden>
+          <option value="">Todas as categorias</option>
+        </select>
+        <button type="button" class="rel-btn rel-btn-primario" id="cad-novo">+ Novo</button>
+      </div>
+
+      <div class="rel-feedback" id="cad-feedback" hidden></div>
+      <div class="rel-tabela-area" id="cad-tabela"></div>
+    </div>
+
+    <!-- ===== ABA: EQUIPAMENTOS ===== -->
+    <div id="ativos" class="tab-content" data-secao="Equipamentos">
+      <h2 class="aba-legenda">Equipamentos</h2>
+      <hr class="aba-linha">
+
+      <p class="rel-ajuda rel-ajuda-bloco">
+        Equipamento nunca é obrigatório numa O.S. Cadastre apenas os ativos que
+        a operação realmente identifica em campo.
+      </p>
+
+      <div class="cad-cabecalho">
+        <div class="cad-busca">
+          <input type="search" id="eq-busca" placeholder="Código, nome, série ou patrimônio..." autocomplete="off">
+        </div>
+        <select id="eq-filtro-tipo" class="cad-filtro"><option value="">Todos os tipos</option></select>
+        <select id="eq-filtro-ponto" class="cad-filtro"><option value="">Todos os pontos</option></select>
+        <label class="cad-check-inline">
+          <input type="checkbox" id="eq-incluir-inativos"> Mostrar inativos
+        </label>
+        <button type="button" class="rel-btn rel-btn-primario" id="eq-novo">+ Novo equipamento</button>
+      </div>
+
+      <div class="rel-feedback" id="eq-feedback" hidden></div>
+      <div class="rel-tabela-area" id="eq-tabela"></div>
+    </div>
+
+    <!-- ===== ABA: PONTOS E REGIÕES ===== -->
+    <div id="locais" class="tab-content" data-secao="Pontos e Regiões">
+      <h2 class="aba-legenda">Pontos e Regiões</h2>
+      <hr class="aba-linha">
+
+      <div class="opcoes-abas cad-subabas" id="loc-subabas">
+        <button type="button" class="top-tab2 ativo" data-loc="pontos">Pontos de atendimento</button>
+        <button type="button" class="top-tab2" data-loc="regioes">Regiões</button>
+      </div>
+
+      <div class="cad-cabecalho">
+        <div class="cad-busca">
+          <input type="search" id="loc-busca" placeholder="Pesquisar..." autocomplete="off">
+        </div>
+        <button type="button" class="rel-btn rel-btn-primario" id="loc-novo">+ Novo</button>
+      </div>
+
+      <div class="rel-feedback" id="loc-feedback" hidden></div>
+      <div class="rel-tabela-area" id="loc-tabela"></div>
+    </div>
+
+    <!-- ===== ABA: AUDITORIA ===== -->
+    <div id="auditoria" class="tab-content" data-secao="Auditoria">
+      <h2 class="aba-legenda">Auditoria</h2>
+      <hr class="aba-linha">
+
+      <p class="rel-ajuda rel-ajuda-bloco">
+        Registro permanente de quem criou, alterou, ativou ou desativou cada
+        cadastro, e de cada classificação de O.S. Nada é apagado desta lista.
+      </p>
+
+      <div class="cad-cabecalho">
+        <select id="aud-entidade" class="cad-filtro">
+          <option value="">Todas as entidades</option>
+          <option value="categorias_problema">Categorias</option>
+          <option value="problemas">Problemas</option>
+          <option value="causas_problema">Causas</option>
+          <option value="solucoes_problema">Soluções</option>
+          <option value="resultados_os">Resultados</option>
+          <option value="tipos_equipamento">Tipos de equipamento</option>
+          <option value="equipamentos">Equipamentos</option>
+          <option value="ordens_ocorrencias">Classificação de O.S.</option>
+        </select>
+        <button type="button" class="rel-btn rel-btn-secundario" id="aud-atualizar">Atualizar</button>
+      </div>
+
+      <div class="rel-tabela-area" id="aud-tabela"></div>
+      <div class="rel-paginacao" id="aud-paginacao"></div>
+    </div>
+
+  </div>
+
+  <!-- Sidebar direita -->
+  <div class="sidebar-right">
+    <img src="../IMG/Logo.png" alt="Logo" class="logo">
+    <hr class="logo-divider">
+    <div id="sidebar-content"></div>
+  </div>
+
+  <!-- Formulário em painel lateral (tela cheia no celular) -->
+  <div class="rel-detalhe-overlay" id="cad-form-overlay" hidden></div>
+  <aside class="rel-detalhe cad-form-painel" id="cad-form-painel" hidden aria-label="Formulário de cadastro">
+    <div class="rel-detalhe-cabecalho">
+      <strong id="cad-form-titulo">Novo registro</strong>
+      <button type="button" class="rel-filtros-fechar" id="cad-form-fechar" aria-label="Fechar">&times;</button>
+    </div>
+    <form class="cad-form-corpo" id="cad-form">
+      <div id="cad-form-campos"></div>
+      <div class="cad-form-meta" id="cad-form-meta" hidden></div>
+      <div class="cad-form-acoes">
+        <button type="button" class="rel-btn rel-btn-secundario" id="cad-form-cancelar">Cancelar</button>
+        <button type="submit" class="rel-btn rel-btn-primario" id="cad-form-salvar">Salvar</button>
+      </div>
+    </form>
+  </aside>
+
+  <script src="../SCRIPT/config.js?v=2"></script>
+  <script src="../SCRIPT/geral.js?v=4"></script>
+  <script src="../SCRIPT/relatorios/api.js?v=1"></script>
+  <script src="../SCRIPT/cadastros/formulario.js?v=1"></script>
+  <script src="../SCRIPT/cadastros/catalogos.js?v=1"></script>
+  <script src="../SCRIPT/cadastros/equipamentos.js?v=1"></script>
+  <script src="../SCRIPT/cadastros/locais.js?v=1"></script>
+  <script src="../SCRIPT/cadastros/auditoria.js?v=1"></script>
+
+  <div id="info-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <p>Versão de desenvolvimento: 1.0.0</p>
+      <button id="modal-ok-btn">OK</button>
+    </div>
+  </div>
+</body>
+</html>
